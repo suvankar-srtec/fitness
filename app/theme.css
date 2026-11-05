@@ -365,3 +365,10 @@ h1, h2, h3, label, .brand, .gym-brand, .plan-tile-price { color: #111111; }
 .attendance-pill.attendance-absent{background:#b91c1c;color:#ffffff;border:1px solid #b91c1c;font-weight:600}
 .attendance-present-text,.supervisor-daily-stats .attendance-present-text>span,.supervisor-daily-stats .attendance-present-text>strong{color:#15803d}
 .attendance-absent-text,.supervisor-daily-stats .attendance-absent-text>span,.supervisor-daily-stats .attendance-absent-text>strong{color:#b91c1c}
+
+.heading-attendance-search{width:320px;max-width:100%;flex-shrink:1;min-width:0;background:#ffffff}
+.supervisor-task-heading{display:flex;justify-content:space-between;align-items:center;gap:16px}
+@media(max-width:600px){
+ .heading:has(.heading-attendance-search),.supervisor-task-heading:has(.heading-attendance-search){flex-wrap:wrap;gap:12px}
+ .heading-attendance-search{width:100%}
+}
