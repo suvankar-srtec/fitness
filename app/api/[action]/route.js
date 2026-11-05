@@ -1,3 +1,5 @@
+import {sendWapMonkeyCredentials} from '../../../lib/wapmonkey.mjs';
+import {whatsappConfiguration} from '../../../lib/whatsapp-cloud.mjs';
 import {resolveGymLocation} from '../../../lib/gym-locations.mjs';
 import {gatePassApi} from '../../../lib/gate-pass-api';
 import { PAYMENT_MODES } from '../../../lib/payments.mjs';
@@ -71,7 +73,14 @@ try {
   if(attempt.attempts>30)return fail('Too many attempts. Try again later.',429);
   if(!await verifyPassword(b.password,target.password))return fail('Incorrect password',400);
   await sql`DELETE FROM login_attempts WHERE key=${key}`;
-  return response(publicUser(target));
+  const configuration=whatsappConfiguration();
+  if(!configuration||configuration.provider!=='wapmonkey')return fail('Configure WAPMONKEY_API_KEY, WAPMONKEY_DEVICE_TOKEN and APP_URL in Vercel',503);
+  if(typeof b.requestKey!=='string'||!/^[a-zA-Z0-9-]{16,80}$/.test(b.requestKey))return fail('Invalid send request',400);
+  const sendKey=tokenHash('credential-send:'+u.id+':'+b.requestKey);
+  const claimed=await sql`INSERT INTO login_attempts(key,attempts) VALUES(${sendKey},1) ON CONFLICT(key) DO NOTHING RETURNING key`;
+  if(!claimed.length)return fail('This send request is already recorded. Check WapMonkey before sending again.',409);
+  try{const sent=await sendWapMonkeyCredentials(publicUser(target),b.password,{configuration});return response({accepted:true,messageId:sent.messageId});}
+  catch(error){return fail(error.message||'WhatsApp delivery could not be confirmed. Check WapMonkey before retrying.',502);}
  }
  if(action==='users'||action==='supervisors'&&req.method==='PATCH'){
   const ownSupervisor=action==='supervisors'&&u.role==='admin';
