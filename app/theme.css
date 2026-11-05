@@ -350,3 +350,12 @@ h1, h2, h3, label, .brand, .gym-brand, .plan-tile-price { color: #111111; }
  .supervisor-task-topbar .logout-button{display:none}
  .supervisor-task-topbar{padding-bottom:10px}
 }
+
+/* Keep the mobile header in its natural row; the main content fills remaining height. */
+@media(max-width:850px){
+ .management-app,.supervisor-focus-app{grid-template-rows:auto minmax(0,1fr);align-items:start}
+ .management-app>.sidebar,.supervisor-focus-app>.sidebar{grid-row:1;align-self:start;flex-wrap:nowrap;height:auto;min-height:68px;max-height:none;border-right:0;border-bottom:1px solid #e4e4e4}
+ .management-app>main,.supervisor-focus-app>main{grid-row:2;align-self:start;width:100%}
+ .sidebar-identity>.gym-brand{display:block;min-height:0}
+ .management-app .sidebar-identity,.supervisor-focus-app .sidebar-identity{flex-shrink:1}
+}
