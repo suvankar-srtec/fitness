@@ -383,3 +383,31 @@ h1, h2, h3, label, .brand, .gym-brand, .plan-tile-price { color: #111111; }
 .audit-sheet-details{white-space:pre-wrap;min-width:280px;max-width:480px;overflow-wrap:anywhere}
 .audit-sheet td:first-child{min-width:150px;white-space:nowrap}
 .audit-load-more{display:block;margin:16px auto 0}
+
+/* Compact payment cards: five columns on desktop, fewer on smaller screens. */
+@media(min-width:601px) and (max-width:850px){.membership-profile-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;justify-content:stretch}}
+@media(min-width:851px){
+ .membership-profile-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;justify-content:stretch}
+ .membership-profile-card{padding:4px;border-radius:14px;box-shadow:0 2px 5px #00000008}
+ .membership-profile-cover{height:44px;border-radius:10px 10px 0 0}
+ .membership-profile-body{padding:0 10px 10px;border-radius:16px 16px 10px 10px;margin-top:-6px}
+ .membership-profile-header{gap:7px;padding-top:10px;align-items:flex-start}
+ .membership-profile-avatar{width:38px;height:38px;flex-basis:38px;margin-top:-23px;border-width:3px}
+ .membership-profile-avatar>svg{width:30px;height:30px}
+ .membership-profile-identity h2{font-size:14px;line-height:1.3;letter-spacing:0;margin:0 0 7px}
+ .membership-profile-tags{gap:4px}
+ .membership-profile-tags>span{font-size:9px;padding:3px 6px}
+ .membership-profile-status{top:-28px;font-size:8px;padding:4px 6px}
+ .membership-profile-validity{display:block;margin:12px 0 10px;font-size:10px;line-height:1.5}
+ .membership-profile-validity>strong{display:block;font-size:10px;margin-top:3px;overflow-wrap:anywhere}
+ .membership-profile-balances{grid-template-columns:minmax(0,1fr);gap:6px;padding:9px 0}
+ .membership-profile-balances>div{display:flex;align-items:baseline;justify-content:space-between;gap:5px}
+ .membership-profile-balances dt{margin:0;font-size:10px}
+ .membership-profile-balances dd{font-size:12px;letter-spacing:0;text-align:right}
+ .membership-profile-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:9px}
+ .membership-profile-pay{grid-column:1/-1;min-width:0;min-height:32px;padding:7px 5px;font-size:10px;gap:5px;border-radius:7px}
+ .membership-profile-pay svg{width:14px;height:14px;flex-shrink:0}
+ .membership-profile-action{width:100%;height:30px;min-width:0;border-radius:6px;box-shadow:none}
+ .membership-profile-action svg{width:15px;height:15px}
+}
+@media(min-width:1100px){.membership-profile-grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
