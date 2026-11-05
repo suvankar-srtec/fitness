@@ -25,12 +25,20 @@ test('gate-pass status checks start, expiry, inactivity and missing dates',()=>{
 test('generated gate-pass PNG contains a readable QR with member metadata and token',async()=>{
  const photo=await sharp({create:{width:50,height:50,channels:3,background:'#888888'}}).jpeg().toBuffer();
  const image=await renderGatePass({...member,photo:photo.toString('base64')},token);
- const metadata=await sharp(image).metadata();assert.equal(metadata.width,800);assert.equal(metadata.height,1000);
- const {data,info}=await sharp(image).extract({left:190,top:468,width:420,height:420}).greyscale().raw().toBuffer({resolveWithObject:true});
+ const metadata=await sharp(image).metadata();assert.equal(metadata.width,800);assert.equal(metadata.height,920);
+ const {data,info}=await sharp(image).extract({left:190,top:400,width:420,height:420}).greyscale().raw().toBuffer({resolveWithObject:true});
  const bitmap=new BinaryBitmap(new HybridBinarizer(new RGBLuminanceSource(new Uint8ClampedArray(data),info.width,info.height)));
  const decoded=new QRCodeReader().decode(bitmap).getText();assert.equal(gatePassTokenFromQr(decoded),token);const payload=JSON.parse(decoded);assert.equal(payload.name,member.name);assert.equal(payload.plan,member.plan);assert.equal(payload.hasPhoto,true);
 });
 
 test('gate-pass text uses real bundled glyph outlines without system fonts',()=>{
  const svg=outlineGatePassText('<svg><text x="100" y="50" text-anchor="middle" font-size="22" fill="white">Fit Fusion &amp; Gym</text></svg>');assert.ok(!svg.includes('<text'));assert.match(svg,/<path d="M/);assert.match(svg,/fill="white"/);assert.notEqual(outlineGatePassText('<text>A</text>'),outlineGatePassText('<text>B</text>'));
+});
+
+test('full member names produce complete finite glyph outlines',()=>{
+ const text='Suvankar Das';
+ const svg=outlineGatePassText('<text x="205" y="210" font-size="36" font-weight="700" data-max-width="330">'+text+'</text>');
+ assert.doesNotMatch(svg,/NaN|Infinity/);
+ assert.equal((svg.match(/<path /g)||[]).length,text.length);
+ assert.match(svg,/transform="translate/);
 });
