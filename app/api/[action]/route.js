@@ -4,7 +4,7 @@ import {withAuditActor} from '../../../lib/audit-database.mjs';
 import {auditApi} from '../../../lib/audit-api';
 import {sendWapMonkeyCredentials} from '../../../lib/wapmonkey.mjs';
 import {whatsappConfiguration} from '../../../lib/whatsapp-cloud.mjs';
-import {resolveGymLocation} from '../../../lib/gym-locations.mjs';
+import {resolveGymLocation,normalizeLocationName} from '../../../lib/gym-locations.mjs';
 import {gatePassApi} from '../../../lib/gate-pass-api';
 import { PAYMENT_MODES } from '../../../lib/payments.mjs';
 import { isMainSuperadmin, canCreateGymAdmin } from '../../../lib/user-permissions.mjs';
@@ -53,12 +53,13 @@ try {
  if(action==='supervisor-locations'){
   if(req.method!=='GET')return fail('Method not allowed',405);
   if(u.role!=='supervisor')return fail('Supervisor access required',403);
-  return response(await sql`SELECT id,name FROM gym_locations WHERE admin_id=${u.created_by} ORDER BY lower(name)`);
+  return response(await sql`SELECT id,name FROM gym_locations WHERE admin_id=${u.created_by} AND lower(trim(name))<>'main location' ORDER BY lower(name)`);
  }
  if(action==='select-location'){
   if(req.method!=='POST')return fail('Method not allowed',405);
   const body=await req.json();
   if(!canSelectSupervisorLocation(u,body.locationId))return fail('This location is not assigned to you. Select your assigned location.',403);
+  if(!normalizeLocationName(u.location_name))return fail('Ask your gym admin to assign a location.',403);
   const id=selectedLocationId(body.locationId);
   const updated=await sql`UPDATE sessions s SET selected_location_id=${id},expires_at=NOW()+INTERVAL '8 hours' WHERE s.token_hash=${tokenHash(token)} AND s.user_id=${u.id} AND s.expires_at>NOW() AND EXISTS(SELECT 1 FROM users current_user_row JOIN gym_locations l ON l.id=current_user_row.location_id AND l.admin_id=current_user_row.created_by WHERE current_user_row.id=s.user_id AND current_user_row.role='supervisor' AND current_user_row.location_id=${id}) RETURNING s.user_id`;
   if(!updated.length)return fail('Location assignment changed. Sign in again.',401);
@@ -73,7 +74,7 @@ try {
   if(!Number.isInteger(adminId)||adminId<1||adminId>2147483647)return fail('Select a gym',400);
   if(u.role==='admin'&&adminId!==u.id)return fail('Access denied',403);
   const [gym]=await sql`SELECT id FROM users WHERE id=${adminId} AND role='admin'`;if(!gym)return fail('Gym not found',404);
-  return response(await sql`SELECT id,name FROM gym_locations WHERE admin_id=${adminId} ORDER BY lower(name)`);
+  return response(await sql`SELECT id,name FROM gym_locations WHERE admin_id=${adminId} AND lower(trim(name))<>'main location' ORDER BY lower(name)`);
  }
  if(action==='supervisor-summary'){
   if(!u.location_id)return fail('Ask your gym admin to assign your location',403);
