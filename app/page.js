@@ -38,6 +38,12 @@ export default function Home() {
  const [mobileNavOpen,setMobileNavOpen]=useState(false);
  useEffect(()=>{document.title=me?.gymName?me.gymName+' | Gym Management':me?.role==='superadmin'?'Superadmin | Gym Management':'Gym Management';},[me?.gymName,me?.role]);
  useProfileRefresh(me?.id,setMe);
+ useEffect(()=>{
+  if(!me)return;
+  const expired=()=>{setMe(null);setModal(false);setPlanOpen(false);setShare(null);setEditingStaff(null);setGatePassMember(null);setPasswords({});setBusy(false);setError('Session expired. Please sign in again.');};
+  window.addEventListener('gym-session-expired',expired);
+  return()=>window.removeEventListener('gym-session-expired',expired);
+ },[me]);
  const [membershipSearch,setMembershipSearch]=useState('');
  const [editingMember,setEditingMember]=useState(null);
  const [gatePassMember,setGatePassMember]=useState(null);

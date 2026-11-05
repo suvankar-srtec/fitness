@@ -12,7 +12,7 @@ export default function useProfileRefresh(userId,setProfile) {
    try{const profile=await requestApi('me');if(active)setProfile(previous=>{
     if(previous?.id!==userId||profile.id!==userId)return previous;
     return ['name','gymName','gymId','locationId','locationName','gymLogo','phone','role','userId'].some(key=>previous[key]!==profile[key])?{...previous,...profile}:previous;
-   });}catch{/* Keep the current page during temporary background connection failures. */}finally{pending=false;}
+   });}catch(error){if(active&&error.status===401)setProfile(null);}finally{pending=false;}
   }
   const channel=typeof BroadcastChannel!=='undefined'?new BroadcastChannel('gym-user-updates'):null;
   if(channel)channel.onmessage=refresh;
