@@ -5,7 +5,7 @@ import UserEditor from './UserEditor';
 import GymUserCards from './GymUserCards';
 import {requestApi} from '../../lib/api-client.mjs';
 
-export const moduleLabels={membership:'Membership',notifications:'Notifications',attendance:'Attendance',reports:'Reports',users:'Admins'};
+export const moduleLabels={membership:'Membership',notifications:'Audit Report',attendance:'Attendance',reports:'Reports',users:'Admins'};
 export default function ManagementModules({type,members,users,plans,currentUser,searchQuery='',canManageUsers=false,onUsersChanged}) {
  const [query,setQuery]=useState(''),[editing,setEditing]=useState(null),[busy,setBusy]=useState(false),[error,setError]=useState('');
  const actions=type==='users'&&canManageUsers;

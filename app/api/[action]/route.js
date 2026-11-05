@@ -1,3 +1,6 @@
+import {auditCredentialDelivery} from '../../../lib/audit-delivery.mjs';
+import {withAuditActor} from '../../../lib/audit-database.mjs';
+import {auditApi} from '../../../lib/audit-api';
 import {sendWapMonkeyCredentials} from '../../../lib/wapmonkey.mjs';
 import {whatsappConfiguration} from '../../../lib/whatsapp-cloud.mjs';
 import {resolveGymLocation} from '../../../lib/gym-locations.mjs';
@@ -23,9 +26,9 @@ const fail=(error,status)=>response({error},status);
 async function handle(req,context) {
 try {
  const {action}=await context.params;
- if(!['gym-locations','supervisor-summary','gate-pass','gate-pass-scan','whatsapp-gate-pass','login','logout','me','superadmins','admins','members','supervisors','credentials','plans','member-photo','member-registration','memberships','membership-payments','users','attendance'].includes(action))return fail('Not found',404);
+ if(!['audit','gym-locations','supervisor-summary','gate-pass','gate-pass-scan','whatsapp-gate-pass','login','logout','me','superadmins','admins','members','supervisors','credentials','plans','member-photo','member-registration','memberships','membership-payments','users','attendance'].includes(action))return fail('Not found',404);
  if(['POST','PATCH','DELETE'].includes(req.method)) {const origin=req.headers.get('origin');if(origin&&origin!==new URL(req.url).origin)return fail('Invalid origin',403);}
- const sql=database();
+ let sql=database();
  if(action==='login'&&req.method==='POST') {
   const b=await req.json();if(typeof b.userId!=='string'||typeof b.password!=='string'||!b.userId||!b.password)return fail('Enter your user ID and password',400);
   const loginId=b.userId.trim().toLowerCase();
@@ -35,6 +38,7 @@ try {
   const users=await sql`SELECT u.*,(SELECT name FROM gym_locations WHERE id=u.location_id) AS location_name FROM users u WHERE public_id=${loginId}`;
   const u=users[0];if(u?.role==='supervisor'){const [admin]=await sql`SELECT COALESCE(NULLIF(gym_name,''),name) AS gym_name FROM users WHERE id=${u.created_by} AND role='admin'`;u.gym_name=admin?.gym_name||'';}if(!u||u.role==='superadmin'&&!isMainSuperadmin(publicUser(u))||userId(u)!==loginId||!await verifyPassword(b.password,u.password))return fail('Invalid user ID or password',401);
   await sql`DELETE FROM login_attempts WHERE key=${key}`;
+  sql=withAuditActor(sql,u);
   const token=randomBytes(32).toString('hex');
   await sql`INSERT INTO sessions(token_hash,user_id,expires_at) VALUES(${tokenHash(token)},${u.id},NOW()+INTERVAL '8 hours')`;
   const result=response(publicUser(u));result.cookies.set('session',token,{httpOnly:true,sameSite:'strict',secure:process.env.NODE_ENV==='production',path:'/',maxAge:28800});return result;
@@ -42,6 +46,8 @@ try {
  const token=req.cookies.get('session')?.value;if(!token)return fail('Please sign in',401);
  const [u]=await sql`SELECT u.*,(SELECT name FROM gym_locations WHERE id=u.location_id) AS location_name,CASE WHEN u.role='supervisor' THEN (SELECT COALESCE(NULLIF(gym_name,''),name) FROM users WHERE id=u.created_by AND role='admin') ELSE u.gym_name END AS gym_name FROM users u JOIN sessions s ON u.id=s.user_id WHERE s.token_hash=${tokenHash(token)} AND s.expires_at>NOW()`;
  if(!u||u.role==='superadmin'&&!isMainSuperadmin(publicUser(u)))return fail('Please sign in',401);
+ sql=withAuditActor(sql,u);
+ if(action==='audit')return await auditApi(req,u,sql);
  if(['gate-pass','gate-pass-scan','whatsapp-gate-pass'].includes(action))return await gatePassApi(action,req,u,sql);
  if(action==='gym-locations'){
   if(req.method!=='GET')return fail('Method not allowed',405);
@@ -79,8 +85,10 @@ try {
   const sendKey=tokenHash('credential-send:'+u.id+':'+b.requestKey);
   const claimed=await sql`INSERT INTO login_attempts(key,attempts) VALUES(${sendKey},1) ON CONFLICT(key) DO NOTHING RETURNING key`;
   if(!claimed.length)return fail('This send request is already recorded. Check WapMonkey before sending again.',409);
-  try{const sent=await sendWapMonkeyCredentials(publicUser(target),b.password,{configuration});return response({accepted:true,messageId:sent.messageId});}
-  catch(error){return fail(error.message||'WhatsApp delivery could not be confirmed. Check WapMonkey before retrying.',502);}
+  let sent;
+  try{sent=await sendWapMonkeyCredentials(publicUser(target),b.password,{configuration});}
+  catch(error){await auditCredentialDelivery(sql,u,target,error.code==='DELIVERY_UNKNOWN'?'SEND_UNKNOWN':'SEND_FAILED');return fail(error.message||'WhatsApp delivery could not be confirmed. Check WapMonkey before retrying.',502);}
+  await auditCredentialDelivery(sql,u,target,'SEND_ACCEPTED',sent.messageId);return response({accepted:true,messageId:sent.messageId});
  }
  if(action==='users'||action==='supervisors'&&req.method==='PATCH'){
   const ownSupervisor=action==='supervisors'&&u.role==='admin';

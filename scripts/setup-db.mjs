@@ -1,3 +1,4 @@
+import {ensureAuditSchema} from './audit-schema.mjs';
 import {ensureGatePassSchema} from './gate-pass-schema.mjs';
 import {ensureAttendanceSchema} from './attendance-schema.mjs';
 import {ensureSingleSuperadmin} from './single-superadmin.mjs';
@@ -57,5 +58,6 @@ await sql`INSERT INTO users(public_id,name,password,role,gym_name,created_by) VA
 await ensureSingleSuperadmin(sql);
 await ensureGymLocationSchema(sql);
 await sql`UPDATE users SET name='Superadmin' WHERE role='superadmin' AND name='Gym owner'`;
+await ensureAuditSchema(sql);
 console.log('Neon schema ready. Main superadmin user ID: sp00. Existing accounts are preserved.');
 } catch { console.error('Database setup failed. Check the Neon connection string and database access.'); process.exitCode=1; }

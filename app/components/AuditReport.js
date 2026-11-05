@@ -1,0 +1,20 @@
+'use client';
+import {useEffect,useRef,useState} from 'react';
+import {requestApi} from '../../lib/api-client.mjs';
+const categories=['Members','Supervisors','Admins','Superadmin','Plans','Locations','Memberships','Payments','Attendance','Member photos','WhatsApp','Sessions'];
+const operations={INSERT:'Created',UPDATE:'Updated',DELETE:'Deleted',EXISTING:'Existing record',SEND_ACCEPTED:'Message accepted',SEND_FAILED:'Message failed',SEND_UNKNOWN:'Delivery unconfirmed'};
+const dateFormat=new Intl.DateTimeFormat('en-IN',{dateStyle:'medium',timeStyle:'short',timeZone:'Asia/Kolkata'});
+const label=key=>key.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+const value=data=>data===null||data===undefined?'-':typeof data==='boolean'?data?'Yes':'No':typeof data==='object'?JSON.stringify(data):String(data);
+export default function AuditReport(){
+ const [query,setQuery]=useState(''),[entity,setEntity]=useState(''),[records,setRecords]=useState([]),[cursor,setCursor]=useState(null),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[error,setError]=useState('');
+ const [loadedFilter,setLoadedFilter]=useState('');const filter=JSON.stringify([query.trim(),entity]);
+ const currentFilter=useRef(filter);currentFilter.current=filter;
+ useEffect(()=>{
+  let current=true;setLoading(true);setError('');setCursor(null);setRecords([]);
+  const timer=setTimeout(async()=>{try{const data=await requestApi('audit?'+new URLSearchParams({q:query.trim(),entity}));if(current){setRecords(data.records);setCursor(data.nextCursor);setLoadedFilter(filter);}}catch(error){if(current)setError(error.message);}finally{if(current)setLoading(false);}},250);
+  return()=>{current=false;clearTimeout(timer);};
+ },[filter]);
+ async function more(){if(busy||loading||filter!==loadedFilter)return;setBusy(true);setError('');try{const data=await requestApi('audit?'+new URLSearchParams({q:query.trim(),entity,cursor}));if(currentFilter.current===filter){setRecords(previous=>[...previous,...data.records]);setCursor(data.nextCursor);}}catch(error){setError(error.message);}finally{setBusy(false);}}
+ return <section className="audit-report" aria-label="Audit Report"><div className="audit-toolbar"><input type="search" aria-label="Search audit records" placeholder="Search records" value={query} onChange={event=>setQuery(event.target.value)}/><select aria-label="Activity type" value={entity} onChange={event=>setEntity(event.target.value)}><option value="">All activity</option>{categories.map(category=><option key={category}>{category}</option>)}</select></div>{error&&<p className="error" role="alert">{error}</p>}{loading?<div className="loading">Loading...</div>:<div className="audit-records">{records.map(record=>{const before=record.before_data||{},after=record.after_data||{},keys=[...new Set([...Object.keys(before),...Object.keys(after)])].filter(key=>record.operation!=='UPDATE'||JSON.stringify(before[key])!==JSON.stringify(after[key]));return <article className="audit-record" key={record.id}><header><div><span className="badge">{record.entity}</span><h2>{operations[record.operation]||record.operation}{record.record_name?' - '+record.record_name:''}</h2></div><time dateTime={record.occurred_at}>{dateFormat.format(new Date(record.occurred_at))}</time></header><div className="audit-record-meta"><span>{record.record_id}</span>{record.gym_name&&<span>{record.gym_name}</span>}<span>{record.actor_name}{record.actor_user_id?' ('+record.actor_user_id+')':''}</span></div><details><summary>View details</summary><dl>{keys.map(key=><div key={key}><dt>{label(key)}</dt><dd>{record.operation==='UPDATE'?<><span className="audit-old">{value(before[key])}</span><span aria-label="changed to"> &rarr; </span><span>{value(after[key])}</span></>:value(record.operation==='DELETE'?before[key]:after[key])}</dd></div>)}</dl></details></article>;})}{!records.length&&!error&&<div className="empty">No audit records</div>}</div>}{cursor&&!loading&&<button type="button" className="secondary audit-load-more" disabled={busy||filter!==loadedFilter} onClick={more}>{busy?'Loading...':'Load more'}</button>}</section>;
+}
