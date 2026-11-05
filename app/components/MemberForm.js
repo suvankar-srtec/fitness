@@ -1,0 +1,54 @@
+'use client';
+import { useEffect, useRef, useState } from 'react';
+import GymLocationInput from './GymLocationInput';
+import PhoneInput from './PhoneInput';
+import { membershipEndDate, validateMember, ageFromDateOfBirth, memberToday } from '../../lib/members.mjs';
+import { requestApi } from '../../lib/api-client.mjs';
+import { PAYMENT_MODES } from '../../lib/payments.mjs';
+
+function today(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+export default function MemberForm({gymAdminId,plans,member=null,onSave,onCancel}) {
+ const [planId,setPlanId]=useState(member?.plan_id?String(member.plan_id):''),[from,setFrom]=useState(member?.valid_from||today),[to,setTo]=useState(member?.valid_to||''),[photo,setPhoto]=useState(member?.profilePictureUrl||null),[error,setError]=useState(''),[busy,setBusy]=useState(false);
+ const [dob,setDob]=useState(member?.dob||''),[age,setAge]=useState(member?.dob?ageFromDateOfBirth(member.dob):member?.age??'');
+ const [photoChanged,setPhotoChanged]=useState(false);
+ const [step,setStep]=useState('details'),[draft,setDraft]=useState(null),[paymentMode,setPaymentMode]=useState('');
+ const selectedPlan=plans.find(plan=>String(plan.id)===planId);
+ const dialog=useRef(null),paymentSelect=useRef(null);
+ useEffect(()=>{if(step==='payment'){dialog.current?.scrollTo(0,0);paymentSelect.current?.focus();}},[step]);
+ const fileInput=useRef(null),reservationRequest=useRef(null);
+ const [registration,setRegistration]=useState(member?{registrationNo:member.memberId}:null);
+ useEffect(()=>{if(member)return;let current=true;if(!reservationRequest.current)reservationRequest.current=requestApi('member-registration','POST');reservationRequest.current.then(value=>{if(current)setRegistration(value);}).catch(e=>{if(current)setError(e.message);});return()=>{current=false;};},[member]);
+ useEffect(()=>{const escape=e=>{if(e.key==='Escape'&&!busy)onCancel();};document.addEventListener('keydown',escape);return()=>document.removeEventListener('keydown',escape);},[busy,onCancel]);
+ function changeDates(start,plan){setTo(membershipEndDate(start,plans.find(p=>String(p.id)===plan)?.duration_days));}
+ async function choosePhoto(e){setPhotoChanged(true);const file=e.target.files?.[0];setError('');if(!file){setPhoto(null);return;}if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>2*1024*1024){e.target.value='';setPhoto(null);setError('Choose a JPG, PNG or WebP image up to 2 MB');return;}try{const data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file);});setPhoto(data);}catch{setError('Unable to read picture');}}
+ async function submit(event){
+  event.preventDefault();setError('');
+  if(step==='details'){
+   const data={...Object.fromEntries(new FormData(event.currentTarget)),profilePicture:member&&!photoChanged?undefined:photo,registrationToken:registration?.registrationToken};
+   if(member){data.planId=member.plan_id;data.validFrom=member.valid_from;data.validTo=member.valid_to;}
+   const validated=validateMember(data);if(validated.error){setError(validated.error);return;}
+   if(member){setBusy(true);try{await onSave(data);}catch(error){setError(error.message);}finally{setBusy(false);}return;}
+   if(!selectedPlan||selectedPlan.amount==null){setError('Select a plan with an amount');return;}
+   setDraft(data);setStep('payment');return;
+  }
+  if(!PAYMENT_MODES.includes(paymentMode)){setError('Select a payment mode');return;}
+  setBusy(true);try{await onSave({...draft,paymentMode});}catch(error){setError(error.message);}finally{setBusy(false);}
+ }
+
+ return <div className="modal-overlay member-form-overlay"><section ref={dialog} className={'modal-card member-registration '+(step==='payment'?'member-payment-step':'')} role="dialog" aria-modal="true" aria-labelledby="memberFormTitle"><form onSubmit={submit}><header className="member-form-header"><h2 id="memberFormTitle">{member?'Edit Member':step==='payment'?'Member Payment':'Add Member'}</h2><button type="button" className="member-close" aria-label="Close registration" disabled={busy} onClick={onCancel}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button></header><fieldset className="member-form-grid" hidden={step==='payment'} disabled={step==='payment'}>
+ <div className="member-field"><label htmlFor="registration">Registration No</label><input id="registration" value={registration?.registrationNo||'Loading...'} readOnly/></div>
+ <div className="member-field"><label htmlFor="memberName">Name<span className="required">*</span></label><input id="memberName" name="name" required maxLength={100} defaultValue={member?.name||''} autoFocus/></div>
+ <div className="member-field"><label htmlFor="memberPhone">Phone<span className="required">*</span></label><PhoneInput id="memberPhone" defaultValue={member?.phone||''}/></div>
+ <div className="member-field"><label htmlFor="gender">Gender</label><select id="gender" name="gender" defaultValue={member?.gender||'Male'}><option>Male</option><option>Female</option><option>Other</option></select></div>
+ <div className="member-field member-birth-field"><div><label htmlFor="memberDob">Date of birth</label><input id="memberDob" name="dob" type="date" value={dob} max={memberToday()} onChange={event=>{setDob(event.target.value);setAge(ageFromDateOfBirth(event.target.value)??'');}}/></div><div><label htmlFor="age">Age</label><input id="age" name="age" value={age} readOnly aria-label="Calculated age"/></div></div>
+ <div className="member-field"><label htmlFor="memberStatus">Status</label><select id="memberStatus" name="status" defaultValue={member?.status||'Active'}><option>Active</option><option>Inactive</option></select></div>
+ <div className="member-field"><label htmlFor="heightFt">Height (ft)</label><input id="heightFt" name="heightFt" defaultValue={member?.height_ft??''} type="number" min="0.01" max="12" step="0.01"/></div>
+ <div className="member-field"><label htmlFor="weightKg">Weight (kg)</label><input id="weightKg" name="weightKg" defaultValue={member?.weight_kg??''} type="number" min="0.01" max="1000" step="0.01"/></div>
+ <div className="member-field"><label htmlFor="interestedArea">Interested Area</label><input id="interestedArea" name="interestedArea" defaultValue={member?.interested_area||''} maxLength={200}/></div>
+ <div className="member-field"><label htmlFor="membership">Plan<span className="required">*</span></label><select id="membership" name="planId" disabled={!!member} required value={planId} onChange={e=>{setPlanId(e.target.value);changeDates(from,e.target.value);}}><option value="" disabled>{plans.length?'Select plan':'No plans'}</option>{member&&!plans.some(plan=>String(plan.id)===String(member.plan_id))&&<option value={member.plan_id}>{member.plan}</option>}{plans.map(p=><option key={p.id} value={p.id} disabled={p.amount==null}>{p.name}</option>)}</select></div>
+ <div className="member-field"><label htmlFor="validFrom">Membership Valid From<span className="required">*</span></label><input id="validFrom" readOnly={!!member} type="date" name="validFrom" required value={from} onChange={e=>{setFrom(e.target.value);changeDates(e.target.value,planId);}}/></div>
+ <div className="member-field"><label htmlFor="validTo">To<span className="required">*</span></label><input id="validTo" readOnly={!!member} type="date" name="validTo" min={from} required value={to} onChange={e=>setTo(e.target.value)}/></div>
+ <div className="member-field"><label htmlFor="memberLocation">Location *</label><GymLocationInput id="memberLocation" gymAdminId={gymAdminId} defaultValue={draft?.locationName||member?.locationName||''}/></div><div className="member-field member-address"><label htmlFor="address">Address</label><textarea id="address" name="address" defaultValue={member?.address||''} maxLength={1000} rows={1}/></div>
+ <div className="member-field member-photo-field"><label htmlFor="profilePicture">Profile Picture</label><div className="photo-upload compact-photo-upload">{photo?<img src={photo} alt="Profile preview"/>:<span className="photo-placeholder" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="2"/><path d="m3 17 6-6 5 5 3-3 4 4"/></svg></span>}<input ref={fileInput} id="profilePicture" type="file" accept="image/jpeg,image/png,image/webp" onChange={choosePhoto} hidden/><button type="button" className="photo-select secondary" onClick={()=>fileInput.current.click()}>Upload</button><span className="photo-filename" title={photo?fileInput.current?.files?.[0]?.name:undefined}>{photo?(fileInput.current?.files?.[0]?.name||'Current photo'):'No file selected'}</span>{photo&&<button type="button" className="photo-remove secondary" aria-label="Remove profile picture" onClick={()=>{setPhotoChanged(true);setPhoto(null);fileInput.current.value='';}}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button>}</div></div>
+ </fieldset>{step==='payment'&&<section className="member-payment-content" aria-label="Member payment"><dl className="member-payment-summary"><div><dt>Member</dt><dd>{draft?.name}</dd></div><div><dt>Registration No</dt><dd>{registration?.registrationNo}</dd></div><div><dt>Plan</dt><dd>{selectedPlan?.name}</dd></div><div><dt>Amount</dt><dd>{new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR'}).format(Number(selectedPlan?.amount||0))}</dd></div></dl><label htmlFor="memberPaymentMode">Payment mode</label><select ref={paymentSelect} id="memberPaymentMode" required value={paymentMode} onChange={event=>setPaymentMode(event.target.value)}><option value="" disabled>Select payment mode</option>{PAYMENT_MODES.map(mode=><option key={mode}>{mode}</option>)}</select></section>}<footer className="member-form-footer"><div className="error" role="alert">{error}</div><div className="actions"><button type="button" className="secondary" disabled={busy} onClick={onCancel}>Cancel</button>{step==='payment'&&<button type="button" className="secondary" disabled={busy} onClick={()=>{setStep('details');setError('');}}>Back</button>}<button className="save-member" disabled={busy||(!member&&(!plans.length||!registration))}>{busy?'Saving...':member?'Save Changes':step==='payment'?'Save Member':'Save and Next'}</button></div></footer></form></section></div>;
+}

@@ -1,0 +1,16 @@
+data/
+node_modules/
+.next/
+.env*
+.env.local
+.env.example
+    
+.npm-cache/
+.tmp*
+*.tmp
+*.log
+*.tsbuildinfo
+coverage/
+test-results/
+playwright-report/
+.vercel/

@@ -1,0 +1,22 @@
+# Generated locally; installed or rebuilt by the deployment platform.
+node_modules/
+.next/
+.npm-cache/
+.tmp*
+coverage/
+test-results/
+playwright-report/
+*.log
+*.tmp
+*.tsbuildinfo
+
+# Local secrets, database backups, tooling, and test-only source.
+.env*
+.git/
+.agents/
+.codex/
+data/
+legacy/
+tests/
+AGENTS.md
+README.md
