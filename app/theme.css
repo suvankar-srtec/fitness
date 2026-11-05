@@ -461,3 +461,9 @@ h1, h2, h3, label, .brand, .gym-brand, .plan-tile-price { color: #111111; }
 .member-directory-table .membership-validity{white-space:nowrap}
 .member-directory-table .row-actions{flex-wrap:nowrap;white-space:nowrap}
 .member-directory-table .row-actions>button{flex-shrink:0;white-space:nowrap}
+
+/* Square automatic scanner with mobile camera focus. */
+.supervisor-focus-app .camera-preview{aspect-ratio:1 / 1;height:auto;max-height:none;width:100%}
+.supervisor-focus-app .camera-preview video{position:absolute;inset:0}
+.supervisor-focus-app .scanner-status:empty{display:none}
+@media(max-width:850px){.supervisor-scanner-stats{display:none}.supervisor-scanner-station{padding:10px}}
