@@ -331,3 +331,22 @@ h1, h2, h3, label, .brand, .gym-brand, .plan-tile-price { color: #111111; }
  .user-editor-header,.user-editor-footer{padding:12px 24px}
  .staff-create input,.staff-create select,.user-editor-field input,.user-editor-field select{min-height:38px;padding-block:8px}
 }
+
+/* Compact mobile identity header shared by all staff roles. */
+.sidebar-identity{min-width:0;flex-shrink:0}
+.sidebar-identity>.gym-brand{font-size:19px;font-weight:700;line-height:1.25;letter-spacing:-.4px}
+.management-app .sidebar-identity{padding:0 17px}
+.mobile-role-label,.sidebar .mobile-header-logout{display:none}
+@media(max-width:850px){
+ .management-app>.sidebar,.supervisor-focus-app>.sidebar{display:flex;flex-direction:row;align-items:center;gap:10px;padding:12px 16px}
+ .management-app .sidebar-identity,.supervisor-focus-app .sidebar-identity{flex:1;min-width:0;padding:0}
+ .sidebar-identity>.gym-brand{font-size:17px;line-height:1.2;margin:0}
+ .mobile-role-label{display:block;font-size:11px;line-height:1.4;margin-top:4px;color:#666666}
+ .sidebar .mobile-header-logout{display:block;flex-shrink:0;width:auto;margin:0;padding:10px 13px;border:0;border-radius:8px;background:#c62828;color:white;font-size:12px;font-weight:600}
+ .sidebar .mobile-header-logout:hover{background:#a91f1f;color:white}
+ .management-app .sidebar .mobile-menu-toggle{margin:0;flex-shrink:0}
+ .management-app .sidebar .workspace-footer,.supervisor-focus-app .sidebar footer{display:none}
+ .management-app .workspace-topbar{display:none}
+ .supervisor-task-topbar .logout-button{display:none}
+ .supervisor-task-topbar{padding-bottom:10px}
+}
