@@ -359,3 +359,9 @@ h1, h2, h3, label, .brand, .gym-brand, .plan-tile-price { color: #111111; }
  .sidebar-identity>.gym-brand{display:block;min-height:0}
  .management-app .sidebar-identity,.supervisor-focus-app .sidebar-identity{flex-shrink:1}
 }
+
+/* Attendance status colors apply at every screen size. */
+.attendance-pill.attendance-present{background:#15803d;color:#ffffff;border:1px solid #15803d;font-weight:600}
+.attendance-pill.attendance-absent{background:#b91c1c;color:#ffffff;border:1px solid #b91c1c;font-weight:600}
+.attendance-present-text,.supervisor-daily-stats .attendance-present-text>span,.supervisor-daily-stats .attendance-present-text>strong{color:#15803d}
+.attendance-absent-text,.supervisor-daily-stats .attendance-absent-text>span,.supervisor-daily-stats .attendance-absent-text>strong{color:#b91c1c}
