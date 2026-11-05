@@ -1,3 +1,4 @@
+import {ensureSupervisorLocationSession} from './supervisor-location-session.mjs';
 import {ensureAuditSchema} from './audit-schema.mjs';
 import {ensureGatePassSchema} from './gate-pass-schema.mjs';
 import {ensureAttendanceSchema} from './attendance-schema.mjs';
@@ -50,6 +51,7 @@ await sql`CREATE INDEX IF NOT EXISTS assignments_admin ON membership_assignments
 await sql`CREATE TABLE IF NOT EXISTS sessions (token_hash TEXT PRIMARY KEY, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, expires_at TIMESTAMPTZ NOT NULL)`;
 await sql`CREATE INDEX IF NOT EXISTS member_admin ON members(admin_id)`;
 await sql`CREATE TABLE IF NOT EXISTS login_attempts (key TEXT PRIMARY KEY, attempts INTEGER NOT NULL, started_at TIMESTAMPTZ NOT NULL DEFAULT NOW())`;
+await ensureSupervisorLocationSession(sql);
 await ensureGatePassSchema(sql);
 await ensureMembershipIntegrity(sql);
 await migratePublicIds(sql);

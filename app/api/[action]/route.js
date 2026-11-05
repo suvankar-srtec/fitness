@@ -1,3 +1,4 @@
+import {supervisorNeedsLocation,canSelectSupervisorLocation,selectedLocationId} from '../../../lib/supervisor-location.mjs';
 import {auditCredentialDelivery} from '../../../lib/audit-delivery.mjs';
 import {withAuditActor} from '../../../lib/audit-database.mjs';
 import {auditApi} from '../../../lib/audit-api';
@@ -21,12 +22,13 @@ import { hashPassword, verifyPassword, tokenHash } from '../../../lib/password.m
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
 const userId=u=>u.public_id;
+const sessionProfile=u=>({...publicUser(u),requiresLocationSelection:supervisorNeedsLocation(u)});
 const response=(data,status=200)=>NextResponse.json(data,{status,headers:{'Cache-Control':'no-store'}});
 const fail=(error,status)=>response({error},status);
 async function handle(req,context) {
 try {
  const {action}=await context.params;
- if(!['audit','gym-locations','supervisor-summary','gate-pass','gate-pass-scan','whatsapp-gate-pass','login','logout','me','superadmins','admins','members','supervisors','credentials','plans','member-photo','member-registration','memberships','membership-payments','users','attendance'].includes(action))return fail('Not found',404);
+ if(!['select-location','supervisor-locations','audit','gym-locations','supervisor-summary','gate-pass','gate-pass-scan','whatsapp-gate-pass','login','logout','me','superadmins','admins','members','supervisors','credentials','plans','member-photo','member-registration','memberships','membership-payments','users','attendance'].includes(action))return fail('Not found',404);
  if(['POST','PATCH','DELETE'].includes(req.method)) {const origin=req.headers.get('origin');if(origin&&origin!==new URL(req.url).origin)return fail('Invalid origin',403);}
  let sql=database();
  if(action==='login'&&req.method==='POST') {
@@ -40,13 +42,28 @@ try {
   await sql`DELETE FROM login_attempts WHERE key=${key}`;
   sql=withAuditActor(sql,u);
   const token=randomBytes(32).toString('hex');
-  await sql`INSERT INTO sessions(token_hash,user_id,expires_at) VALUES(${tokenHash(token)},${u.id},NOW()+INTERVAL '8 hours')`;
-  const result=response(publicUser(u));result.cookies.set('session',token,{httpOnly:true,sameSite:'strict',secure:process.env.NODE_ENV==='production',path:'/',maxAge:28800});return result;
+  await sql`INSERT INTO sessions(token_hash,user_id,expires_at) VALUES(${tokenHash(token)},${u.id},NOW()+(${u.role==='supervisor'?300:28800}*INTERVAL '1 second'))`;
+  const result=response(sessionProfile(u));result.cookies.set('session',token,{httpOnly:true,sameSite:'strict',secure:process.env.NODE_ENV==='production',path:'/',maxAge:u.role==='supervisor'?300:28800});return result;
  }
  const token=req.cookies.get('session')?.value;if(!token)return fail('Please sign in',401);
- const [u]=await sql`SELECT u.*,(SELECT name FROM gym_locations WHERE id=u.location_id) AS location_name,CASE WHEN u.role='supervisor' THEN (SELECT COALESCE(NULLIF(gym_name,''),name) FROM users WHERE id=u.created_by AND role='admin') ELSE u.gym_name END AS gym_name FROM users u JOIN sessions s ON u.id=s.user_id WHERE s.token_hash=${tokenHash(token)} AND s.expires_at>NOW()`;
+ const [u]=await sql`SELECT u.*,s.selected_location_id AS session_location_id,(SELECT name FROM gym_locations WHERE id=u.location_id) AS location_name,CASE WHEN u.role='supervisor' THEN (SELECT COALESCE(NULLIF(gym_name,''),name) FROM users WHERE id=u.created_by AND role='admin') ELSE u.gym_name END AS gym_name FROM users u JOIN sessions s ON u.id=s.user_id WHERE s.token_hash=${tokenHash(token)} AND s.expires_at>NOW()`;
  if(!u||u.role==='superadmin'&&!isMainSuperadmin(publicUser(u)))return fail('Please sign in',401);
  sql=withAuditActor(sql,u);
+ if(supervisorNeedsLocation(u)&&!['me','logout','select-location','supervisor-locations'].includes(action))return fail('Select your assigned location to continue',403);
+ if(action==='supervisor-locations'){
+  if(req.method!=='GET')return fail('Method not allowed',405);
+  if(u.role!=='supervisor')return fail('Supervisor access required',403);
+  return response(await sql`SELECT id,name FROM gym_locations WHERE admin_id=${u.created_by} ORDER BY lower(name)`);
+ }
+ if(action==='select-location'){
+  if(req.method!=='POST')return fail('Method not allowed',405);
+  const body=await req.json();
+  if(!canSelectSupervisorLocation(u,body.locationId))return fail('This location is not assigned to you. Select your assigned location.',403);
+  const id=selectedLocationId(body.locationId);
+  const updated=await sql`UPDATE sessions s SET selected_location_id=${id},expires_at=NOW()+INTERVAL '8 hours' WHERE s.token_hash=${tokenHash(token)} AND s.user_id=${u.id} AND s.expires_at>NOW() AND EXISTS(SELECT 1 FROM users current_user_row JOIN gym_locations l ON l.id=current_user_row.location_id AND l.admin_id=current_user_row.created_by WHERE current_user_row.id=s.user_id AND current_user_row.role='supervisor' AND current_user_row.location_id=${id}) RETURNING s.user_id`;
+  if(!updated.length)return fail('Location assignment changed. Sign in again.',401);
+  const result=response(sessionProfile({...u,session_location_id:id}));result.cookies.set('session',token,{httpOnly:true,sameSite:'strict',secure:process.env.NODE_ENV==='production',path:'/',maxAge:28800});return result;
+ }
  if(action==='audit')return await auditApi(req,u,sql);
  if(['gate-pass','gate-pass-scan','whatsapp-gate-pass'].includes(action))return await gatePassApi(action,req,u,sql);
  if(action==='gym-locations'){
@@ -68,7 +85,7 @@ try {
  }
  if(action==='attendance')return await attendanceApi(req,u,sql);
  if(['memberships','membership-payments'].includes(action))return await membershipApi(action,req,u,sql);
- if(action==='me'&&req.method==='GET')return response(publicUser(u));
+ if(action==='me'&&req.method==='GET')return response(sessionProfile(u));
  if(action==='logout'&&req.method==='POST'){await sql`DELETE FROM sessions WHERE token_hash=${tokenHash(token)}`;const result=response({ok:true});result.cookies.set('session','',{httpOnly:true,sameSite:'strict',secure:process.env.NODE_ENV==='production',path:'/',maxAge:0});return result;}
  if(action==='credentials'&&req.method==='POST'){
   const b=await req.json();if(!Number.isInteger(b.id)||typeof b.password!=='string'||!b.password)return fail('Enter the assigned password',400);
