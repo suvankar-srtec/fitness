@@ -1,3 +1,4 @@
+import {outlineGatePassText} from '../lib/gate-pass-font.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import sharp from 'sharp';
@@ -28,4 +29,8 @@ test('generated gate-pass PNG contains a readable QR with member metadata and to
  const {data,info}=await sharp(image).extract({left:190,top:604,width:420,height:420}).greyscale().raw().toBuffer({resolveWithObject:true});
  const bitmap=new BinaryBitmap(new HybridBinarizer(new RGBLuminanceSource(new Uint8ClampedArray(data),info.width,info.height)));
  const decoded=new QRCodeReader().decode(bitmap).getText();assert.equal(gatePassTokenFromQr(decoded),token);const payload=JSON.parse(decoded);assert.equal(payload.name,member.name);assert.equal(payload.plan,member.plan);assert.equal(payload.hasPhoto,true);
+});
+
+test('gate-pass text uses real bundled glyph outlines without system fonts',()=>{
+ const svg=outlineGatePassText('<svg><text x="100" y="50" text-anchor="middle" font-size="22" fill="white">Fit Fusion &amp; Gym</text></svg>');assert.ok(!svg.includes('<text'));assert.match(svg,/<path d="M/);assert.match(svg,/fill="white"/);assert.notEqual(outlineGatePassText('<text>A</text>'),outlineGatePassText('<text>B</text>'));
 });
