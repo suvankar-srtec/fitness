@@ -467,3 +467,10 @@ h1, h2, h3, label, .brand, .gym-brand, .plan-tile-price { color: #111111; }
 .supervisor-focus-app .camera-preview video{position:absolute;inset:0}
 .supervisor-focus-app .scanner-status:empty{display:none}
 @media(max-width:850px){.supervisor-scanner-stats{display:none}.supervisor-scanner-station{padding:10px}}
+
+@media(min-width:1000px){
+ .modal-card.gym-admin-form{width:min(1080px,calc(100vw - 64px));max-width:1080px}
+ .gym-admin-form.staff-create>form,.gym-admin-form .user-editor-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .gym-admin-form .phone-input,.gym-admin-form .gym-logo-input{min-width:0}
+ .gym-admin-form .gym-logo-input input[type=file]{min-width:0;width:100%;font-size:11px}
+}

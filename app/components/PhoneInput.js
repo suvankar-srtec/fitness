@@ -5,7 +5,7 @@ import * as flags from 'country-flag-icons/react/3x2';
 
 const names = new Intl.DisplayNames(['en'], {type:'region'});
 const countries = getCountries().sort((a,b)=>names.of(a).localeCompare(names.of(b),'en'));
-export default function PhoneInput({id,defaultValue='',required=true}) {
+export default function PhoneInput({id,defaultValue='',required=true,name='phone',countryName='country'}) {
  const [initial]=useState(()=>{
   const parsed=parsePhoneNumberFromString(defaultValue);
   const country=parsed?.country||countries.find(code=>getCountryCallingCode(code)===parsed?.countryCallingCode)||'IN';
@@ -15,11 +15,11 @@ export default function PhoneInput({id,defaultValue='',required=true}) {
  const menu=useRef(null);
  const Flag=flags[country];
  return <div className="phone-input">
-  <input type="hidden" name="country" value={country}/>
+  <input type="hidden" name={countryName} value={country}/>
   <details ref={menu} className="country-picker">
    <summary aria-label={`Country: ${names.of(country)} +${getCountryCallingCode(country)}`}><Flag aria-hidden="true"/> +{getCountryCallingCode(country)} <span aria-hidden="true">▾</span></summary>
    <div className="country-menu">{countries.map(code=>{const Icon=flags[code];return <button type="button" key={code} onClick={()=>{setCountry(code);menu.current.open=false;}} aria-pressed={code===country}>{Icon&&<Icon aria-hidden="true"/>}<span>{names.of(code)}</span><span>+{getCountryCallingCode(code)}</span></button>;})}</div>
   </details>
-  <input id={id} name="phone" type="tel" autoComplete="tel-national" required={required} defaultValue={initial.number} pattern="[0-9 ()-]+" maxLength={20}/>
+  <input id={id} name={name} type="tel" autoComplete="tel-national" required={required} defaultValue={initial.number} pattern="[0-9 ()-]+" maxLength={20}/>
  </div>;
 }

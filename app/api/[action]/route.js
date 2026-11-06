@@ -1,3 +1,4 @@
+import {normalizeGymBranding} from '../../../lib/gym-branding.mjs';
 import {supervisorNeedsLocation,canSelectSupervisorLocation,selectedLocationId} from '../../../lib/supervisor-location.mjs';
 import {auditCredentialDelivery} from '../../../lib/audit-delivery.mjs';
 import {withAuditActor} from '../../../lib/audit-database.mjs';
@@ -124,6 +125,7 @@ try {
   if(typeof b.name!=='string'||!b.name.trim()||b.name.trim().length>100)return fail('Enter a name',400);
   const phone=b.phone===''&&target.role==='superadmin'?'':normalizeWhatsAppPhone(b.phone,b.country);if(phone===null)return fail('Invalid phone number',400);
   if(target.role==='admin'&&(typeof b.gymName!=='string'||!b.gymName.trim()||b.gymName.trim().length>100))return fail('Enter a gym name',400);
+  const branding=target.role==='admin'?normalizeGymBranding(b):null;
   let gymAdminId=target.created_by,assignedLocation=null;
   if(target.role==='supervisor'){
    gymAdminId=Number(b.gymAdminId??target.created_by);
@@ -135,8 +137,9 @@ try {
   if(b.password!==undefined&&typeof b.password!=='string')return fail('Invalid password',400);
   const password=b.password?await hashPassword(b.password):null;
   const gymLogo=target.role==='admin'&&b.gymLogo!==undefined?await normalizeMemberPicture(b.gymLogo):null;
+  if(target.role==='admin'&&!gymLogo)return fail('Upload a gym logo',400);
   const [updated]=await sql.transaction([
-   sql`UPDATE users SET name=${b.name.trim()},phone=${phone},location_id=CASE WHEN role='supervisor' THEN ${assignedLocation?.id||null} ELSE location_id END,gym_logo=CASE WHEN role='admin' AND ${b.gymLogo!==undefined} THEN ${gymLogo?'data:image/jpeg;base64,'+gymLogo:null} ELSE gym_logo END,created_by=CASE WHEN role='supervisor' THEN ${gymAdminId} ELSE created_by END,gym_name=CASE WHEN role='admin' THEN ${target.role==='admin'?b.gymName.trim():null} WHEN role='superadmin' THEN NULL ELSE gym_name END,password=COALESCE(${password},password) WHERE id=${b.id} AND (${!ownSupervisor} OR role='supervisor' AND created_by=${u.id}) RETURNING id,public_id,name,role,phone,gym_name,created_by,gym_logo,location_id`,
+   sql`UPDATE users SET name=${b.name.trim()},phone=${phone},gym_address=CASE WHEN role='admin' THEN ${branding?.address||''} ELSE gym_address END,gym_phone=CASE WHEN role='admin' THEN ${branding?.phone||''} ELSE gym_phone END,gym_website=CASE WHEN role='admin' THEN ${branding?.website||''} ELSE gym_website END,location_id=CASE WHEN role='supervisor' THEN ${assignedLocation?.id||null} ELSE location_id END,gym_logo=CASE WHEN role='admin' AND ${b.gymLogo!==undefined} THEN ${gymLogo?'data:image/jpeg;base64,'+gymLogo:null} ELSE gym_logo END,created_by=CASE WHEN role='supervisor' THEN ${gymAdminId} ELSE created_by END,gym_name=CASE WHEN role='admin' THEN ${target.role==='admin'?b.gymName.trim():null} WHEN role='superadmin' THEN NULL ELSE gym_name END,password=COALESCE(${password},password) WHERE id=${b.id} AND (${!ownSupervisor} OR role='supervisor' AND created_by=${u.id}) RETURNING id,public_id,name,role,phone,gym_name,gym_address,gym_phone,gym_website,created_by,gym_logo,location_id`,
    sql`DELETE FROM sessions WHERE user_id=${b.id} AND EXISTS(SELECT 1 FROM users target_user WHERE target_user.id=${b.id} AND (${!ownSupervisor} OR target_user.role='supervisor' AND target_user.created_by=${u.id})) AND (${password}::text IS NOT NULL OR ${target.role==='supervisor'&&(gymAdminId!==target.created_by||assignedLocation.id!==target.location_id)}) AND token_hash<>${tokenHash(token)}`
   ]);
   return updated.length?response(publicUser({...updated[0],location_name:assignedLocation?.name})):fail('User not found',404);
@@ -159,8 +162,8 @@ try {
  if(action==='admins') {
   if(req.method==='POST'&&!canCreateGymAdmin(publicUser(u)))return fail('This account cannot create gym admins',403);
   if(u.role!=='superadmin')return fail('Superadmin access required',403);
-  if(req.method==='GET')return response((await sql`SELECT id,public_id,name,role,phone,gym_name,created_by,gym_logo FROM users WHERE role='admin' ORDER BY id DESC`).map(publicUser));
-  if(req.method==='POST'){const b=await req.json();if(typeof b.name!=='string'||!b.name.trim()||b.name.length>100||typeof b.password!=='string'||!b.password.length)return fail('Enter a name and a password',400);if(typeof b.gymName!=='string'||!b.gymName.trim()||b.gymName.trim().length>100)return fail('Enter a gym name',400);const phone=normalizeWhatsAppPhone(b.phone,b.country);if(!phone)return fail('Invalid phone number',400);const password=await hashPassword(b.password);const gymLogo=await normalizeMemberPicture(b.gymLogo);const [admin]=await sql`INSERT INTO users(name,password,role,phone,created_by,gym_name,gym_logo) VALUES(${b.name.trim()},${password},'admin',${phone},${u.id},${b.gymName.trim()},${gymLogo?'data:image/jpeg;base64,'+gymLogo:null}) RETURNING id,public_id,name,role,phone,gym_name,created_by,gym_logo`;return response(publicUser(admin),201);}
+  if(req.method==='GET')return response((await sql`SELECT id,public_id,name,role,phone,gym_name,gym_address,gym_phone,gym_website,created_by,gym_logo FROM users WHERE role='admin' ORDER BY id DESC`).map(publicUser));
+  if(req.method==='POST'){const b=await req.json();if(typeof b.name!=='string'||!b.name.trim()||b.name.length>100||typeof b.password!=='string'||!b.password.length)return fail('Enter a name and a password',400);if(typeof b.gymName!=='string'||!b.gymName.trim()||b.gymName.trim().length>100)return fail('Enter a gym name',400);const phone=normalizeWhatsAppPhone(b.phone,b.country);if(!phone)return fail('Invalid phone number',400);const password=await hashPassword(b.password);const gymLogo=await normalizeMemberPicture(b.gymLogo);if(!gymLogo)return fail('Upload a gym logo',400);const branding=normalizeGymBranding(b);const [admin]=await sql`INSERT INTO users(name,password,role,phone,created_by,gym_name,gym_logo,gym_address,gym_phone,gym_website) VALUES(${b.name.trim()},${password},'admin',${phone},${u.id},${b.gymName.trim()},${'data:image/jpeg;base64,'+gymLogo},${branding.address},${branding.phone},${branding.website}) RETURNING id,public_id,name,role,phone,gym_name,gym_address,gym_phone,gym_website,created_by,gym_logo`;return response(publicUser(admin),201);}
  }
  if(action==='supervisors') {
   if(!['superadmin','admin'].includes(u.role))return fail('Admin or superadmin access required',403);
@@ -230,6 +233,6 @@ try {
   }
  }
  return fail('Method not allowed',405);
-}catch(error){if(error.message==='GYM_LOCATION_REQUIRED')return fail('Select or type a location',400);if(error.message==='INVALID_GYM_LOCATION')return fail('Select a location belonging to this gym',400);if(error.message==='INVALID_PICTURE')return fail('Choose a valid JPG, PNG or WebP picture up to 2 MB',400);if(error.code==='23505')return fail('Plan already exists',409);if(error.code==='23503')return fail('This record has linked members, memberships or payments.',409);if(error.message==='DATABASE_NOT_CONFIGURED')return fail('Service is not configured. Contact your administrator.',503);if(error instanceof SyntaxError)return fail('Invalid request',400);console.error('Database request failed:',error.code||'connection error');return fail('Unable to load data. Please retry.',503);}
+}catch(error){if(error.code==='GYM_BRANDING_INVALID')return fail(error.message,400);if(error.message==='GYM_LOCATION_REQUIRED')return fail('Select or type a location',400);if(error.message==='INVALID_GYM_LOCATION')return fail('Select a location belonging to this gym',400);if(error.message==='INVALID_PICTURE')return fail('Choose a valid JPG, PNG or WebP picture up to 2 MB',400);if(error.code==='23505')return fail('Plan already exists',409);if(error.code==='23503')return fail('This record has linked members, memberships or payments.',409);if(error.message==='DATABASE_NOT_CONFIGURED')return fail('Service is not configured. Contact your administrator.',503);if(error instanceof SyntaxError)return fail('Invalid request',400);console.error('Database request failed:',error.code||'connection error');return fail('Unable to load data. Please retry.',503);}
 }
 export {handle as GET,handle as POST,handle as DELETE,handle as PATCH};
