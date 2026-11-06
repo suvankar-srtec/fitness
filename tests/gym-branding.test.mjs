@@ -8,8 +8,8 @@ test('gym branding validates required contact details and normalizes website',()
  assert.deepEqual(normalizeGymBranding(data),{address:'12 Park Road, Kolkata',phone:'+919051668952',website:'https://fitfusion.example/'});
  for(const change of [{gymAddress:''},{gymPhone:'123'},{gymWebsite:'javascript:alert(1)'},{gymWebsite:'https://user:secret@example.com'}])assert.throws(()=>normalizeGymBranding({...data,...change}),error=>error.code==='GYM_BRANDING_INVALID');
 });
-test('pass dates use DD MM YYYY without changing the underlying QR dates',()=>{
- assert.equal(formatPassDate('2026-11-06'),'06 11 2026');assert.equal(formatPassDate(null),'Not set');
+test('pass dates use DD-MM-YYYY without changing the underlying QR dates',()=>{
+ assert.equal(formatPassDate('2026-11-06'),'06-11-2026');assert.equal(formatPassDate(null),'Not set');
 });
 test('logo accent follows its dominant colour and remains readable on white',async()=>{
  const logo=await sharp({create:{width:40,height:40,channels:3,background:'#ff8000'}}).png().toBuffer();

@@ -4,7 +4,7 @@ import styles from './MemberDashboard.module.css';
 
 function dateLabel(value){
  const match=/^(\d{4})-(\d{2})-(\d{2})/.exec(value||'');
- return match?`${match[3]} ${match[2]} ${match[1]}`:'Not set';
+ return match?`${match[3]}-${match[2]}-${match[1]}`:'Not set';
 }
 function PassIcon(){return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="M3 9V3h6M15 3h6v6M21 15v6h-6M9 21H3v-6"/><path d="M7 7h3v3H7zm7 0h3v3h-3zM7 14h3v3H7zm7 0h3v3h-3z"/></svg>;}
 export default function MemberDashboard({user,onSignOut}){
