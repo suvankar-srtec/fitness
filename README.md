@@ -121,3 +121,9 @@ Audit Report: Notifications is replaced by an append-only history of staff, memb
 Supervisor login requires a location step: valid credentials create a five-minute restricted session. Supervisors select their location from the gym location dropdown; only their assigned location is accepted by the server. Until then, dashboard data, attendance and QR scanning are blocked. Confirming the assigned location activates the eight-hour session. Reloading before confirmation keeps the location gate; every protected request rechecks the selection against the current assignment. Admin and superadmin login are unchanged. Existing supervisor sessions also require location confirmation after this migration.
 
 Location dropdowns show every saved real location for the selected gym, refresh on focus, and allow typing a new name that is saved with the member or supervisor. The legacy Main location placeholder is hidden and cannot be selected or recreated. Existing legacy assignments remain intact until an admin explicitly assigns a real location; no member or supervisor is automatically moved to another branch. New setup runs no longer create the placeholder.
+
+## Member videos
+
+Gym admins can open **Videos** to upload MP4, WebM, or MOV files up to 200 MB. Members see their gym's published videos after member login. Playback uses private authenticated streaming; expired or archived accounts cannot access it. Removing a video archives its metadata and retains its audit history.
+
+Create a **Private Vercel Blob** store and connect it to the project. The current integration provides `BLOB_STORE_ID` and `BLOB_WEBHOOK_PUBLIC_KEY`; uploads use Vercel OIDC and presigned multipart URLs. Redeploy after connecting the store. For local Blob testing, link the project and obtain the connected environment using Vercel CLI. Keep all environment credentials out of Git.

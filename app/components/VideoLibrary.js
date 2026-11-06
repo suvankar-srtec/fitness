@@ -1,0 +1,16 @@
+'use client';
+import {useEffect,useState} from 'react';
+import {requestApi} from '../../lib/api-client.mjs';
+import {MAX_VIDEO_BYTES,VIDEO_TYPES} from '../../lib/videos.mjs';
+export default function VideoLibrary({canUpload=false}){
+ const [videos,setVideos]=useState([]),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[error,setError]=useState(''),[progress,setProgress]=useState(0);
+ async function refresh(){setVideos(await requestApi('videos'));}
+ useEffect(()=>{let active=true;requestApi('videos').then(rows=>{if(active)setVideos(rows);}).catch(error=>{if(active)setError(error.message);}).finally(()=>{if(active)setLoading(false);});return()=>{active=false;};},[]);
+ async function save(event){event.preventDefault();const form=event.currentTarget,file=form.elements.namedItem('video').files[0];if(!file)return;if(!VIDEO_TYPES[file.type]||file.size>MAX_VIDEO_BYTES||!file.size){setError('Choose an MP4, WebM or MOV video up to 200 MB');return;}setBusy(true);setError('');setProgress(0);let reservation;
+  try{reservation=await requestApi('videos','POST',{name:form.elements.namedItem('title').value,contentType:file.type,size:file.size});const {uploadPresigned}=await import('@vercel/blob/client');await uploadPresigned(reservation.pathname,file,{access:'private',handleUploadUrl:'/api/video-upload',multipart:true,contentType:file.type,onUploadProgress:event=>setProgress(Math.round(event.percentage))});await requestApi('videos','PATCH',{id:reservation.id});await refresh();form.reset();}
+  catch(error){setError(error.message||'Upload failed. Please try again.');if(reservation)try{await requestApi('videos','DELETE',{id:reservation.id});}catch{}}
+  finally{setBusy(false);}
+ }
+ async function remove(video){if(!window.confirm('Remove '+video.name+'? Upload history will be retained.'))return;setBusy(true);try{await requestApi('videos','DELETE',{id:video.id});await refresh();}catch(error){window.alert(error.message);}finally{setBusy(false);}}
+ return <section className="video-library" aria-label="Gym videos">{canUpload&&<form className="video-upload-form" onSubmit={save}><div><label htmlFor="videoTitle">Video title</label><input id="videoTitle" name="title" maxLength={120} required disabled={busy}/></div><div><label htmlFor="videoFile">Video</label><input id="videoFile" name="video" type="file" accept="video/mp4,video/webm,video/quicktime" required disabled={busy}/></div><button disabled={busy}>{busy?'Uploading '+progress+'%':'Upload Video'}</button>{busy&&<progress value={progress} max="100" aria-label="Upload progress"/>}</form>}{error&&<p role="alert" className="error">{error}</p>}{loading?<p role="status">Loading videos...</p>:<div className="video-grid">{videos.map(video=><article className="video-card" key={video.id}><video controls playsInline preload="none" controlsList="nodownload" aria-label={video.name} src={video.streamUrl} onError={()=>setError('This video could not be played. Check your connection or ask your gym to upload an MP4 video.')}><track kind="captions"/></video><div><h2>{video.name}</h2>{canUpload&&video.canDelete&&<button className="delete-button" disabled={busy} onClick={()=>remove(video)}>Delete</button>}</div></article>)}{!videos.length&&<p className="muted">No videos</p>}</div>}</section>;
+}

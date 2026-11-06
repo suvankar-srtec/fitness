@@ -1,3 +1,4 @@
+import {ensureVideoSchema} from './video-schema.mjs';
 import {ensureMemberLoginSchema} from './member-login-schema.mjs';
 import {ensureArchiveSchema} from './archive-schema.mjs';
 import {ensurePhoneAuthSchema} from './phone-auth-schema.mjs';
@@ -68,6 +69,7 @@ await ensurePhoneAuthSchema(sql);
 await ensureArchiveSchema(sql);
 await ensureMemberLoginSchema(sql);
 await sql`UPDATE users SET name='Superadmin' WHERE role='superadmin' AND name='Gym owner'`;
+await ensureVideoSchema(sql);
 await ensureAuditSchema(sql);
 console.log('Neon schema ready. Main superadmin user ID: sp00. Existing accounts are preserved.');
 } catch { console.error('Database setup failed. Check the Neon connection string and database access.'); process.exitCode=1; }

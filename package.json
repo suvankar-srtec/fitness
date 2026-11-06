@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.2.0",
+    "@vercel/blob": "^2.8.2",
     "@zxing/browser": "^0.2.1",
     "@zxing/library": "^0.23.0",
     "country-flag-icons": "^1.6.20",
@@ -25,5 +26,8 @@
     "react-dom": "^19.3.1",
     "server-only": "^0.0.1",
     "sharp": "^0.35.5"
+  },
+  "overrides": {
+    "zod": "^4.6.7"
   }
 }
