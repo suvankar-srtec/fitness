@@ -1,5 +1,7 @@
 import {normalizeGymBranding} from '../../../lib/gym-branding.mjs';
-import {supervisorNeedsLocation,canSelectSupervisorLocation,selectedLocationId} from '../../../lib/supervisor-location.mjs';
+import {sessionProfile} from '../../../lib/session-profile.mjs';
+import {managerApi} from '../../../lib/manager-api';
+import {managerSupervisors} from '../../../lib/manager-supervisors';
 import {auditCredentialDelivery} from '../../../lib/audit-delivery.mjs';
 import {withAuditActor} from '../../../lib/audit-database.mjs';
 import {auditApi} from '../../../lib/audit-api';
@@ -23,13 +25,12 @@ import { hashPassword, verifyPassword, tokenHash } from '../../../lib/password.m
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
 const userId=u=>u.public_id;
-const sessionProfile=u=>({...publicUser(u),requiresLocationSelection:supervisorNeedsLocation(u)});
 const response=(data,status=200)=>NextResponse.json(data,{status,headers:{'Cache-Control':'no-store'}});
 const fail=(error,status)=>response({error},status);
 async function handle(req,context) {
 try {
  const {action}=await context.params;
- if(!['select-location','supervisor-locations','audit','gym-locations','supervisor-summary','gate-pass','gate-pass-scan','whatsapp-gate-pass','login','logout','me','superadmins','admins','members','supervisors','credentials','plans','member-photo','member-registration','memberships','membership-payments','users','attendance'].includes(action))return fail('Not found',404);
+ if(!['managers','manager-dashboard','audit','gym-locations','supervisor-summary','gate-pass','gate-pass-scan','whatsapp-gate-pass','login','logout','me','superadmins','admins','members','supervisors','credentials','plans','member-photo','member-registration','memberships','membership-payments','users','attendance'].includes(action))return fail('Not found',404);
  if(['POST','PATCH','DELETE'].includes(req.method)) {const origin=req.headers.get('origin');if(origin&&origin!==new URL(req.url).origin)return fail('Invalid origin',403);}
  let sql=database();
  if(action==='login'&&req.method==='POST') {
@@ -39,33 +40,21 @@ try {
   const [attempt]=await sql`INSERT INTO login_attempts(key,attempts) VALUES(${key},1) ON CONFLICT(key) DO UPDATE SET attempts=CASE WHEN login_attempts.started_at<NOW()-INTERVAL '10 minutes' THEN 1 ELSE login_attempts.attempts+1 END,started_at=CASE WHEN login_attempts.started_at<NOW()-INTERVAL '10 minutes' THEN NOW() ELSE login_attempts.started_at END RETURNING attempts`;
   if(attempt.attempts>30)return fail('Too many attempts. Try again in 10 minutes.',429);
   const users=await sql`SELECT u.*,(SELECT name FROM gym_locations WHERE id=u.location_id) AS location_name FROM users u WHERE public_id=${loginId}`;
-  const u=users[0];if(u?.role==='supervisor'){const [admin]=await sql`SELECT COALESCE(NULLIF(gym_name,''),name) AS gym_name FROM users WHERE id=${u.created_by} AND role='admin'`;u.gym_name=admin?.gym_name||'';}if(!u||u.role==='superadmin'&&!isMainSuperadmin(publicUser(u))||userId(u)!==loginId||!await verifyPassword(b.password,u.password))return fail('Invalid user ID or password',401);
+  const u=users[0];if(['manager','supervisor'].includes(u?.role)){const [admin]=await sql`SELECT COALESCE(NULLIF(gym_name,''),name) AS gym_name FROM users WHERE id=${u.created_by} AND role='admin'`;u.gym_name=admin?.gym_name||'';}if(!u||u.role==='superadmin'&&!isMainSuperadmin(publicUser(u))||userId(u)!==loginId||!await verifyPassword(b.password,u.password))return fail('Invalid user ID or password',401);
+  if(['manager','supervisor'].includes(u.role)&&(!u.created_by||!u.location_id||!normalizeLocationName(u.location_name)||!u.gym_name))return fail('Ask your gym admin to assign your gym and location',403);
   await sql`DELETE FROM login_attempts WHERE key=${key}`;
   sql=withAuditActor(sql,u);
   const token=randomBytes(32).toString('hex');
-  await sql`INSERT INTO sessions(token_hash,user_id,expires_at) VALUES(${tokenHash(token)},${u.id},NOW()+(${u.role==='supervisor'?300:28800}*INTERVAL '1 second'))`;
-  const result=response(sessionProfile(u));result.cookies.set('session',token,{httpOnly:true,sameSite:'strict',secure:process.env.NODE_ENV==='production',path:'/',maxAge:u.role==='supervisor'?300:28800});return result;
+  await sql`INSERT INTO sessions(token_hash,user_id,expires_at) VALUES(${tokenHash(token)},${u.id},NOW()+(28800*INTERVAL '1 second'))`;
+  const result=response(sessionProfile(u));result.cookies.set('session',token,{httpOnly:true,sameSite:'strict',secure:process.env.NODE_ENV==='production',path:'/',maxAge:28800});return result;
  }
  const token=req.cookies.get('session')?.value;if(!token)return fail('Please sign in',401);
- const [u]=await sql`SELECT u.*,s.selected_location_id AS session_location_id,(SELECT name FROM gym_locations WHERE id=u.location_id) AS location_name,CASE WHEN u.role='supervisor' THEN (SELECT COALESCE(NULLIF(gym_name,''),name) FROM users WHERE id=u.created_by AND role='admin') ELSE u.gym_name END AS gym_name FROM users u JOIN sessions s ON u.id=s.user_id WHERE s.token_hash=${tokenHash(token)} AND s.expires_at>NOW()`;
+ const [u]=await sql`SELECT u.*,(SELECT name FROM gym_locations WHERE id=u.location_id) AS location_name,CASE WHEN u.role IN ('manager','supervisor') THEN (SELECT COALESCE(NULLIF(gym_name,''),name) FROM users WHERE id=u.created_by AND role='admin') ELSE u.gym_name END AS gym_name FROM users u JOIN sessions s ON u.id=s.user_id WHERE s.token_hash=${tokenHash(token)} AND s.expires_at>NOW()`;
  if(!u||u.role==='superadmin'&&!isMainSuperadmin(publicUser(u)))return fail('Please sign in',401);
  sql=withAuditActor(sql,u);
- if(supervisorNeedsLocation(u)&&!['me','logout','select-location','supervisor-locations'].includes(action))return fail('Select your assigned location to continue',403);
- if(action==='supervisor-locations'){
-  if(req.method!=='GET')return fail('Method not allowed',405);
-  if(u.role!=='supervisor')return fail('Supervisor access required',403);
-  return response(await sql`SELECT id,name FROM gym_locations WHERE admin_id=${u.created_by} AND lower(trim(name))<>'main location' ORDER BY lower(name)`);
- }
- if(action==='select-location'){
-  if(req.method!=='POST')return fail('Method not allowed',405);
-  const body=await req.json();
-  if(!canSelectSupervisorLocation(u,body.locationId))return fail('This location is not assigned to you. Select your assigned location.',403);
-  if(!normalizeLocationName(u.location_name))return fail('Ask your gym admin to assign a location.',403);
-  const id=selectedLocationId(body.locationId);
-  const updated=await sql`UPDATE sessions s SET selected_location_id=${id},expires_at=NOW()+INTERVAL '8 hours' WHERE s.token_hash=${tokenHash(token)} AND s.user_id=${u.id} AND s.expires_at>NOW() AND EXISTS(SELECT 1 FROM users current_user_row JOIN gym_locations l ON l.id=current_user_row.location_id AND l.admin_id=current_user_row.created_by WHERE current_user_row.id=s.user_id AND current_user_row.role='supervisor' AND current_user_row.location_id=${id}) RETURNING s.user_id`;
-  if(!updated.length)return fail('Location assignment changed. Sign in again.',401);
-  const result=response(sessionProfile({...u,session_location_id:id}));result.cookies.set('session',token,{httpOnly:true,sameSite:'strict',secure:process.env.NODE_ENV==='production',path:'/',maxAge:28800});return result;
- }
+ if(u.role==='manager'&&!['me','logout','manager-dashboard','supervisors','attendance','credentials','member-photo'].includes(action))return fail('Manager access is limited to your assigned location',403);
+ if(['managers','manager-dashboard'].includes(action))return await managerApi(action,req,u,sql);
+ if(action==='supervisors'&&u.role==='manager')return await managerSupervisors(req,u,sql);
  if(action==='audit')return await auditApi(req,u,sql);
  if(['gate-pass','gate-pass-scan','whatsapp-gate-pass'].includes(action))return await gatePassApi(action,req,u,sql);
  if(action==='gym-locations'){
@@ -91,7 +80,7 @@ try {
  if(action==='logout'&&req.method==='POST'){await sql`DELETE FROM sessions WHERE token_hash=${tokenHash(token)}`;const result=response({ok:true});result.cookies.set('session','',{httpOnly:true,sameSite:'strict',secure:process.env.NODE_ENV==='production',path:'/',maxAge:0});return result;}
  if(action==='credentials'&&req.method==='POST'){
   const b=await req.json();if(!Number.isInteger(b.id)||typeof b.password!=='string'||!b.password)return fail('Enter the assigned password',400);
-  const [target]=u.role==='superadmin'?await sql`SELECT * FROM users WHERE id=${b.id} AND role IN ('admin','supervisor')`:u.role==='admin'?await sql`SELECT * FROM users WHERE id=${b.id} AND role='supervisor' AND created_by=${u.id}`:[];
+  const [target]=u.role==='superadmin'?await sql`SELECT * FROM users WHERE id=${b.id} AND role IN ('admin','manager','supervisor')`:u.role==='admin'?await sql`SELECT * FROM users WHERE id=${b.id} AND role='manager' AND created_by=${u.id}`:u.role==='manager'?await sql`SELECT * FROM users WHERE id=${b.id} AND role='supervisor' AND created_by=${u.created_by} AND location_id=${u.location_id}`:[];
   if(!target)return fail('Access denied',403);
   const key=tokenHash('credentials:'+u.id+':'+target.id);
   const [attempt]=await sql`INSERT INTO login_attempts(key,attempts) VALUES(${key},1) ON CONFLICT(key) DO UPDATE SET attempts=CASE WHEN login_attempts.started_at<NOW()-INTERVAL '10 minutes' THEN 1 ELSE login_attempts.attempts+1 END,started_at=CASE WHEN login_attempts.started_at<NOW()-INTERVAL '10 minutes' THEN NOW() ELSE login_attempts.started_at END RETURNING attempts`;
@@ -168,7 +157,7 @@ try {
  if(action==='supervisors') {
   if(!['superadmin','admin'].includes(u.role))return fail('Admin or superadmin access required',403);
   if(req.method==='GET'){const rows=u.role==='superadmin'?await sql`SELECT s.id,s.public_id,s.name,s.role,s.phone,s.created_by,s.location_id,(SELECT name FROM gym_locations WHERE id=s.location_id) AS location_name,COALESCE(NULLIF(a.gym_name,''),a.name) AS gym_name FROM users s LEFT JOIN users a ON s.created_by=a.id AND a.role='admin' WHERE s.role='supervisor' ORDER BY s.id DESC`:await sql`SELECT s.id,s.public_id,s.name,s.role,s.phone,s.created_by,s.location_id,(SELECT name FROM gym_locations WHERE id=s.location_id) AS location_name,COALESCE(NULLIF(a.gym_name,''),a.name) AS gym_name FROM users s LEFT JOIN users a ON s.created_by=a.id AND a.role='admin' WHERE s.role='supervisor' AND s.created_by=${u.id} ORDER BY s.id DESC`;return response(rows.map(publicUser));}
-  if(req.method==='POST'){const b=await req.json();if(typeof b.name!=='string'||!b.name.trim()||b.name.length>100||typeof b.password!=='string'||!b.password.length)return fail('Enter a name and a password',400);const phone=normalizeWhatsAppPhone(b.phone,b.country);if(!phone)return fail('Invalid phone number',400);const gymAdminId=Number(b.gymAdminId);if(!Number.isInteger(gymAdminId)||gymAdminId<1||gymAdminId>2147483647)return fail('Select a gym / branch',400);if(u.role==='admin'&&gymAdminId!==u.id)return fail('Select your own gym / branch',403);const [gym]=await sql`SELECT id,gym_name FROM users WHERE id=${gymAdminId} AND role='admin'`;if(!gym)return fail('Select a valid gym',400);const location=await resolveGymLocation(sql,gymAdminId,b);const password=await hashPassword(b.password);const [supervisor]=await sql`INSERT INTO users(name,password,role,created_by,phone,location_id) VALUES(${b.name.trim()},${password},'supervisor',${gymAdminId},${phone},${location.id}) RETURNING id,public_id,name,role,phone,created_by,location_id`;return response(publicUser({...supervisor,gym_name:gym.gym_name,location_name:location.name}),201);}
+  if(req.method==='POST')return fail('Only the assigned location manager can create supervisors',403);
  }
  if(action==='plans'){
   if(req.method==='GET'&&u.role==='superadmin')return response(await sql`SELECT p.id,p.name,p.duration_days,p.amount,p.description,COALESCE(NULLIF(u.gym_name,''),u.name) AS admin_name FROM plans p JOIN users u ON p.admin_id=u.id WHERE p.archived=FALSE ORDER BY p.id DESC`);
@@ -196,7 +185,7 @@ try {
  }
  if(action==='member-photo'&&req.method==='GET'){
   const id=Number(new URL(req.url).searchParams.get('id'));if(!Number.isInteger(id)||id<1)return fail('Not found',404);
-  const [picture]=u.role==='superadmin'?await sql`SELECT p.data FROM member_pictures p JOIN members m ON m.id=p.member_id WHERE m.id=${id}`:await sql`SELECT p.data FROM member_pictures p JOIN members m ON m.id=p.member_id WHERE m.id=${id} AND m.admin_id=${u.role==='supervisor'?u.created_by:u.id} AND (${u.role}<>'supervisor' OR m.location_id=${u.location_id||null})`;
+  const [picture]=u.role==='superadmin'?await sql`SELECT p.data FROM member_pictures p JOIN members m ON m.id=p.member_id WHERE m.id=${id}`:await sql`SELECT p.data FROM member_pictures p JOIN members m ON m.id=p.member_id WHERE m.id=${id} AND m.admin_id=${['manager','supervisor'].includes(u.role)?u.created_by:u.id} AND (${!['manager','supervisor'].includes(u.role)} OR m.location_id=${u.location_id||null})`;
   if(!picture)return fail('Not found',404);
   return new Response(Buffer.from(picture.data,'base64'),{headers:{'Content-Type':'image/jpeg','Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'}});
  }
@@ -219,7 +208,7 @@ try {
    ]);
    return updated.length?response({memberId:updated[0].public_id}):fail('Member not found',404);
   }
-  if(req.method==='GET'){const rows=u.role==='superadmin'?await sql`SELECT m.*,(SELECT name FROM gym_locations WHERE id=m.location_id) AS "locationName",(SELECT COALESCE(NULLIF(gym_owner.gym_name,''),gym_owner.name) FROM users gym_owner WHERE gym_owner.id=m.admin_id) AS "gymName",to_char(m.joined,'YYYY-MM-DD') AS joined,to_char(m.valid_from,'YYYY-MM-DD') AS valid_from,to_char(m.valid_to,'YYYY-MM-DD') AS valid_to,to_char(m.dob,'YYYY-MM-DD') AS dob,EXISTS(SELECT 1 FROM member_pictures p WHERE p.member_id=m.id) AS has_picture FROM members m ORDER BY m.id DESC`:await sql`SELECT m.*,(SELECT name FROM gym_locations WHERE id=m.location_id) AS "locationName",(SELECT COALESCE(NULLIF(gym_owner.gym_name,''),gym_owner.name) FROM users gym_owner WHERE gym_owner.id=m.admin_id) AS "gymName",to_char(m.joined,'YYYY-MM-DD') AS joined,to_char(m.valid_from,'YYYY-MM-DD') AS valid_from,to_char(m.valid_to,'YYYY-MM-DD') AS valid_to,to_char(m.dob,'YYYY-MM-DD') AS dob,EXISTS(SELECT 1 FROM member_pictures p WHERE p.member_id=m.id) AS has_picture FROM members m WHERE m.admin_id=${u.role==='supervisor'?u.created_by:u.id} ORDER BY m.id DESC`;return response(rows.map(m=>({...m,age:m.dob?ageFromDateOfBirth(m.dob):m.age,registrationNo:m.public_id,memberId:m.public_id,profilePictureUrl:m.has_picture?'/api/member-photo?id='+m.id:null})));}
+  if(req.method==='GET'){const rows=u.role==='superadmin'?await sql`SELECT m.*,(SELECT name FROM gym_locations WHERE id=m.location_id) AS "locationName",(SELECT COALESCE(NULLIF(gym_owner.gym_name,''),gym_owner.name) FROM users gym_owner WHERE gym_owner.id=m.admin_id) AS "gymName",to_char(m.joined,'YYYY-MM-DD') AS joined,to_char(m.valid_from,'YYYY-MM-DD') AS valid_from,to_char(m.valid_to,'YYYY-MM-DD') AS valid_to,to_char(m.dob,'YYYY-MM-DD') AS dob,EXISTS(SELECT 1 FROM member_pictures p WHERE p.member_id=m.id) AS has_picture FROM members m ORDER BY m.id DESC`:await sql`SELECT m.*,(SELECT name FROM gym_locations WHERE id=m.location_id) AS "locationName",(SELECT COALESCE(NULLIF(gym_owner.gym_name,''),gym_owner.name) FROM users gym_owner WHERE gym_owner.id=m.admin_id) AS "gymName",to_char(m.joined,'YYYY-MM-DD') AS joined,to_char(m.valid_from,'YYYY-MM-DD') AS valid_from,to_char(m.valid_to,'YYYY-MM-DD') AS valid_to,to_char(m.dob,'YYYY-MM-DD') AS dob,EXISTS(SELECT 1 FROM member_pictures p WHERE p.member_id=m.id) AS has_picture FROM members m WHERE m.admin_id=${['manager','supervisor'].includes(u.role)?u.created_by:u.id} ORDER BY m.id DESC`;return response(rows.map(m=>({...m,age:m.dob?ageFromDateOfBirth(m.dob):m.age,registrationNo:m.public_id,memberId:m.public_id,profilePictureUrl:m.has_picture?'/api/member-photo?id='+m.id:null})));}
   if(req.method==='POST'){
    if(u.role!=='admin')return fail('Sign in as an admin to add members',403);
    const b=await req.json(),m=validateMember(b);if(m.error)return fail(m.error,400);

@@ -11,8 +11,8 @@ export async function ensureAuditSchema(sql){
    owner_id:=NULLIF(row_value->>'admin_id','')::integer;
    entity_name:=CASE table_name WHEN 'members' THEN 'Members' WHEN 'plans' THEN 'Plans' WHEN 'membership_assignments' THEN 'Memberships' WHEN 'membership_payments' THEN 'Payments' WHEN 'attendance' THEN 'Attendance' WHEN 'gym_locations' THEN 'Locations' WHEN 'member_pictures' THEN 'Member photos' WHEN 'whatsapp_gate_pass_messages' THEN 'WhatsApp' WHEN 'sessions' THEN 'Sessions' ELSE 'Staff' END;
    IF table_name='users' THEN
-    owner_id:=CASE WHEN row_value->>'role'='admin' THEN (row_value->>'id')::integer WHEN row_value->>'role'='supervisor' THEN (row_value->>'created_by')::integer ELSE NULL END;
-    entity_name:=CASE row_value->>'role' WHEN 'admin' THEN 'Admins' WHEN 'supervisor' THEN 'Supervisors' ELSE 'Superadmin' END;
+    owner_id:=CASE WHEN row_value->>'role'='admin' THEN (row_value->>'id')::integer WHEN row_value->>'role' IN ('manager','supervisor') THEN (row_value->>'created_by')::integer ELSE NULL END;
+    entity_name:=CASE row_value->>'role' WHEN 'admin' THEN 'Admins' WHEN 'supervisor' THEN 'Supervisors' WHEN 'manager' THEN 'Managers' ELSE 'Superadmin' END;
    END IF;
    IF table_name IN ('attendance','member_pictures','whatsapp_gate_pass_messages','membership_assignments') THEN
     SELECT to_jsonb(m) INTO member_value FROM members m WHERE m.id=(row_value->>'member_id')::integer;
@@ -23,7 +23,7 @@ export async function ensureAuditSchema(sql){
    END IF;
    IF table_name='sessions' THEN
     SELECT to_jsonb(u) INTO member_value FROM users u WHERE u.id=(row_value->>'user_id')::integer;
-    owner_id:=CASE WHEN member_value->>'role'='admin' THEN (member_value->>'id')::integer WHEN member_value->>'role'='supervisor' THEN (member_value->>'created_by')::integer ELSE NULL END;
+    owner_id:=CASE WHEN member_value->>'role'='admin' THEN (member_value->>'id')::integer WHEN member_value->>'role' IN ('manager','supervisor') THEN (member_value->>'created_by')::integer ELSE NULL END;
    END IF;
    SELECT COALESCE(NULLIF(u.gym_name,''),u.name) INTO owner_name FROM users u WHERE u.id=owner_id;
    IF table_name='users' AND row_value->>'role'='admin' THEN owner_name:=COALESCE(NULLIF(row_value->>'gym_name',''),row_value->>'name');END IF;
