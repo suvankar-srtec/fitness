@@ -1,4 +1,4 @@
-import {gymTimeReport} from '../../../lib/gym-time-report';
+import {gymTimeReport,gymTimeCalendar} from '../../../lib/gym-time-report';
 import {resolvePhoneAccount} from '../../../lib/phone-account.mjs';
 import {videoApi} from '../../../lib/video-api';
 import {memberLogin,memberSession} from '../../../lib/member-auth';
@@ -36,7 +36,7 @@ const fail=(error,status)=>response({error},status);
 async function handle(req,context) {
 try {
  const {action}=await context.params;
- if(!['gym-time-report','videos','video-stream','member-login','member-pass','member-otp-request','member-otp-verify','member-otp-set-password','otp-request','otp-verify','otp-set-password','manager-registration','managers','manager-dashboard','audit','gym-locations','supervisor-summary','gate-pass','gate-pass-scan','whatsapp-gate-pass','login','logout','me','superadmins','admins','members','supervisors','credentials','plans','member-photo','member-registration','memberships','membership-payments','users','attendance'].includes(action))return fail('Not found',404);
+ if(!['member-time-calendar','gym-time-report','videos','video-stream','member-login','member-pass','member-otp-request','member-otp-verify','member-otp-set-password','otp-request','otp-verify','otp-set-password','manager-registration','managers','manager-dashboard','audit','gym-locations','supervisor-summary','gate-pass','gate-pass-scan','whatsapp-gate-pass','login','logout','me','superadmins','admins','members','supervisors','credentials','plans','member-photo','member-registration','memberships','membership-payments','users','attendance'].includes(action))return fail('Not found',404);
  if(['POST','PATCH','DELETE'].includes(req.method)) {const origin=req.headers.get('origin');if(origin&&origin!==new URL(req.url).origin)return fail('Invalid origin',403);}
  let sql=database();
  if(action.startsWith('member-otp-'))return await memberPhoneAuthApi(action.slice(7),req,sql);
@@ -65,7 +65,7 @@ try {
  if(!u||!u.account_enabled||u.role==='superadmin'&&!isMainSuperadmin(publicUser(u)))return fail('Please sign in',401);
  if(u.role!=='superadmin'&&!u.password_ready)return fail('Verify your WhatsApp number and set your password.',401);
  sql=withAuditActor(sql,u);
- if(u.role==='manager'&&!['me','logout','manager-dashboard','gym-time-report','supervisors','attendance','credentials','member-photo'].includes(action))return fail('Manager access is limited to your assigned location',403);
+ if(u.role==='manager'&&!['me','logout','manager-dashboard','member-time-calendar','gym-time-report','supervisors','attendance','credentials','member-photo'].includes(action))return fail('Manager access is limited to your assigned location',403);
  if(['manager-registration','managers','manager-dashboard'].includes(action))return await managerApi(action,req,u,sql);
  if(['videos','video-stream'].includes(action))return await videoApi(action,req,u,sql);
  if(action==='supervisors'&&u.role==='manager')return await managerSupervisors(req,u,sql);
@@ -88,6 +88,7 @@ try {
   const [summary]=await sql`SELECT count(*)::int AS "totalMembers",count(*) FILTER(WHERE joined>=date_trunc('month',${today}::date)::date AND joined<=${today}::date)::int AS "joinedThisMonth" FROM members WHERE archived_at IS NULL AND admin_id=${u.created_by} AND location_id=${u.location_id}`;
   return response(summary);
  }
+ if(action==='member-time-calendar')return await gymTimeCalendar(req,u,sql);
  if(action==='gym-time-report')return await gymTimeReport(req,u,sql);
  if(action==='attendance')return await attendanceApi(req,u,sql);
  if(['memberships','membership-payments'].includes(action))return await membershipApi(action,req,u,sql);

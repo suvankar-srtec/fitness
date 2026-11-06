@@ -34,3 +34,5 @@
  [data-gym-theme] .management-bottom-nav>button[aria-current=page],[data-gym-theme] .sidebar .supervisor-task-nav button[aria-current=page]{background:var(--gym-hover)!important;color:white!important}
  [data-gym-theme] .management-bottom-nav .mobile-add{background:white!important;color:var(--gym-accent)!important}
 }
+
+[data-gym-theme] .member-calendar-link,.member-calendar-link{background:transparent!important;color:var(--gym-accent,#111)!important;padding:0;text-decoration:underline;text-underline-offset:3px;font-size:inherit}
