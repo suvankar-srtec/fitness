@@ -10,7 +10,6 @@ function PassIcon(){return <svg viewBox="0 0 24 24" fill="none" stroke="currentC
 export default function MemberDashboard({user,onSignOut}){
  return <main className={styles.dashboard}>
   <header className={styles.header}><div className={styles.brand}><span className={styles.brandMark} aria-hidden="true">{user.gymName?.trim().charAt(0)||'G'}</span><div><h1>{user.gymName||'Gym Management'}</h1><span>Member</span></div></div><button type="button" className={styles.logout} onClick={onSignOut}>Logout</button></header>
-  <section className={styles.welcome}><div><span className={styles.eyebrow}>YOUR DASHBOARD</span><h2>{user.name}</h2><span className={styles.memberId}>Member ID · {user.userId}</span></div><a href="#member-pass" className={styles.passLink}><PassIcon/>Member pass<span aria-hidden="true">↗</span></a></section>
   <section className={styles.summary} aria-label="Membership summary"><article><span>Current plan</span><strong>{user.plan||'No plan'}</strong></article><article><span>Valid from</span><strong>{dateLabel(user.validFrom)}</strong></article><article><span>Valid until</span><strong>{dateLabel(user.validTo)}</strong></article></section>
   <div className={styles.content}>
    <section className={styles.videos}><div className={styles.sectionHeading}><span className={styles.sectionIcon} aria-hidden="true">▷</span><h2>Gym videos</h2></div><VideoLibrary/></section>
