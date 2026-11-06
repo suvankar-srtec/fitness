@@ -28,8 +28,8 @@ test('generated gate-pass PNG contains a readable QR with member metadata and to
  const image=await renderGatePass({...member,gym_logo:'data:image/png;base64,'+logo.toString('base64'),gym_address:'12 Park Road',gym_phone:'+919051668952',gym_website:'https://fitfusion.example',photo:photo.toString('base64')},token);
  const header=await sharp(image).extract({left:160,top:35,width:480,height:50}).removeAlpha().raw().toBuffer();
  assert.ok(header.some((value,index)=>index%3===0&&header[index+2]>value+20),'header text uses the logo colour');
- const metadata=await sharp(image).metadata();assert.equal(metadata.width,800);assert.equal(metadata.height,1060);
- const {data,info}=await sharp(image).extract({left:100,top:320,width:600,height:600}).greyscale().raw().toBuffer({resolveWithObject:true});
+ const metadata=await sharp(image).metadata();assert.equal(metadata.width,800);assert.equal(metadata.height,1140);
+ const {data,info}=await sharp(image).extract({left:100,top:390,width:600,height:600}).greyscale().raw().toBuffer({resolveWithObject:true});
  assert.ok(data.every(value=>value===0||value===255),'QR remains strictly black and white');
  const bitmap=new BinaryBitmap(new HybridBinarizer(new RGBLuminanceSource(new Uint8ClampedArray(data),info.width,info.height)));
  const decoded=new QRCodeReader().decode(bitmap).getText();assert.equal(gatePassTokenFromQr(decoded),token);const payload=JSON.parse(decoded);assert.equal(payload.name,member.name);assert.equal(payload.plan,member.plan);assert.equal(payload.hasPhoto,true);
