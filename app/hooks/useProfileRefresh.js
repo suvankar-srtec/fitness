@@ -12,7 +12,7 @@ export default function useProfileRefresh(userId,setProfile) {
    try{const profile=await requestApi('me');if(active)setProfile(previous=>{
     if(previous?.id!==userId||profile.id!==userId)return previous;
     return ['name','gymName','gymId','requiresLocationSelection','locationId','locationName','gymLogo','phone','role','userId'].some(key=>previous[key]!==profile[key])?{...previous,...profile}:previous;
-   });}catch(error){if(active&&error.status===401)setProfile(null);}finally{pending=false;}
+   });}catch(error){if(active&&(error.status===401||['MEMBERSHIP_EXPIRED','MEMBER_INACTIVE'].includes(error.code)))setProfile(null);}finally{pending=false;}
   }
   const channel=typeof BroadcastChannel!=='undefined'?new BroadcastChannel('gym-user-updates'):null;
   if(channel)channel.onmessage=refresh;
