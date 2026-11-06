@@ -1,5 +1,6 @@
 import './globals.css';
 import './theme.css';
+import './gym-theme.css';
 export const metadata = { title: 'Gym Management', description: 'Manage your gym team and members' };
 export default function Layout({ children }) {
   return (

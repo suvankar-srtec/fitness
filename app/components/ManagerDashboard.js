@@ -12,11 +12,11 @@ import {DashboardIcon} from './DashboardOverview';
 function Pie({pie}){
  const ratio=pie.total?pie.present/pie.total:0;
  const x=100+80*Math.sin(ratio*2*Math.PI),y=100-80*Math.cos(ratio*2*Math.PI);
- return <svg viewBox="0 0 200 200" role="img" aria-label={pie.present+' present, '+pie.absent+' absent'}><circle cx="100" cy="100" r="80" fill="#e5e5e5"/>{ratio===1?<circle cx="100" cy="100" r="80" fill="#111111"/>:ratio>0&&<path d={'M100 100 L100 20 A80 80 0 '+(ratio>.5?1:0)+' 1 '+x+' '+y+' Z'} fill="#111111"/>}{!pie.total&&<text x="100" y="105" textAnchor="middle" fontSize="13">No records</text>}</svg>;
+ return <svg viewBox="0 0 200 200" role="img" aria-label={pie.present+' present, '+pie.absent+' absent'}><circle cx="100" cy="100" r="80" fill="var(--gym-soft, #e5e5e5)"/>{ratio===1?<circle cx="100" cy="100" r="80" fill="var(--gym-accent, #111111)"/>:ratio>0&&<path d={'M100 100 L100 20 A80 80 0 '+(ratio>.5?1:0)+' 1 '+x+' '+y+' Z'} fill="var(--gym-accent, #111111)"/>}{!pie.total&&<text x="100" y="105" textAnchor="middle" fontSize="13">No records</text>}</svg>;
 }
 function Bars({bars}){
  const max=Math.max(1,...bars.map(bar=>bar.count));
- return <svg viewBox="0 0 520 230" role="img" aria-label="Daily member check-ins for the last seven days"><path d="M20 190H510" stroke="#cccccc"/>{bars.map((bar,index)=>{const height=bar.count/max*145,x=35+index*68;return <g key={bar.date}><rect x={x} y={190-height} width="34" height={Math.max(1,height)} rx="4" fill="#111111"><title>{bar.date+': '+bar.count+' present'}</title></rect><text x={x+17} y={180-height} textAnchor="middle" fontSize="13">{bar.count}</text><text x={x+17} y="215" textAnchor="middle" fontSize="11">{bar.date.slice(8)+'/'+bar.date.slice(5,7)}</text></g>;})}</svg>;
+ return <svg viewBox="0 0 520 230" role="img" aria-label="Daily member check-ins for the last seven days"><path d="M20 190H510" stroke="#cccccc"/>{bars.map((bar,index)=>{const height=bar.count/max*145,x=35+index*68;return <g key={bar.date}><rect x={x} y={190-height} width="34" height={Math.max(1,height)} rx="4" fill="var(--gym-accent, #111111)"><title>{bar.date+': '+bar.count+' present'}</title></rect><text x={x+17} y={180-height} textAnchor="middle" fontSize="13">{bar.count}</text><text x={x+17} y="215" textAnchor="middle" fontSize="11">{bar.date.slice(8)+'/'+bar.date.slice(5,7)}</text></g>;})}</svg>;
 }
 function SupervisorForm({user,onClose,onSaved}){
  const [busy,setBusy]=useState(false),[error,setError]=useState('');

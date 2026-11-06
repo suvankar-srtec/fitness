@@ -9,7 +9,7 @@ function dateLabel(value){
 function PassIcon(){return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="M3 9V3h6M15 3h6v6M21 15v6h-6M9 21H3v-6"/><path d="M7 7h3v3H7zm7 0h3v3h-3zM7 14h3v3H7zm7 0h3v3h-3z"/></svg>;}
 export default function MemberDashboard({user,onSignOut}){
  return <main className={styles.dashboard}>
-  <header className={styles.header}><div className={styles.brand}><span className={styles.brandMark} aria-hidden="true">{user.gymName?.trim().charAt(0)||'G'}</span><div><h1>{user.gymName||'Gym Management'}</h1><span>Member</span></div></div><button type="button" className={styles.logout} onClick={onSignOut}>Logout</button></header>
+  <header className={styles.header}><div className={styles.brand}><span className={styles.brandMark} aria-hidden="true">{user.gymLogo?<img src={user.gymLogo} alt=""/>:user.gymName?.trim().charAt(0)||'G'}</span><div><h1>{user.gymName||'Gym Management'}</h1><span>Member</span></div></div><button type="button" className={styles.logout} onClick={onSignOut}>Logout</button></header>
   <section className={styles.summary} aria-label="Membership summary"><article><span>Current plan</span><strong>{user.plan||'No plan'}</strong></article><article><span>Valid from</span><strong>{dateLabel(user.validFrom)}</strong></article><article><span>Valid until</span><strong>{dateLabel(user.validTo)}</strong></article></section>
   <div className={styles.content}>
    <section className={styles.videos}><div className={styles.sectionHeading}><span className={styles.sectionIcon} aria-hidden="true">▷</span><h2>Gym videos</h2></div><VideoLibrary/></section>

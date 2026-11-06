@@ -1,0 +1,36 @@
+/* Applied only to an authenticated gym account; portals inherit these variables. */
+:root[data-gym-theme]{--ui-background:var(--gym-background);--ui-soft:var(--gym-soft);--ui-border:var(--gym-border);accent-color:var(--gym-accent)}
+[data-gym-theme] body,[data-gym-theme] .management-app,[data-gym-theme] .supervisor-focus-app{background:var(--gym-background)}
+[data-gym-theme] h1,[data-gym-theme] h2,[data-gym-theme] h3,[data-gym-theme] .gym-brand,[data-gym-theme] .plan-tile-price{color:var(--gym-accent)}
+[data-gym-theme] button:not(.secondary):not(.delete-button):not(.logout-button):not(.whatsapp-button):not(.password-toggle):not(.plan-menu-toggle):not(.dashboard-nav):not(.plan-tile-edit):not(.plan-tile-delete):not(.member-avatar-button):not(.mobile-menu-toggle):not(.country-menu button){background:var(--gym-accent);color:white}
+[data-gym-theme] button:not(:disabled):hover{filter:brightness(.95)}
+[data-gym-theme] .secondary,[data-gym-theme] .badge,[data-gym-theme] .pill,[data-gym-theme] .plan-duration-tag,[data-gym-theme] .stat:first-child,[data-gym-theme] .plan-tile-tags span,[data-gym-theme] .supervisor-checkin-avatar{background:var(--gym-soft);color:var(--gym-accent);border-color:var(--gym-border)}
+[data-gym-theme] .sidebar,[data-gym-theme] .management-app .sidebar{background:var(--gym-soft);border-color:var(--gym-border)}
+[data-gym-theme] .sidebar .sidebar-actions>button,[data-gym-theme] .sidebar .plan-menu-toggle,[data-gym-theme] .sidebar .supervisor-task-nav button{background:transparent;color:var(--gym-accent)}
+[data-gym-theme] .sidebar .sidebar-actions>button:hover,[data-gym-theme] .sidebar .plan-menu-toggle:hover,[data-gym-theme] .sidebar .supervisor-task-nav button:hover{background:white;color:var(--gym-accent)}
+[data-gym-theme] .sidebar .sidebar-actions>button[aria-current=page],[data-gym-theme] .sidebar .plan-menu-toggle[aria-expanded=true],[data-gym-theme] .sidebar .supervisor-task-nav button[aria-current=page]{background:var(--gym-accent)!important;color:white!important}
+[data-gym-theme] .sidebar-flyout{background:white;border-color:var(--gym-border)}
+[data-gym-theme] .sidebar-flyout button{background:white!important;color:var(--gym-accent)!important}
+[data-gym-theme] .sidebar-flyout button:hover,[data-gym-theme] .sidebar-flyout button[aria-current=page]{background:var(--gym-soft)!important;color:var(--gym-accent)!important}
+[data-gym-theme] input:focus-visible,[data-gym-theme] select:focus-visible,[data-gym-theme] textarea:focus-visible,[data-gym-theme] button:focus-visible,[data-gym-theme] summary:focus-visible{outline-color:var(--gym-accent)}
+[data-gym-theme] .overview-icon,[data-gym-theme] .member-avatar.add-avatar,[data-gym-theme] .overview-section-title>button,[data-gym-theme] .save-member,[data-gym-theme] .membership-pay,[data-gym-theme] .membership-print,[data-gym-theme] .membership-history{background:var(--gym-accent);color:white}
+[data-gym-theme] .overview-title h1,[data-gym-theme] .overview-section-title h2{border-left-color:var(--gym-accent)}
+[data-gym-theme] .plan-tile{--tile-bg:var(--gym-soft);--tile-accent:var(--gym-accent)}
+[data-gym-theme] .plan-tile-edit,[data-gym-theme] .plan-tile-icon,[data-gym-theme] .manager-chart-legend span:first-child{color:var(--gym-accent)}
+[data-gym-theme] .manager-chart-legend span:first-child i{background:var(--gym-accent)}
+[data-gym-theme] thead,[data-gym-theme] th{background:var(--gym-soft);color:var(--gym-accent)}
+[data-gym-theme] .panel,[data-gym-theme] .modal-card,[data-gym-theme] .overview-card{border-color:var(--gym-border)}
+[data-gym-theme] .password-field .password-toggle{background:transparent;color:var(--gym-accent)}
+[data-gym-theme] .country-menu button{background:white;color:#222}
+[data-gym-theme] .country-menu button:hover{background:var(--gym-soft);color:var(--gym-accent)}
+/* Status colors remain semantic, independent of gym branding. */
+[data-gym-theme] .attendance-present{background:#11833c;color:white}
+[data-gym-theme] .attendance-absent{background:#c62828;color:white}
+[data-gym-theme] .delete-button,[data-gym-theme] .logout-button{background:#c62828;color:white}
+[data-gym-theme] .whatsapp-button{background:#118c4b;color:white}
+@media(max-width:850px){
+ [data-gym-theme] .management-bottom-nav,[data-gym-theme] .supervisor-task-nav{background:var(--gym-accent)!important}
+ [data-gym-theme] .management-bottom-nav>button,[data-gym-theme] .sidebar .supervisor-task-nav button{background:transparent!important;color:white!important}
+ [data-gym-theme] .management-bottom-nav>button[aria-current=page],[data-gym-theme] .sidebar .supervisor-task-nav button[aria-current=page]{background:var(--gym-hover)!important;color:white!important}
+ [data-gym-theme] .management-bottom-nav .mobile-add{background:white!important;color:var(--gym-accent)!important}
+}
