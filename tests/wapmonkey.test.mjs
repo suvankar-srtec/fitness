@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {sendWapMonkeyGatePass,sendWapMonkeyCredentials} from '../lib/wapmonkey.mjs';
+import {sendWapMonkeyGatePass,sendWapMonkeyInvitation} from '../lib/wapmonkey.mjs';
 import {gatePassMediaUrl,validMediaRequest} from '../lib/whatsapp-media.mjs';
 const configuration={token:'test-key',deviceToken:'test-device',publicUrl:'https://gym.example.com'};
 const member={id:1,public_id:'mem01',name:'Member',phone:'+919876543210',gym_name:'Gym',plan:'Gold',status:'Active',valid_from:'2026-01-01',valid_to:'2026-12-31'};
@@ -13,6 +13,6 @@ test('WapMonkey failures and unrecognized responses never claim success or retry
  for(const response of [Response.json({success:false}),Response.json({status:true})])await assert.rejects(sendWapMonkeyGatePass(member,{configuration,fetcher:async()=>response}));assert.throws(()=>gatePassMediaUrl(1,{...configuration,publicUrl:'http://localhost:3000'}),/public HTTPS/);
 });
 
-test('staff credentials send directly through WapMonkey with the exact assigned password',async()=>{
- let calls=0;const password='p a&ss#123';const result=await sendWapMonkeyCredentials({name:'Supervisor',userId:'sup01',phone:'+919876543210'},password,{configuration,fetcher:async(url,options)=>{calls++;const body=JSON.parse(options.body);assert.equal(url,'https://api.wapmonkey.com/v1/sendmessage');assert.equal(options.headers.Authorization,'test-key');assert.equal(body.device_token,'test-device');assert.equal(body.numbers,'919876543210');assert.deepEqual(body.media,[]);assert.ok(body.message.includes('User ID: sup01'));assert.ok(body.message.includes('Password: '+password));assert.ok(body.message.includes(configuration.publicUrl));return Response.json({message_id:'credential-message'});}});assert.equal(calls,1);assert.equal(result.messageId,'credential-message');
+test('staff setup invitations use mobile login and never transmit a password',async()=>{
+ let calls=0;const result=await sendWapMonkeyInvitation({name:'Supervisor',phone:'+919876543210'},{configuration,fetcher:async(url,options)=>{calls++;const body=JSON.parse(options.body);assert.equal(url,'https://api.wapmonkey.com/v1/sendmessage');assert.equal(options.headers.Authorization,'test-key');assert.equal(body.device_token,'test-device');assert.equal(body.numbers,'919876543210');assert.deepEqual(body.media,[]);assert.ok(body.message.includes('Mobile number: +919876543210'));assert.ok(!body.message.includes('Password:'));assert.ok(body.message.includes('setup=1'));return Response.json({message_id:'invitation-message'});}});assert.equal(calls,1);assert.equal(result.messageId,'invitation-message');
 });

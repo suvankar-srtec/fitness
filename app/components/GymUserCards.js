@@ -15,7 +15,7 @@ export default function GymUserCards({users,query,currentUser,canManage,busy,onE
   const editable=canManage&&user.role!=='manager'&&(user.role!=='superadmin'||user.id===currentUser?.id||isMainSuperadmin(currentUser));
   return <li className="gym-user-row" key={user.id}>
    <div className="gym-user-avatar" aria-hidden="true">{user.name?.trim().charAt(0).toUpperCase()||'U'}</div>
-   <div className="gym-user-detail"><strong>{user.name}</strong><span>{user.userId} · {user.role==='manager'?'Manager':user.role==='admin'?'Admin (Gym owner)':user.role==='superadmin'?'Superadmin':'Supervisor'}</span>{user.phone&&<a href={'tel:'+user.phone}>{user.phone}</a>}</div>
+   <div className="gym-user-detail"><strong>{user.name}</strong><span>{user.userId} · {user.role==='manager'?'Manager':user.role==='admin'?'Admin (Gym owner)':user.role==='superadmin'?'Superadmin':'Supervisor'}</span>{user.phone?<a href={'tel:'+user.phone}>{user.phone}</a>:user.phoneNeedsUpdate&&<span>Update phone</span>}</div>
    {canManage&&<div className="row-actions">{editable&&<button type="button" className="secondary" disabled={busy} onClick={()=>onEdit(user)}>Edit</button>}{!['superadmin','manager'].includes(user.role)&&<button type="button" className="delete-button" disabled={busy} onClick={()=>onDelete(user)}>Delete</button>}</div>}
   </li>;
  }
