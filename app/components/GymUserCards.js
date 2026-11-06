@@ -7,6 +7,20 @@ function CompanyAvatar({name,logo}){
  const [failed,setFailed]=useState(false);
  return <div className="gym-team-logo">{logo&&!failed?<img src={logo} alt={name+' logo'} onError={()=>setFailed(true)}/>:<span aria-hidden="true">{name?.trim().charAt(0).toUpperCase()||'G'}</span>}</div>;
 }
+function GymEnvelope({gym,onOpen}){
+ const [accent,setAccent]=useState('#555555');
+ function readLogo(event){
+  try{
+   const canvas=document.createElement('canvas');canvas.width=32;canvas.height=32;
+   const context=canvas.getContext('2d',{willReadFrequently:true});context.drawImage(event.currentTarget,0,0,32,32);
+   const pixels=context.getImageData(0,0,32,32).data;const buckets=new Map();
+   for(let i=0;i<pixels.length;i+=4){const r=pixels[i],g=pixels[i+1],b=pixels[i+2];if(pixels[i+3]<128||Math.max(r,g,b)-Math.min(r,g,b)<35)continue;const key=[r>>5,g>>5,b>>5].join(',');const bucket=buckets.get(key)||{r:0,g:0,b:0,n:0};bucket.r+=r;bucket.g+=g;bucket.b+=b;bucket.n++;buckets.set(key,bucket);}
+   const best=[...buckets.values()].sort((a,b)=>b.n-a.n)[0];if(best)setAccent('rgb('+[best.r,best.g,best.b].map(value=>Math.round(value/best.n)).join(',')+')');
+  }catch{/* A remote logo without CORS permission uses the neutral fallback. */}
+ }
+ const owner=gym.users.find(user=>user.role==='admin');
+ return <button type="button" className="gym-pocket" style={{'--gym-accent':accent}} onClick={()=>onOpen(gym)} aria-label={'Open '+gym.name+' accounts'}><span className="gym-pocket-insert gym-pocket-insert-back" aria-hidden="true"/><span className="gym-pocket-insert gym-pocket-insert-front">{gym.logo?<img src={gym.logo} alt={gym.name+' logo'} onLoad={readLogo}/>:<span className="gym-pocket-initial">{gym.name?.trim().charAt(0).toUpperCase()||'G'}</span>}</span><span className="gym-pocket-front"><strong>{gym.name}</strong>{owner?.gymAddress&&<span>{owner.gymAddress}</span>}</span></button>;
+}
 export default function GymUserCards({users,query,currentUser,canManage,busy,onEdit,onDelete}){
  const {gyms,unassigned}=groupGymUsers(users,query);
  const dialog=useRef(null);
@@ -24,5 +38,5 @@ export default function GymUserCards({users,query,currentUser,canManage,busy,onE
   const owner=gym.users.find(user=>user.role==='admin');
   return <article className="gym-team-card" key={gym.id}><header className="gym-team-header"><CompanyAvatar key={gym.logo} name={gym.name} logo={gym.logo}/><div className="gym-team-heading"><h3>{gym.name||'Gym'}</h3>{owner?.gymAddress&&<p>{owner.gymAddress}</p>}</div><button type="button" className="gym-envelope-close" aria-label="Close gym accounts" onClick={close}>&#215;</button></header><div className="gym-team-roles">{roles.map(([role,label])=>{const people=gym.users.filter(user=>user.role===role);return people.length>0&&<section className="gym-team-role" key={role} aria-label={label+' at '+gym.name}><header><h4>{label}</h4><span>{people.length}</span></header><ul>{people.map(person)}</ul></section>;})}</div></article>;
  }
- return <div className="gym-users-directory"><div className="gym-envelope-grid">{groups.map(gym=><button type="button" className="gym-envelope" key={gym.id} onClick={()=>open(gym)} aria-label={'Open '+gym.name+' accounts'}><span className="gym-envelope-art" aria-hidden="true"><svg viewBox="0 0 240 150"><rect x="2" y="2" width="236" height="146" rx="14"/><path d="M5 8L120 90 235 8M5 143l78-62m152 62l-78-62"/></svg><CompanyAvatar key={gym.logo} name={gym.name} logo={gym.logo}/></span><strong>{gym.name}</strong><span className="gym-envelope-count">{gym.users.length} {gym.users.length===1?'account':'accounts'}</span></button>)}</div>{!groups.length&&<div className="empty">No matching admins</div>}<dialog ref={dialog} className="gym-envelope-dialog" aria-label={active?active.name+' accounts':'Gym accounts'} onCancel={close} onClick={event=>{if(event.target===event.currentTarget)close();}}>{active&&card(active)}</dialog></div>;
+ return <div className="gym-users-directory"><div className="gym-envelope-grid">{groups.map(gym=><GymEnvelope key={gym.id} gym={gym} onOpen={open}/>)}</div>{!groups.length&&<div className="empty">No matching admins</div>}<dialog ref={dialog} className="gym-envelope-dialog" aria-label={active?active.name+' accounts':'Gym accounts'} onCancel={close} onClick={event=>{if(event.target===event.currentTarget)close();}}>{active&&card(active)}</dialog></div>;
 }
