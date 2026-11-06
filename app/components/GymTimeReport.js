@@ -18,7 +18,7 @@ export default function GymTimeReport(){
    finally{pending=false;if(active)setLoading(false);}
   }
   refresh();
-  const timer=setInterval(refresh,10000);
+  const timer=setInterval(refresh,5000);
   const channel=typeof BroadcastChannel!=='undefined'?new BroadcastChannel('gym-attendance-updates'):null;
   if(channel)channel.onmessage=refresh;
   window.addEventListener('focus',refresh);document.addEventListener('visibilitychange',refresh);
