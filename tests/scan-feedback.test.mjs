@@ -3,3 +3,12 @@ const request=()=>new Request('https://gym.example/api/gate-pass-scan',{method:'
 const supervisor={id:11,role:'supervisor',created_by:17,location_id:4};
 test('wrong-location pass is rejected without recording attendance',async()=>{let writes=0;const sql=(strings)=>{if(strings.join('').includes('INSERT INTO attendance'))writes++;return Promise.resolve([]);};const response=await gatePassApi('gate-pass-scan',request(),supervisor,sql);assert.equal(response.status,404);assert.equal(writes,0);});
 test('expired QR returns the gym phone and does not mark present',async()=>{let writes=0;const sql=(strings)=>{if(strings.join('').includes('INSERT INTO attendance'))writes++;return Promise.resolve([{id:1,public_id:'mem01',name:'Test',status:'Active',plan:'Monthly',valid_from:'2020-01-01',valid_to:'2020-02-01',gym_phone:'+919876543210'}]);};const response=await gatePassApi('gate-pass-scan',request(),supervisor,sql);const data=await response.json();assert.equal(data.markedPresent,false);assert.equal(data.membershipStatus,'Expired');assert.equal(data.gymPhone,'+919876543210');assert.equal(writes,0);});
+
+test('successful scans return stored entry and exit timestamps for supervisor feedback',async()=>{
+ for(const lastOut of [null,'2026-11-06T12:00:00Z']){
+  const firstIn='2026-11-06T10:00:00Z';
+  const sql=async(strings)=>{const query=strings.join('');if(query.includes('INSERT INTO attendance'))return [{id:9}];if(query.includes('SELECT a.id'))return [{id:9,first_in_at:firstIn,last_out_at:lastOut}];return [{id:1,public_id:'mem01',name:'Test',status:'Active',plan:'Monthly',valid_from:'2020-01-01',valid_to:'2099-01-01'}];};
+  const response=await gatePassApi('gate-pass-scan',request(),supervisor,sql),data=await response.json();
+  assert.equal(data.markedPresent,true);assert.equal(data.timingUpdated,true);assert.equal(data.firstIn,firstIn);assert.equal(data.lastOut,lastOut);
+ }
+});
