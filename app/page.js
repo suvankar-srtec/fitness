@@ -71,9 +71,9 @@ export default function Home() {
  async function deletePlan(plan){if(!window.confirm('Delete '+plan.name+'?'))return;setBusy(true);setError('');try{await api('plans','DELETE',{id:plan.id});setPlans(await api('plans'));setError('');}catch(e){setError(e.message);}finally{setBusy(false);}}
  async function signOut(){try{await api('logout','POST');setMe(null);setMobileNavOpen(false);setPlans([]);setPlanOpen(false);setPlanMenuOpen(false);setRows([]);setMembers([]);setQuery('');setTab('dashboard');setSupervisors([]);setManagers([]);setError('');}catch(e){setError(e.message);}}
  async function deleteRecord(record){
-  if(!window.confirm('Delete '+record.name+'?'))return;
+  if(!window.confirm('Delete '+record.name+'? Their records will be kept and access disabled.'))return;
   setBusy(true);setError('');
-  try{await api(record.userId?(record.role==='manager'?'managers':record.role==='supervisor'?'supervisors':'admins'):'members','DELETE',{id:record.id});await load(me);}catch(e){setError(e.message);}finally{setBusy(false);}
+  try{await api(record.userId?(record.role==='manager'?'managers':record.role==='supervisor'?'supervisors':'admins'):'members','DELETE',{id:record.id});await load(me);window.alert('Deleted. All records have been retained.');}catch(e){window.alert(e.message);}finally{setBusy(false);}
  }
  async function sendWhatsApp(record){
   setWhatsappNotice('');

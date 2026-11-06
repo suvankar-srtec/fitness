@@ -42,8 +42,8 @@ try {
   const key=tokenHash(root?'sp00':phone);
   const [attempt]=await sql`INSERT INTO login_attempts(key,attempts) VALUES(${key},1) ON CONFLICT(key) DO UPDATE SET attempts=CASE WHEN login_attempts.started_at<NOW()-INTERVAL '10 minutes' THEN 1 ELSE login_attempts.attempts+1 END,started_at=CASE WHEN login_attempts.started_at<NOW()-INTERVAL '10 minutes' THEN NOW() ELSE login_attempts.started_at END RETURNING attempts`;
   if(attempt.attempts>30)return fail('Too many attempts. Try again in 10 minutes.',429);
-  const users=root?await sql`SELECT * FROM users WHERE public_id='sp00' AND role='superadmin'`:await sql`SELECT u.*,(SELECT name FROM gym_locations WHERE id=u.location_id) AS location_name FROM users u JOIN account_phone_registry r ON r.source_table='users' AND r.record_id=u.id AND r.phone=u.phone WHERE u.phone=${phone} AND u.role IN ('admin','manager','supervisor')`;
-  const u=users[0];if(!u)return fail('Invalid mobile number or password',401);
+  const users=root?await sql`SELECT *,gym_account_enabled(id) AS account_enabled FROM users WHERE public_id='sp00' AND role='superadmin'`:await sql`SELECT u.*,gym_account_enabled(u.id) AS account_enabled,(SELECT name FROM gym_locations WHERE id=u.location_id) AS location_name FROM users u JOIN account_phone_registry r ON r.source_table='users' AND r.record_id=u.id AND r.phone=u.phone WHERE u.phone=${phone} AND u.role IN ('admin','manager','supervisor')`;
+  const u=users[0];if(!u||!u.account_enabled)return fail('Invalid mobile number or password',401);
   if(!root&&!u.password_ready)return response({error:'Verify your WhatsApp number and set your password first.',code:'PASSWORD_SETUP_REQUIRED'},403);
   if(root&&!isMainSuperadmin(publicUser(u))||!await verifyPassword(b.password,u.password))return fail('Invalid mobile number or password',401);
   if(['manager','supervisor'].includes(u.role)){const [admin]=await sql`SELECT COALESCE(NULLIF(gym_name,''),name) AS gym_name FROM users WHERE id=${u.created_by} AND role='admin'`;u.gym_name=admin?.gym_name||'';}
@@ -55,8 +55,8 @@ try {
   const result=response(sessionProfile(u));result.cookies.set('session',token,{httpOnly:true,sameSite:'strict',secure:process.env.NODE_ENV==='production',path:'/',maxAge:28800});return result;
  }
  const token=req.cookies.get('session')?.value;if(!token)return fail('Please sign in',401);
- const [u]=await sql`SELECT u.*,(SELECT name FROM gym_locations WHERE id=u.location_id) AS location_name,CASE WHEN u.role IN ('manager','supervisor') THEN (SELECT COALESCE(NULLIF(gym_name,''),name) FROM users WHERE id=u.created_by AND role='admin') ELSE u.gym_name END AS gym_name FROM users u JOIN sessions s ON u.id=s.user_id WHERE s.token_hash=${tokenHash(token)} AND s.expires_at>NOW()`;
- if(!u||u.role==='superadmin'&&!isMainSuperadmin(publicUser(u)))return fail('Please sign in',401);
+ const [u]=await sql`SELECT u.*,gym_account_enabled(u.id) AS account_enabled,(SELECT name FROM gym_locations WHERE id=u.location_id) AS location_name,CASE WHEN u.role IN ('manager','supervisor') THEN (SELECT COALESCE(NULLIF(gym_name,''),name) FROM users WHERE id=u.created_by AND role='admin') ELSE u.gym_name END AS gym_name FROM users u JOIN sessions s ON u.id=s.user_id WHERE s.token_hash=${tokenHash(token)} AND s.expires_at>NOW()`;
+ if(!u||!u.account_enabled||u.role==='superadmin'&&!isMainSuperadmin(publicUser(u)))return fail('Please sign in',401);
  if(u.role!=='superadmin'&&!u.password_ready)return fail('Verify your WhatsApp number and set your password.',401);
  sql=withAuditActor(sql,u);
  if(u.role==='manager'&&!['me','logout','manager-dashboard','supervisors','attendance','credentials','member-photo'].includes(action))return fail('Manager access is limited to your assigned location',403);
@@ -70,7 +70,7 @@ try {
   const adminId=Number(new URL(req.url).searchParams.get('adminId')||(u.role==='admin'?u.id:0));
   if(!Number.isInteger(adminId)||adminId<1||adminId>2147483647)return fail('Select a gym',400);
   if(u.role==='admin'&&adminId!==u.id)return fail('Access denied',403);
-  const [gym]=await sql`SELECT id FROM users WHERE id=${adminId} AND role='admin'`;if(!gym)return fail('Gym not found',404);
+  const [gym]=await sql`SELECT id FROM users WHERE archived_at IS NULL AND id=${adminId} AND role='admin'`;if(!gym)return fail('Gym not found',404);
   return response(await sql`SELECT id,name FROM gym_locations WHERE admin_id=${adminId} AND lower(trim(name))<>'main location' ORDER BY lower(name)`);
  }
  if(action==='supervisor-summary'){
@@ -78,7 +78,7 @@ try {
   if(req.method!=='GET')return fail('Method not allowed',405);
   if(u.role!=='supervisor')return fail('Supervisor access required',403);
   const today=memberToday();
-  const [summary]=await sql`SELECT count(*)::int AS "totalMembers",count(*) FILTER(WHERE joined>=date_trunc('month',${today}::date)::date AND joined<=${today}::date)::int AS "joinedThisMonth" FROM members WHERE admin_id=${u.created_by} AND location_id=${u.location_id}`;
+  const [summary]=await sql`SELECT count(*)::int AS "totalMembers",count(*) FILTER(WHERE joined>=date_trunc('month',${today}::date)::date AND joined<=${today}::date)::int AS "joinedThisMonth" FROM members WHERE archived_at IS NULL AND admin_id=${u.created_by} AND location_id=${u.location_id}`;
   return response(summary);
  }
  if(action==='attendance')return await attendanceApi(req,u,sql);
@@ -115,7 +115,8 @@ try {
   if(target.role==='superadmin'&&!isMainSuperadmin(publicUser(u))&&target.id!==u.id)return fail('Only sp00 can manage other superadmins',403);
   if(req.method==='DELETE'){
    if(target.role==='superadmin')return fail('The superadmin account cannot be deleted',403);
-   await sql`DELETE FROM users WHERE id=${b.id} AND role IN ('admin','supervisor')`;return response({ok:true});
+   if(target.role==='manager')return fail('Only the gym admin can delete this manager',403);
+   await sql`UPDATE users SET archived_at=NOW() WHERE id=${b.id} AND role IN ('admin','supervisor') AND archived_at IS NULL`;return response({ok:true});
   }
   if(typeof b.name!=='string'||!b.name.trim()||b.name.trim().length>100)return fail('Enter a name',400);
   const phone=b.phone===''&&target.role==='superadmin'?'':normalizeWhatsAppPhone(target.role==='admin'?b.gymPhone:b.phone,target.role==='admin'?b.gymCountry:b.country);if(phone===null)return fail('Invalid phone number',400);
@@ -125,7 +126,7 @@ try {
   if(target.role==='supervisor'){
    gymAdminId=Number(b.gymAdminId??target.created_by);
    if(!Number.isInteger(gymAdminId)||gymAdminId<1)return fail('Select a gym',400);
-   const [gym]=await sql`SELECT id FROM users WHERE id=${gymAdminId} AND role='admin'`;
+   const [gym]=await sql`SELECT id FROM users WHERE archived_at IS NULL AND id=${gymAdminId} AND role='admin'`;
    if(!gym)return fail('Select a valid gym',400);
    assignedLocation=await resolveGymLocation(sql,gymAdminId,b.locationName!==undefined||b.locationId!==undefined?b:{locationId:gymAdminId===target.created_by?target.location_id:null});
   }
@@ -144,9 +145,9 @@ try {
   const b=await req.json();if(!Number.isInteger(b.id)||b.id<=0)return fail('Invalid record',400);
   let deleted=[];
   if(action==='plans'&&u.role==='admin')deleted=await sql`UPDATE plans SET archived=TRUE WHERE id=${b.id} AND admin_id=${u.id} AND archived=FALSE RETURNING id`;
-  else if(action==='members'&&['superadmin','admin'].includes(u.role))deleted=u.role==='superadmin'?await sql`DELETE FROM members WHERE id=${b.id} RETURNING id`:await sql`DELETE FROM members WHERE id=${b.id} AND admin_id=${u.id} RETURNING id`;
-  else if(action==='supervisors'&&['superadmin','admin'].includes(u.role))deleted=u.role==='superadmin'?await sql`DELETE FROM users WHERE id=${b.id} AND role='supervisor' RETURNING id`:await sql`DELETE FROM users WHERE id=${b.id} AND role='supervisor' AND created_by=${u.id} RETURNING id`;
-  else if(action==='admins'&&u.role==='superadmin')deleted=await sql`DELETE FROM users WHERE id=${b.id} AND role='admin' RETURNING id`;
+  else if(action==='members'&&['superadmin','admin'].includes(u.role))deleted=u.role==='superadmin'?await sql`UPDATE members SET archived_at=NOW() WHERE archived_at IS NULL AND id=${b.id} RETURNING id`:await sql`UPDATE members SET archived_at=NOW() WHERE archived_at IS NULL AND id=${b.id} AND admin_id=${u.id} RETURNING id`;
+  else if(action==='supervisors'&&['superadmin','admin'].includes(u.role))deleted=u.role==='superadmin'?await sql`UPDATE users SET archived_at=NOW() WHERE archived_at IS NULL AND id=${b.id} AND role='supervisor' RETURNING id`:await sql`UPDATE users SET archived_at=NOW() WHERE archived_at IS NULL AND id=${b.id} AND role='supervisor' AND created_by=${u.id} RETURNING id`;
+  else if(action==='admins'&&u.role==='superadmin')deleted=await sql`UPDATE users SET archived_at=NOW() WHERE archived_at IS NULL AND id=${b.id} AND role='admin' RETURNING id`;
   else return fail('Access denied',403);
   return deleted.length?response({ok:true}):fail('Record not found',404);
  }
@@ -158,12 +159,12 @@ try {
  if(action==='admins') {
   if(req.method==='POST'&&!canCreateGymAdmin(publicUser(u)))return fail('This account cannot create gym admins',403);
   if(u.role!=='superadmin')return fail('Superadmin access required',403);
-  if(req.method==='GET')return response((await sql`SELECT id,public_id,name,role,phone,pending_phone,password_ready,gym_name,gym_address,gym_phone,gym_website,created_by,gym_logo FROM users WHERE role='admin' ORDER BY id DESC`).map(publicUser));
+  if(req.method==='GET')return response((await sql`SELECT id,public_id,name,role,phone,pending_phone,password_ready,gym_name,gym_address,gym_phone,gym_website,created_by,gym_logo FROM users WHERE role='admin' AND archived_at IS NULL ORDER BY id DESC`).map(publicUser));
   if(req.method==='POST'){const b=await req.json();if(typeof b.name!=='string'||!b.name.trim()||b.name.length>100)return fail('Enter a name',400);if(typeof b.gymName!=='string'||!b.gymName.trim()||b.gymName.trim().length>100)return fail('Enter a gym name',400);const phone=normalizeWhatsAppPhone(b.gymPhone,b.gymCountry);if(!phone)return fail('Invalid phone number',400);const password=await hashPassword(randomBytes(32).toString('hex'));const gymLogo=await normalizeMemberPicture(b.gymLogo);if(!gymLogo)return fail('Upload a gym logo',400);const branding=normalizeGymBranding(b);const [admin]=await sql`INSERT INTO users(name,password,role,phone,created_by,gym_name,gym_logo,gym_address,gym_phone,gym_website) VALUES(${b.name.trim()},${password},'admin',${phone},${u.id},${b.gymName.trim()},${'data:image/jpeg;base64,'+gymLogo},${branding.address},${branding.phone},${branding.website}) RETURNING id,public_id,name,role,phone,pending_phone,password_ready,gym_name,gym_address,gym_phone,gym_website,created_by,gym_logo`;return response(publicUser(admin),201);}
  }
  if(action==='supervisors') {
   if(!['superadmin','admin'].includes(u.role))return fail('Admin or superadmin access required',403);
-  if(req.method==='GET'){const rows=u.role==='superadmin'?await sql`SELECT s.id,s.public_id,s.name,s.role,s.phone,s.pending_phone,s.password_ready,s.created_by,s.location_id,(SELECT name FROM gym_locations WHERE id=s.location_id) AS location_name,COALESCE(NULLIF(a.gym_name,''),a.name) AS gym_name FROM users s LEFT JOIN users a ON s.created_by=a.id AND a.role='admin' WHERE s.role='supervisor' ORDER BY s.id DESC`:await sql`SELECT s.id,s.public_id,s.name,s.role,s.phone,s.created_by,s.location_id,(SELECT name FROM gym_locations WHERE id=s.location_id) AS location_name,COALESCE(NULLIF(a.gym_name,''),a.name) AS gym_name FROM users s LEFT JOIN users a ON s.created_by=a.id AND a.role='admin' WHERE s.role='supervisor' AND s.created_by=${u.id} ORDER BY s.id DESC`;return response(rows.map(publicUser));}
+  if(req.method==='GET'){const rows=u.role==='superadmin'?await sql`SELECT s.id,s.public_id,s.name,s.role,s.phone,s.pending_phone,s.password_ready,s.created_by,s.location_id,(SELECT name FROM gym_locations WHERE id=s.location_id) AS location_name,COALESCE(NULLIF(a.gym_name,''),a.name) AS gym_name FROM users s LEFT JOIN users a ON s.created_by=a.id AND a.role='admin' WHERE s.archived_at IS NULL AND gym_account_enabled(s.id) AND s.role='supervisor' ORDER BY s.id DESC`:await sql`SELECT s.id,s.public_id,s.name,s.role,s.phone,s.created_by,s.location_id,(SELECT name FROM gym_locations WHERE id=s.location_id) AS location_name,COALESCE(NULLIF(a.gym_name,''),a.name) AS gym_name FROM users s LEFT JOIN users a ON s.created_by=a.id AND a.role='admin' WHERE s.archived_at IS NULL AND gym_account_enabled(s.id) AND s.role='supervisor' AND s.created_by=${u.id} ORDER BY s.id DESC`;return response(rows.map(publicUser));}
   if(req.method==='POST')return fail('Only the assigned location manager can create supervisors',403);
  }
  if(action==='plans'){
@@ -215,7 +216,7 @@ try {
    ]);
    return updated.length?response({memberId:updated[0].public_id}):fail('Member not found',404);
   }
-  if(req.method==='GET'){const rows=u.role==='superadmin'?await sql`SELECT m.*,(SELECT name FROM gym_locations WHERE id=m.location_id) AS "locationName",(SELECT COALESCE(NULLIF(gym_owner.gym_name,''),gym_owner.name) FROM users gym_owner WHERE gym_owner.id=m.admin_id) AS "gymName",to_char(m.joined,'YYYY-MM-DD') AS joined,to_char(m.valid_from,'YYYY-MM-DD') AS valid_from,to_char(m.valid_to,'YYYY-MM-DD') AS valid_to,to_char(m.dob,'YYYY-MM-DD') AS dob,EXISTS(SELECT 1 FROM member_pictures p WHERE p.member_id=m.id) AS has_picture FROM members m ORDER BY m.id DESC`:await sql`SELECT m.*,(SELECT name FROM gym_locations WHERE id=m.location_id) AS "locationName",(SELECT COALESCE(NULLIF(gym_owner.gym_name,''),gym_owner.name) FROM users gym_owner WHERE gym_owner.id=m.admin_id) AS "gymName",to_char(m.joined,'YYYY-MM-DD') AS joined,to_char(m.valid_from,'YYYY-MM-DD') AS valid_from,to_char(m.valid_to,'YYYY-MM-DD') AS valid_to,to_char(m.dob,'YYYY-MM-DD') AS dob,EXISTS(SELECT 1 FROM member_pictures p WHERE p.member_id=m.id) AS has_picture FROM members m WHERE m.admin_id=${['manager','supervisor'].includes(u.role)?u.created_by:u.id} ORDER BY m.id DESC`;return response(rows.map(m=>({...m,age:m.dob?ageFromDateOfBirth(m.dob):m.age,registrationNo:m.public_id,memberId:m.public_id,profilePictureUrl:m.has_picture?'/api/member-photo?id='+m.id:null})));}
+  if(req.method==='GET'){const rows=u.role==='superadmin'?await sql`SELECT m.*,(SELECT name FROM gym_locations WHERE id=m.location_id) AS "locationName",(SELECT COALESCE(NULLIF(gym_owner.gym_name,''),gym_owner.name) FROM users gym_owner WHERE gym_owner.id=m.admin_id) AS "gymName",to_char(m.joined,'YYYY-MM-DD') AS joined,to_char(m.valid_from,'YYYY-MM-DD') AS valid_from,to_char(m.valid_to,'YYYY-MM-DD') AS valid_to,to_char(m.dob,'YYYY-MM-DD') AS dob,EXISTS(SELECT 1 FROM member_pictures p WHERE p.member_id=m.id) AS has_picture FROM members m WHERE m.archived_at IS NULL ORDER BY m.id DESC`:await sql`SELECT m.*,(SELECT name FROM gym_locations WHERE id=m.location_id) AS "locationName",(SELECT COALESCE(NULLIF(gym_owner.gym_name,''),gym_owner.name) FROM users gym_owner WHERE gym_owner.id=m.admin_id) AS "gymName",to_char(m.joined,'YYYY-MM-DD') AS joined,to_char(m.valid_from,'YYYY-MM-DD') AS valid_from,to_char(m.valid_to,'YYYY-MM-DD') AS valid_to,to_char(m.dob,'YYYY-MM-DD') AS dob,EXISTS(SELECT 1 FROM member_pictures p WHERE p.member_id=m.id) AS has_picture FROM members m WHERE m.archived_at IS NULL AND m.admin_id=${['manager','supervisor'].includes(u.role)?u.created_by:u.id} ORDER BY m.id DESC`;return response(rows.map(m=>({...m,age:m.dob?ageFromDateOfBirth(m.dob):m.age,registrationNo:m.public_id,memberId:m.public_id,profilePictureUrl:m.has_picture?'/api/member-photo?id='+m.id:null})));}
   if(req.method==='POST'){
    if(u.role!=='admin')return fail('Sign in as an admin to add members',403);
    const b=await req.json(),m=validateMember(b);if(m.error)return fail(m.error,400);

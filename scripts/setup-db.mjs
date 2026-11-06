@@ -1,3 +1,4 @@
+import {ensureArchiveSchema} from './archive-schema.mjs';
 import {ensurePhoneAuthSchema} from './phone-auth-schema.mjs';
 import {ensureManagerSchema} from './manager-schema.mjs';
 import {ensureGymBrandingSchema} from './gym-branding-schema.mjs';
@@ -63,6 +64,7 @@ await ensureSingleSuperadmin(sql);
 await ensureGymLocationSchema(sql);
 await ensureManagerSchema(sql);
 await ensurePhoneAuthSchema(sql);
+await ensureArchiveSchema(sql);
 await sql`UPDATE users SET name='Superadmin' WHERE role='superadmin' AND name='Gym owner'`;
 await ensureAuditSchema(sql);
 console.log('Neon schema ready. Main superadmin user ID: sp00. Existing accounts are preserved.');
