@@ -30,7 +30,7 @@ const fail=(error,status)=>response({error},status);
 async function handle(req,context) {
 try {
  const {action}=await context.params;
- if(!['managers','manager-dashboard','audit','gym-locations','supervisor-summary','gate-pass','gate-pass-scan','whatsapp-gate-pass','login','logout','me','superadmins','admins','members','supervisors','credentials','plans','member-photo','member-registration','memberships','membership-payments','users','attendance'].includes(action))return fail('Not found',404);
+ if(!['manager-registration','managers','manager-dashboard','audit','gym-locations','supervisor-summary','gate-pass','gate-pass-scan','whatsapp-gate-pass','login','logout','me','superadmins','admins','members','supervisors','credentials','plans','member-photo','member-registration','memberships','membership-payments','users','attendance'].includes(action))return fail('Not found',404);
  if(['POST','PATCH','DELETE'].includes(req.method)) {const origin=req.headers.get('origin');if(origin&&origin!==new URL(req.url).origin)return fail('Invalid origin',403);}
  let sql=database();
  if(action==='login'&&req.method==='POST') {
@@ -53,7 +53,7 @@ try {
  if(!u||u.role==='superadmin'&&!isMainSuperadmin(publicUser(u)))return fail('Please sign in',401);
  sql=withAuditActor(sql,u);
  if(u.role==='manager'&&!['me','logout','manager-dashboard','supervisors','attendance','credentials','member-photo'].includes(action))return fail('Manager access is limited to your assigned location',403);
- if(['managers','manager-dashboard'].includes(action))return await managerApi(action,req,u,sql);
+ if(['manager-registration','managers','manager-dashboard'].includes(action))return await managerApi(action,req,u,sql);
  if(action==='supervisors'&&u.role==='manager')return await managerSupervisors(req,u,sql);
  if(action==='audit')return await auditApi(req,u,sql);
  if(['gate-pass','gate-pass-scan','whatsapp-gate-pass'].includes(action))return await gatePassApi(action,req,u,sql);
