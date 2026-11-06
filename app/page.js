@@ -1,4 +1,5 @@
 'use client';
+import MemberDashboard from './components/MemberDashboard';
 import VideoLibrary from './components/VideoLibrary';
 import {matchesUserSearch} from '../lib/user-search.mjs';
 // @refresh reset
@@ -89,7 +90,7 @@ export default function Home() {
 
  if(loading)return <div className="loading">Loading your workspace…</div>;
  if(!me)return <LoginPanel onSignIn={signIn} error={error} onClearError={()=>setError('')} busy={busy}/>;
- if(me.role==='member')return <main className="member-home"><header><div><h1>{me.gymName}</h1><span>Member</span></div><button type="button" className="logout-button" onClick={signOut}>Logout</button></header><h2>{me.name}</h2><VideoLibrary/><details className="member-pass-details"><summary>Member pass</summary><img className="member-own-pass" src="/api/member-pass" alt="Your membership QR pass" loading="lazy"/></details></main>;
+ if(me.role==='member')return <MemberDashboard user={me} onSignOut={signOut}/>;
  if(me.role==='manager')return <ManagerDashboard user={me} onSignOut={signOut}/>;
  if(supervisor)return <SupervisorDashboard user={me} onSignOut={signOut} error={error}/>;
  const pageTitle=tab==='videos'?'Videos':tab==='dashboard'?'Dashboard':attendancePages[tab]||membershipPages[tab]||moduleLabels[tab]||(tab==='plans'?'Plans':tab==='managers'?'Managers':tab==='supervisors'?'Supervisors':tab==='all-members'?'Members':owner?'Administrators':'Members');
