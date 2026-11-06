@@ -1,3 +1,4 @@
+import {resolvePhoneAccount} from '../../../lib/phone-account.mjs';
 import {videoApi} from '../../../lib/video-api';
 import {memberLogin,memberSession} from '../../../lib/member-auth';
 import {memberPhoneAuthApi} from '../../../lib/member-phone-auth-api';
@@ -39,8 +40,9 @@ try {
  let sql=database();
  if(action.startsWith('member-otp-'))return await memberPhoneAuthApi(action.slice(7),req,sql);
  if(action==='member-login'&&req.method==='POST')return await memberLogin(req,sql);
- if(['otp-request','otp-verify','otp-set-password'].includes(action))return await phoneAuthApi(action,req,sql);
+ if(['otp-request','otp-verify','otp-set-password'].includes(action)){const account=await resolvePhoneAccount(action,await req.clone().json(),sql);return await (account==='member'?memberPhoneAuthApi:phoneAuthApi)(action,req,sql);}
  if(action==='login'&&req.method==='POST') {
+  if(await resolvePhoneAccount('login',await req.clone().json(),sql)==='member')return await memberLogin(req,sql);
   const b=await req.json();if(typeof b.password!=='string'||!b.password)return fail('Enter your mobile number and password',400);
   const root=typeof b.userId==='string'&&b.userId.trim().toLowerCase()==='sp00';
   const phone=root?null:loginPhone(b.phone,b.country);if(!root&&!phone)return fail('Enter a valid mobile number',400);
