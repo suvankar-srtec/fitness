@@ -1,12 +1,12 @@
+import {loginApi} from '../../../lib/login-api.js';
 import {adminRecentActivity} from '../../../lib/admin-recent-activity';
-import {gymLogoApi} from '../../../lib/gym-logo-api';
+const gymLogoApi=async(...args)=>(await import('../../../lib/gym-logo-api')).gymLogoApi(...args);
 import {gymTimeReport,gymTimeCalendar} from '../../../lib/gym-time-report';
 import {resolvePhoneAccount} from '../../../lib/phone-account.mjs';
-import {videoApi} from '../../../lib/video-api';
-import {memberLogin,memberSession} from '../../../lib/member-auth';
+const videoApi=async(...args)=>(await import('../../../lib/video-api')).videoApi(...args);
+const memberSession=async(...args)=>(await import('../../../lib/member-auth')).memberSession(...args);
 import {memberPhoneAuthApi} from '../../../lib/member-phone-auth-api';
 import {phoneAuthApi} from '../../../lib/phone-auth-api';
-import {loginPhone} from '../../../lib/phone-auth.mjs';
 import {normalizeGymBranding} from '../../../lib/gym-branding.mjs';
 import {sessionProfile} from '../../../lib/session-profile.mjs';
 import {managerApi} from '../../../lib/manager-api';
@@ -16,21 +16,21 @@ import {withAuditActor} from '../../../lib/audit-database.mjs';
 import {auditApi} from '../../../lib/audit-api';
 import {sendWapMonkeyInvitation} from '../../../lib/wapmonkey.mjs';
 import {whatsappConfiguration} from '../../../lib/whatsapp-cloud.mjs';
-import {resolveGymLocation,normalizeLocationName} from '../../../lib/gym-locations.mjs';
-import {gatePassApi} from '../../../lib/gate-pass-api';
+import {resolveGymLocation} from '../../../lib/gym-locations.mjs';
+const gatePassApi=async(...args)=>(await import('../../../lib/gate-pass-api')).gatePassApi(...args);
 import { PAYMENT_MODES, registrationPayment } from '../../../lib/payments.mjs';
 import { isMainSuperadmin, canCreateGymAdmin } from '../../../lib/user-permissions.mjs';
 import { publicUser } from '../../../lib/user-profile.mjs';
 import { attendanceApi } from '../../../lib/attendance-api';
 import { membershipApi } from '../../../lib/membership-api';
 import { validateMember, ageFromDateOfBirth, memberToday } from '../../../lib/members.mjs';
-import { normalizeMemberPicture } from '../../../lib/member-picture.mjs';
+const normalizeMemberPicture=async(...args)=>(await import('../../../lib/member-picture.mjs')).normalizeMemberPicture(...args);
 import { validatePlan } from '../../../lib/plans.mjs';
 import { normalizeWhatsAppPhone } from '../../../lib/whatsapp.mjs';
 import { NextResponse } from 'next/server';
 import { randomBytes } from 'node:crypto';
 import { database } from '../../../lib/db';
-import { hashPassword, verifyPassword, tokenHash } from '../../../lib/password.mjs';
+import { hashPassword, tokenHash } from '../../../lib/password.mjs';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
 const response=(data,status=200)=>NextResponse.json(data,{status,headers:{'Cache-Control':'no-store'}});
@@ -42,26 +42,9 @@ try {
  if(['POST','PATCH','DELETE'].includes(req.method)) {const origin=req.headers.get('origin');if(origin&&origin!==new URL(req.url).origin)return fail('Invalid origin',403);}
  let sql=database();
  if(action.startsWith('member-otp-'))return await memberPhoneAuthApi(action.slice(7),req,sql);
- if(action==='member-login'&&req.method==='POST')return await memberLogin(req,sql);
+ if(action==='member-login'&&req.method==='POST')return await loginApi(req,sql,{memberOnly:true});
  if(['otp-request','otp-verify','otp-set-password'].includes(action)){const account=await resolvePhoneAccount(action,await req.clone().json(),sql);return await (account==='member'?memberPhoneAuthApi:phoneAuthApi)(action,req,sql);}
- if(action==='login'&&req.method==='POST') {
-  if(await resolvePhoneAccount('login',await req.clone().json(),sql)==='member')return await memberLogin(req,sql);
-  const b=await req.json();if(typeof b.password!=='string'||!b.password)return fail('Enter your mobile number and password',400);
-  const root=typeof b.userId==='string'&&b.userId.trim().toLowerCase()==='sp00';
-  const phone=root?null:loginPhone(b.phone,b.country);if(!root&&!phone)return fail('Enter a valid mobile number',400);
-  const key=tokenHash(root?'sp00':phone);
-  const [[attempt],users]=await Promise.all([sql`INSERT INTO login_attempts(key,attempts) VALUES(${key},1) ON CONFLICT(key) DO UPDATE SET attempts=CASE WHEN login_attempts.started_at<NOW()-INTERVAL '10 minutes' THEN 1 ELSE login_attempts.attempts+1 END,started_at=CASE WHEN login_attempts.started_at<NOW()-INTERVAL '10 minutes' THEN NOW() ELSE login_attempts.started_at END RETURNING attempts`,root?sql`SELECT *,gym_account_enabled(id) AS account_enabled FROM users WHERE public_id='sp00' AND role='superadmin'`:sql`SELECT u.*,CASE WHEN u.role IN ('manager','supervisor') THEN (SELECT gym_logo FROM users WHERE id=u.created_by AND role='admin') ELSE u.gym_logo END AS gym_logo,gym_account_enabled(u.id) AS account_enabled,CASE WHEN u.role IN ('manager','supervisor') THEN (SELECT COALESCE(NULLIF(gym_name,''),name) FROM users WHERE id=u.created_by AND role='admin') ELSE u.gym_name END AS gym_name,(SELECT name FROM gym_locations WHERE id=u.location_id) AS location_name FROM users u JOIN account_phone_registry r ON r.source_table='users' AND r.record_id=u.id AND r.phone=u.phone WHERE u.phone=${phone} AND u.role IN ('admin','manager','supervisor')`]);
-  if(attempt.attempts>30)return fail('Too many attempts. Try again in 10 minutes.',429);
-  const u=users[0];if(!u||!u.account_enabled)return fail('Invalid mobile number or password',401);
-  if(!root&&!u.password_ready)return response({error:'Verify your WhatsApp number and set your password first.',code:'PASSWORD_SETUP_REQUIRED'},403);
-  if(root&&!isMainSuperadmin(publicUser(u))||!await verifyPassword(b.password,u.password))return fail('Invalid mobile number or password',401);
-  if(['manager','supervisor'].includes(u.role)&&(!u.created_by||!u.location_id||!normalizeLocationName(u.location_name)||!u.gym_name))return fail('Ask your gym admin to assign your gym and location',403);
-  sql=withAuditActor(sql,u);
-
-  const token=randomBytes(32).toString('hex');
-  await sql.transaction([sql`DELETE FROM login_attempts WHERE key=${key}`,sql`INSERT INTO sessions(token_hash,user_id,expires_at) VALUES(${tokenHash(token)},${u.id},NOW()+(28800*INTERVAL '1 second'))`]);
-  const result=response(sessionProfile(u));result.cookies.set('session',token,{httpOnly:true,sameSite:'strict',secure:process.env.NODE_ENV==='production',path:'/',maxAge:28800});return result;
- }
+ if(action==='login'&&req.method==='POST')return await loginApi(req,sql);
  const token=req.cookies.get('session')?.value;if(!token)return fail('Please sign in',401);
  if(token.startsWith('m.')){const memberResponse=await memberSession(action,req,sql,token);return memberResponse||fail('Please sign in',401);}
  const [u]=await sql`SELECT u.*,CASE WHEN u.role IN ('manager','supervisor') THEN (SELECT gym_logo FROM users WHERE id=u.created_by AND role='admin') ELSE u.gym_logo END AS gym_logo,gym_account_enabled(u.id) AS account_enabled,(SELECT name FROM gym_locations WHERE id=u.location_id) AS location_name,CASE WHEN u.role IN ('manager','supervisor') THEN (SELECT COALESCE(NULLIF(gym_name,''),name) FROM users WHERE id=u.created_by AND role='admin') ELSE u.gym_name END AS gym_name FROM users u JOIN sessions s ON u.id=s.user_id WHERE s.token_hash=${tokenHash(token)} AND s.expires_at>NOW()`;
