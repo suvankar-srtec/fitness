@@ -1,7 +1,6 @@
 'use client';
 import {useEffect,useRef,useState} from 'react';
 import {cameraErrorMessage,startQrCamera} from '../../lib/qr-scanner.mjs';
-import {gatePassTokenFromQr} from '../../lib/gate-pass.mjs';
 import {scanTimingMessage} from '../../lib/scan-timing.mjs';
 import {requestApi} from '../../lib/api-client.mjs';
 export default function SupervisorScanner({onAttendanceMarked}) {
@@ -12,7 +11,6 @@ export default function SupervisorScanner({onAttendanceMarked}) {
  useEffect(()=>()=>{scanRun.current++;},[]);
  async function scanned(text){
   setActive(false);setCameraError('');setScanError('');setResult(null);
-  if(!gatePassTokenFromQr(text)){setScanError('Scan a valid gym gate-pass QR code.');setStatus('');setMarking(false);return;}
   const run=++scanRun.current;setMarking(true);setStatus('Marking attendance...');
   try{const data=await requestApi('gate-pass-scan','POST',{qr:text});if(data.markedPresent&&typeof BroadcastChannel!=='undefined'){const channel=new BroadcastChannel('gym-attendance-updates');channel.postMessage({date:data.date});channel.close();}if(run!==scanRun.current)return;if(data.markedPresent)onMarked.current?.(data);setResult(data);if(data.membershipStatus==='Expired')setExpiryNotice({phone:data.gymPhone||''});setStatus(data.markedPresent?(data.alreadyPresent?'Already marked present today':'Marked present'):data.membershipStatus==='Expired'?'Membership expired':'Gate pass is not active');}
   catch(error){if(run===scanRun.current){setScanError(error.message);setStatus('');}}

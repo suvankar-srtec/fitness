@@ -1,3 +1,4 @@
+import {adminRecentActivity} from '../../../lib/admin-recent-activity';
 import {gymLogoApi} from '../../../lib/gym-logo-api';
 import {gymTimeReport,gymTimeCalendar} from '../../../lib/gym-time-report';
 import {resolvePhoneAccount} from '../../../lib/phone-account.mjs';
@@ -37,7 +38,7 @@ const fail=(error,status)=>response({error},status);
 async function handle(req,context) {
 try {
  const {action}=await context.params;
- if(!['gym-logo','member-time-calendar','gym-time-report','videos','video-stream','member-login','member-pass','member-otp-request','member-otp-verify','member-otp-set-password','otp-request','otp-verify','otp-set-password','manager-registration','managers','manager-dashboard','audit','gym-locations','supervisor-summary','gate-pass','gate-pass-scan','whatsapp-gate-pass','login','logout','me','superadmins','admins','members','supervisors','credentials','plans','member-photo','member-registration','memberships','membership-payments','users','attendance'].includes(action))return fail('Not found',404);
+ if(!['admin-recent-activity','gym-logo','member-time-calendar','gym-time-report','videos','video-stream','member-login','member-pass','member-otp-request','member-otp-verify','member-otp-set-password','otp-request','otp-verify','otp-set-password','manager-registration','managers','manager-dashboard','audit','gym-locations','supervisor-summary','gate-pass','gate-pass-scan','whatsapp-gate-pass','login','logout','me','superadmins','admins','members','supervisors','credentials','plans','member-photo','member-registration','memberships','membership-payments','users','attendance'].includes(action))return fail('Not found',404);
  if(['POST','PATCH','DELETE'].includes(req.method)) {const origin=req.headers.get('origin');if(origin&&origin!==new URL(req.url).origin)return fail('Invalid origin',403);}
  let sql=database();
  if(action.startsWith('member-otp-'))return await memberPhoneAuthApi(action.slice(7),req,sql);
@@ -70,6 +71,7 @@ try {
  if(['manager-registration','managers','manager-dashboard'].includes(action))return await managerApi(action,req,u,sql);
  if(['videos','video-stream'].includes(action))return await videoApi(action,req,u,sql);
  if(action==='supervisors'&&u.role==='manager')return await managerSupervisors(req,u,sql);
+ if(action==='admin-recent-activity')return await adminRecentActivity(req,u,sql);
  if(action==='gym-logo')return await gymLogoApi(req,u,sql);
  if(action==='audit')return await auditApi(req,u,sql);
  if(['gate-pass','gate-pass-scan','whatsapp-gate-pass'].includes(action))return await gatePassApi(action,req,u,sql);
