@@ -99,3 +99,11 @@
  .admin-recent-activity td small{font-size:9px}
  .admin-recent-activity .attendance-pill{font-size:9px;padding:4px 6px;white-space:nowrap}
 }
+@media(min-width:851px){
+ .modal-overlay.member-form-overlay{align-items:center;padding:16px;overflow-y:auto;scrollbar-width:none}
+ .modal-overlay.member-form-overlay::-webkit-scrollbar{display:none}
+ .member-form-overlay .member-registration:not(.member-payment-step){width:min(1080px,calc(100vw - 32px));max-height:none;margin:auto;overflow:visible}
+ .member-form-overlay .member-registration:not(.member-payment-step)>form{max-height:none}
+ .member-form-overlay .member-registration .member-form-grid{overflow:visible;padding:16px 24px;flex:none}
+ .member-form-overlay .member-registration .member-additional-grid{border-top:0!important}
+}
