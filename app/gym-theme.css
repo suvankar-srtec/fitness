@@ -36,3 +36,7 @@
 }
 
 [data-gym-theme] .member-calendar-link,.member-calendar-link{background:transparent!important;color:var(--gym-accent,#111)!important;padding:0;text-decoration:underline;text-underline-offset:3px;font-size:inherit}
+
+/* Alternating audit rows follow the current gym palette. */
+.audit-sheet tbody tr:nth-child(even)>td{background:var(--gym-soft,#f2f2f2)}
+.audit-sheet tbody tr:nth-child(odd)>td{background:#ffffff}
