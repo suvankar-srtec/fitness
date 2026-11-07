@@ -1,0 +1,13 @@
+export async function ensureMemberMeasurementSchema(sql){
+ await sql`ALTER TABLE members ADD COLUMN IF NOT EXISTS initial_height_ft NUMERIC(4,2), ADD COLUMN IF NOT EXISTS initial_weight_kg NUMERIC(6,2)`;
+ await sql`CREATE TABLE IF NOT EXISTS member_measurements(id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,member_id INTEGER NOT NULL REFERENCES members(id),height_ft NUMERIC(4,2),weight_kg NUMERIC(6,2),recorded_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),CHECK(height_ft IS NOT NULL OR weight_kg IS NOT NULL))`;
+ await sql`CREATE INDEX IF NOT EXISTS member_measurements_member_time ON member_measurements(member_id,recorded_at,id)`;
+ await sql`UPDATE members SET initial_height_ft=COALESCE(initial_height_ft,height_ft),initial_weight_kg=COALESCE(initial_weight_kg,weight_kg) WHERE initial_height_ft IS NULL AND height_ft IS NOT NULL OR initial_weight_kg IS NULL AND weight_kg IS NOT NULL`;
+ await sql`INSERT INTO member_measurements(member_id,height_ft,weight_kg) SELECT id,height_ft,weight_kg FROM members m WHERE (height_ft IS NOT NULL OR weight_kg IS NOT NULL) AND NOT EXISTS(SELECT 1 FROM member_measurements h WHERE h.member_id=m.id)`;
+ await sql`CREATE OR REPLACE FUNCTION gym_measurement_baseline() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF TG_OP='INSERT' THEN NEW.initial_height_ft=NEW.height_ft; NEW.initial_weight_kg=NEW.weight_kg; ELSE NEW.initial_height_ft=COALESCE(OLD.initial_height_ft,NEW.height_ft); NEW.initial_weight_kg=COALESCE(OLD.initial_weight_kg,NEW.weight_kg); END IF; RETURN NEW; END $$`;
+ await sql`CREATE OR REPLACE FUNCTION gym_measurement_history() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF NEW.height_ft IS NOT NULL OR NEW.weight_kg IS NOT NULL THEN IF TG_OP='INSERT' THEN INSERT INTO member_measurements(member_id,height_ft,weight_kg) VALUES(NEW.id,NEW.height_ft,NEW.weight_kg); ELSIF NEW.height_ft IS DISTINCT FROM OLD.height_ft OR NEW.weight_kg IS DISTINCT FROM OLD.weight_kg THEN INSERT INTO member_measurements(member_id,height_ft,weight_kg) VALUES(NEW.id,NEW.height_ft,NEW.weight_kg); END IF; END IF; RETURN NEW; END $$`;
+ await sql`CREATE OR REPLACE FUNCTION gym_measurement_immutable() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'Measurement history cannot be changed or deleted'; END $$`;
+ await sql`CREATE OR REPLACE TRIGGER gym_measurement_baseline BEFORE INSERT OR UPDATE ON members FOR EACH ROW EXECUTE FUNCTION gym_measurement_baseline()`;
+ await sql`CREATE OR REPLACE TRIGGER gym_measurement_history AFTER INSERT OR UPDATE ON members FOR EACH ROW EXECUTE FUNCTION gym_measurement_history()`;
+ await sql`CREATE OR REPLACE TRIGGER gym_measurement_immutable BEFORE UPDATE OR DELETE ON member_measurements FOR EACH ROW EXECUTE FUNCTION gym_measurement_immutable()`;
+}

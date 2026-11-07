@@ -2,8 +2,8 @@ import test from 'node:test';import assert from 'node:assert/strict';
 import {adminRecentActivity,recordGymScan} from '../lib/admin-recent-activity.js';
 import {gatePassApi} from '../lib/gate-pass-api.js';
 test('recent activity is scoped to the gym and limits scans to ten rows',async()=>{
- let count=0;const sql=async(strings,...values)=>{count++;const query=strings.join('?');if(query.includes('gym_scan_events')){assert.match(query,/LIMIT 10/);assert.deepEqual(values,[8]);return [];}assert.equal(values[1],8);assert.match(query,/a.source='qr'/);return [{present:2,absent:1}];};
- const response=await adminRecentActivity(new Request('https://gym.test/api/admin-recent-activity'),{role:'admin',id:8},sql);assert.equal(response.status,200);assert.equal(count,2);assert.deepEqual(await response.json(),{scans:[],summary:{present:2,absent:1}});
+ let count=0;const sql=async(strings,...values)=>{count++;const query=strings.join('?');if(query.includes('gym_scan_events')){assert.match(query,/LIMIT 10/);assert.deepEqual(values,[8,true,null]);return [];}if(query.includes('generate_series'))return [];assert.equal(values[1],8);assert.match(query,/a.source='qr'/);return [{present:2,absent:1}];};
+ const response=await adminRecentActivity(new Request('https://gym.test/api/admin-recent-activity'),{role:'admin',id:8},sql);assert.equal(response.status,200);assert.equal(count,3);assert.deepEqual(await response.json(),{scans:[],attendance:[],summary:{present:2,absent:1}});
 });
 test('members, supervisors and managers cannot read gym-wide activity',async()=>{for(const role of ['member','supervisor','manager','superadmin']){const response=await adminRecentActivity(new Request('https://gym.test'),{role},()=>{throw Error('Unexpected query');});assert.equal(response.status,403);}});
 test('scan history stores outcome and assigned scope without QR secrets',async()=>{
