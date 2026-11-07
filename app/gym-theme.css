@@ -78,3 +78,4 @@
 .member-payment-step .member-form-footer .actions{flex-wrap:nowrap;gap:8px}
 .member-payment-step .member-form-footer .actions>button,.member-payment-step .member-form-footer .actions>.save-member{flex:0 1 auto;min-width:0;padding:10px 14px;font-size:12px}
 @media(max-width:600px){.member-payment-step .member-form-footer .actions>button,.member-payment-step .member-form-footer .actions>.save-member{flex:1;padding:10px 8px}.member-payment-step .member-form-header,.member-payment-step .member-payment-content,.member-payment-step .member-form-footer{padding-left:14px;padding-right:14px}}
+@media(max-width:850px){.admin-recent-activity .tablewrap{scrollbar-width:none;-ms-overflow-style:none}.admin-recent-activity .tablewrap::-webkit-scrollbar{display:none;width:0;height:0}}
