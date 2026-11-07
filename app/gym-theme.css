@@ -62,3 +62,19 @@
 .member-form-grid legend{font-size:14px;font-weight:700;padding:0 0 8px;color:var(--gym-accent,#111)}.member-additional-grid{border-top:1px solid var(--gym-border,#ddd)!important;padding-top:8px!important}.member-additional-grid .member-field small{font-size:10px;color:#666}.member-payment-due{font-size:13px;margin:10px 0}.member-payment-content>input,.member-payment-content>select{margin-bottom:12px}@media(min-width:851px){.member-registration .member-form-grid{row-gap:8px;padding-top:10px;padding-bottom:10px}.member-registration .member-field input,.member-registration .member-field select{min-height:34px;height:34px}.member-registration .member-form-header{padding-top:14px;padding-bottom:14px}.member-registration .member-form-footer{padding-top:10px;padding-bottom:10px}}
 
 .manager-overview{width:100%;min-width:0}.manager-overview-heading{display:flex;justify-content:flex-end;margin:18px 0}.manager-overview .manager-member-select{max-width:100%;width:340px}.manager-overview .manager-charts{width:100%}.manager-overview .manager-chart{min-width:0}@media(max-width:600px){.manager-overview .manager-summary-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.manager-overview .manager-charts{grid-template-columns:minmax(0,1fr)}}
+/* Compact registration payment dialog, including its action row. */
+.member-form-overlay .member-registration.member-payment-step{width:min(520px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow:hidden}
+.member-payment-step>form{max-height:calc(100dvh - 24px)}
+.member-payment-step .member-form-header{padding:12px 18px}
+.member-payment-step .member-form-header h2{font-size:20px}
+.member-payment-step .member-payment-content{padding:14px 18px;overflow-y:auto;min-height:0}
+.member-payment-step .member-payment-summary{padding:12px;gap:12px;margin:0 0 14px}
+.member-payment-step .member-payment-summary dt{font-size:11px;margin-bottom:3px}
+.member-payment-step .member-payment-summary dd{font-size:14px}
+.member-payment-step .member-payment-content>label{font-size:12px;margin:0 0 5px}
+.member-payment-step .member-payment-content>input,.member-payment-step .member-payment-content>select{height:38px;min-height:38px;padding:8px 10px;margin:0 0 10px;font-size:13px}
+.member-payment-step .member-payment-due{font-size:12px;margin:0 0 10px}
+.member-payment-step .member-form-footer{padding:10px 18px}
+.member-payment-step .member-form-footer .actions{flex-wrap:nowrap;gap:8px}
+.member-payment-step .member-form-footer .actions>button,.member-payment-step .member-form-footer .actions>.save-member{flex:0 1 auto;min-width:0;padding:10px 14px;font-size:12px}
+@media(max-width:600px){.member-payment-step .member-form-footer .actions>button,.member-payment-step .member-form-footer .actions>.save-member{flex:1;padding:10px 8px}.member-payment-step .member-form-header,.member-payment-step .member-payment-content,.member-payment-step .member-form-footer{padding-left:14px;padding-right:14px}}
