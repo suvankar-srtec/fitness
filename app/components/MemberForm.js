@@ -4,6 +4,7 @@ import GymLocationInput from './GymLocationInput';
 import PhoneInput from './PhoneInput';
 import { membershipEndDate, validateMember, ageFromDateOfBirth, memberToday } from '../../lib/members.mjs';
 import { requestApi } from '../../lib/api-client.mjs';
+import {canUpgradePlan} from '../../lib/member-upgrade.mjs';
 import { PAYMENT_MODES, registrationPayment } from '../../lib/payments.mjs';
 
 function today(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
@@ -28,7 +29,7 @@ export default function MemberForm({gymAdminId,assignedLocation=null,plans,membe
    const activeFields=event.currentTarget.querySelector(step==='details'?'.member-basic-grid':'.member-additional-grid');
    for(const input of activeFields.querySelectorAll('input,select,textarea'))if(!input.reportValidity())return;
    const data={...Object.fromEntries(new FormData(event.currentTarget)),profilePicture:member&&!photoChanged?undefined:photo,registrationToken:registration?.registrationToken};
-   if(member){data.planId=member.plan_id;data.validFrom=member.valid_from;data.validTo=member.valid_to;}
+   if(member){data.planId=planId;data.validFrom=member.valid_from;data.validTo=member.valid_to;}
    const validated=validateMember(data);if(validated.error){setError(validated.error);return;}
    if(step==='details'){setStep('additional');return;}
    if(member){setBusy(true);try{await onSave(data);}catch(error){setError(error.message);}finally{setBusy(false);}return;}
@@ -45,9 +46,9 @@ export default function MemberForm({gymAdminId,assignedLocation=null,plans,membe
  <div className="member-field"><label htmlFor="memberName">Name<span className="required">*</span></label><input id="memberName" name="name" required maxLength={100} defaultValue={member?.name||''} autoFocus/></div>
  <div className="member-field"><label htmlFor="memberPhone">Phone<span className="required">*</span></label><PhoneInput id="memberPhone" defaultValue={member?.phone||''}/></div>
  <div className="member-field"><label htmlFor="gender">Gender</label><select id="gender" name="gender" defaultValue={member?.gender||'Male'}><option>Male</option><option>Female</option><option>Other</option></select></div>
- <div className="member-field member-birth-field"><div><label htmlFor="memberDob">Date of birth</label><input id="memberDob" name="dob" type="date" value={dob} max={memberToday()} onChange={event=>{setDob(event.target.value);setAge(ageFromDateOfBirth(event.target.value)??'');}}/></div><div><label htmlFor="age">Age</label><input id="age" name="age" value={age} readOnly aria-label="Calculated age"/></div></div>
+ <div className="member-field member-birth-field"><div><label htmlFor="memberDob">Date of birth</label><input id="memberDob" name="dob" type="date" readOnly={!!member?.dob} value={dob} max={memberToday()} onChange={event=>{setDob(event.target.value);setAge(ageFromDateOfBirth(event.target.value)??'');}}/></div><div><label htmlFor="age">Age</label><input id="age" name="age" value={age} readOnly aria-label="Calculated age"/></div></div>
  <div className="member-field"><label htmlFor="memberStatus">Status</label><select id="memberStatus" name="status" defaultValue={member?.status||'Active'}><option>Active</option><option>Inactive</option></select></div>
- <div className="member-field"><label htmlFor="membership">Plan<span className="required">*</span></label><select id="membership" name="planId" disabled={!!member} required value={planId} onChange={e=>{setPlanId(e.target.value);changeDates(from,e.target.value);}}><option value="" disabled>{plans.length?'Select plan':'No plans'}</option>{member&&!plans.some(plan=>String(plan.id)===String(member.plan_id))&&<option value={member.plan_id}>{member.plan}</option>}{plans.map(p=><option key={p.id} value={p.id} disabled={p.amount==null}>{p.name}</option>)}</select></div>
+ <div className="member-field"><label htmlFor="membership">Plan<span className="required">*</span></label><select id="membership" name="planId" required value={planId} onChange={e=>{setPlanId(e.target.value);if(!member)changeDates(from,e.target.value);}}><option value="" disabled>{plans.length?'Select plan':'No plans'}</option>{member&&!plans.some(plan=>String(plan.id)===String(member.plan_id))&&<option value={member.plan_id}>{member.plan}</option>}{plans.map(p=><option key={p.id} value={p.id} disabled={member?!canUpgradePlan(member.plan_id,member.current_plan_amount??plans.find(plan=>plan.id===member.plan_id)?.amount,p):p.amount==null}>{p.name}</option>)}</select></div>
  <div className="member-field"><label htmlFor="validFrom">Membership Valid From<span className="required">*</span></label><input id="validFrom" readOnly={!!member} type="date" name="validFrom" required value={from} onChange={e=>{setFrom(e.target.value);changeDates(e.target.value,planId);}}/></div>
  <div className="member-field"><label htmlFor="validTo">To<span className="required">*</span></label><input id="validTo" readOnly={!!member} type="date" name="validTo" min={from} required value={to} onChange={e=>setTo(e.target.value)}/></div>
  <div className="member-field"><label htmlFor="memberLocation">Location *</label>{assignedLocation?<><input id="memberLocation" value={assignedLocation.name} readOnly/><input type="hidden" name="locationId" value={assignedLocation.id}/></>:<GymLocationInput id="memberLocation" gymAdminId={gymAdminId} defaultValue={draft?.locationName||member?.locationName||''}/>}</div>
