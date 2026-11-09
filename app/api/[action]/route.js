@@ -214,11 +214,12 @@ try {
    if(!existing||branch&&existing.location_id!==branch)return fail('Member not found',404);
    const validFrom=String(existing.valid_from).slice(0,10),validTo=String(existing.valid_to).slice(0,10);
    if(b.validFrom!==undefined&&b.validFrom!==validFrom||b.validTo!==undefined&&b.validTo!==validTo)return fail('Membership dates cannot be changed while editing member details',409);
+   if(existing.gender&&b.gender!==undefined&&b.gender!==existing.gender)return fail('Gender cannot be changed once saved',409);
    if(fixedDateOfBirth(existing.dob,b.dob))return fail('Date of birth cannot be changed once saved',409);
    const requestedPlanId=Number(b.planId??existing.plan_id);
    const [requestedPlan]=await sql`SELECT id,name,amount FROM plans WHERE id=${requestedPlanId} AND admin_id=${existing.admin_id} AND (archived=FALSE OR id=${existing.plan_id})`;
    if(!canUpgradePlan(existing.plan_id,existing.current_plan_amount,requestedPlan))return fail('Select your current plan or a higher-priced plan. Downgrades are not allowed.',409);
-   const m=validateMember({...b,dob:b.dob===undefined?existing.dob:b.dob,planId:requestedPlanId,validFrom,validTo});if(m.error)return fail(m.error,400);
+   const m=validateMember({...b,gender:existing.gender||b.gender,dob:b.dob===undefined?existing.dob:b.dob,planId:requestedPlanId,validFrom,validTo});if(m.error)return fail(m.error,400);
    if(branch&&(b.locationId!==undefined&&Number(b.locationId)!==branch||b.locationName!==undefined&&b.locationName.trim().toLowerCase()!==u.location_name.toLowerCase()))return fail('Use your assigned location',403);
    const location=await resolveGymLocation(sql,existing.admin_id,b.locationName!==undefined||b.locationId!==undefined?b:{locationId:existing.location_id});
    const picture=b.profilePicture===undefined?null:await normalizeMemberPicture(b.profilePicture);
