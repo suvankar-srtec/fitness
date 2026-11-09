@@ -114,3 +114,7 @@
  .sidebar .sidebar-identity>.navbar-update-logo{display:block;width:auto!important;text-align:left;margin:3px 0 0!important;padding:0!important;font-size:14px!important;line-height:1.3;background:transparent!important}
  .sidebar .sidebar-identity:has(>.gym-brand>img)>.navbar-update-logo{margin-left:38px!important}
 }
+
+/* Keep task navigation quiet until selected, consistent with workspace navigation. */
+[data-gym-theme] .sidebar .supervisor-task-nav button:not([aria-current=page]){background:transparent!important;color:var(--gym-accent)!important}
+[data-gym-theme] .sidebar .supervisor-task-nav button:not([aria-current=page]):hover{background:white!important}
