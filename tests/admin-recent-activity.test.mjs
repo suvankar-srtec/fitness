@@ -7,9 +7,9 @@ test('recent activity is scoped to the gym and limits scans to ten rows',async()
 });
 test('members, supervisors and managers cannot read gym-wide activity',async()=>{for(const role of ['member','supervisor','manager','superadmin']){const response=await adminRecentActivity(new Request('https://gym.test'),{role},()=>{throw Error('Unexpected query');});assert.equal(response.status,403);}});
 test('scan history stores outcome and assigned scope without QR secrets',async()=>{
- const sql=async(strings,...values)=>{assert.match(strings.join('?'),/INSERT INTO gym_scan_events/);assert.deepEqual(values,[8,3,11,null,'Rejected','Wrong gym']);return [];};await recordGymScan(sql,{created_by:8,location_id:3,id:11},{result:'Rejected',reason:'Wrong gym'});
+ const sql=async(strings,...values)=>{assert.match(strings.join('?'),/INSERT INTO gym_scan_events/);assert.deepEqual(values,[8,3,11,null,null,'Rejected','Wrong gym']);return [];};await recordGymScan(sql,{created_by:8,location_id:3,id:11},{result:'Rejected',reason:'Wrong gym'});
 });
 test('invalid QR attempts are persisted as rejected without marking attendance',async()=>{
- let logged=false;const sql=async(strings,...values)=>{const query=strings.join('?');assert.ok(!query.includes('INSERT INTO attendance'));if(query.includes('INSERT INTO gym_scan_events')){logged=true;assert.equal(values[4],'Rejected');}return [];};
+ let logged=false;const sql=async(strings,...values)=>{const query=strings.join('?');assert.ok(!query.includes('INSERT INTO attendance'));if(query.includes('INSERT INTO gym_scan_events')){logged=true;assert.equal(values[5],'Rejected');}return [];};
  const request=new Request('https://gym.test/api/gate-pass-scan',{method:'POST',body:JSON.stringify({qr:'not a pass'})});assert.equal((await gatePassApi('gate-pass-scan',request,{role:'supervisor',id:11,created_by:8,location_id:3},sql)).status,400);assert.equal(logged,true);
 });

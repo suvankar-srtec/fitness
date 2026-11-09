@@ -1,3 +1,4 @@
+import {ensureStaffPassSchema} from '../lib/staff-pass.mjs';
 import {ensureCommerceSchema} from '../lib/commerce-schema.mjs';
 import {ensureMemberMeasurementSchema} from './member-measurement-schema.mjs';
 import {ensureScanEventSchema} from './scan-event-schema.mjs';
@@ -74,8 +75,9 @@ await ensureMemberLoginSchema(sql);
 await sql`UPDATE users SET name='Superadmin' WHERE role='superadmin' AND name='Gym owner'`;
 await ensureVideoSchema(sql);
 await ensureCommerceSchema(sql);
-await ensureAuditSchema(sql);
 await ensureScanEventSchema(sql);
+await ensureStaffPassSchema(sql);
+await ensureAuditSchema(sql);
 await ensureMemberMeasurementSchema(sql);
 console.log('Neon schema ready. Main superadmin user ID: sp00. Existing accounts are preserved.');
 } catch { console.error('Database setup failed. Check the Neon connection string and database access.'); process.exitCode=1; }
