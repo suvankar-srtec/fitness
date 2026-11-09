@@ -9,12 +9,12 @@ export async function ensureAuditSchema(sql){
   BEGIN
    actor:=COALESCE(NULLIF(current_setting('app.audit_actor',true),'')::jsonb,'{}'::jsonb);
    owner_id:=NULLIF(row_value->>'admin_id','')::integer;
-   entity_name:=CASE table_name WHEN 'gym_videos' THEN 'Videos' WHEN 'members' THEN 'Members' WHEN 'plans' THEN 'Plans' WHEN 'membership_assignments' THEN 'Memberships' WHEN 'membership_payments' THEN 'Payments' WHEN 'attendance' THEN 'Attendance' WHEN 'gym_locations' THEN 'Locations' WHEN 'member_pictures' THEN 'Member photos' WHEN 'whatsapp_gate_pass_messages' THEN 'WhatsApp' WHEN 'sessions' THEN 'Sessions' WHEN 'member_sessions' THEN 'Sessions' ELSE 'Staff' END;
+   entity_name:=CASE table_name WHEN 'gym_supplements' THEN 'Supplements' WHEN 'supplement_orders' THEN 'Supplement orders' WHEN 'gym_videos' THEN 'Videos' WHEN 'members' THEN 'Members' WHEN 'plans' THEN 'Plans' WHEN 'membership_assignments' THEN 'Memberships' WHEN 'membership_payments' THEN 'Payments' WHEN 'attendance' THEN 'Attendance' WHEN 'gym_locations' THEN 'Locations' WHEN 'member_pictures' THEN 'Member photos' WHEN 'whatsapp_gate_pass_messages' THEN 'WhatsApp' WHEN 'sessions' THEN 'Sessions' WHEN 'member_sessions' THEN 'Sessions' ELSE 'Staff' END;
    IF table_name='users' THEN
     owner_id:=CASE WHEN row_value->>'role'='admin' THEN (row_value->>'id')::integer WHEN row_value->>'role' IN ('manager','supervisor') THEN (row_value->>'created_by')::integer ELSE NULL END;
     entity_name:=CASE row_value->>'role' WHEN 'admin' THEN 'Admins' WHEN 'supervisor' THEN 'Supervisors' WHEN 'manager' THEN 'Managers' ELSE 'Superadmin' END;
    END IF;
-   IF table_name IN ('attendance','member_pictures','whatsapp_gate_pass_messages','membership_assignments') THEN
+   IF table_name IN ('supplement_orders','attendance','member_pictures','whatsapp_gate_pass_messages','membership_assignments') THEN
     SELECT to_jsonb(m) INTO member_value FROM members m WHERE m.id=(row_value->>'member_id')::integer;
     owner_id:=COALESCE(owner_id,(member_value->>'admin_id')::integer);
    END IF;
@@ -49,8 +49,8 @@ export async function ensureAuditSchema(sql){
    END IF;
    IF table_name IN ('users','members') THEN member_value:=row_value;END IF;
    IF member_value IS NOT NULL THEN
-    IF safe_old IS NOT NULL THEN safe_old:=safe_old||jsonb_build_object('subject_role',CASE WHEN table_name IN ('members','member_sessions','attendance','member_pictures','whatsapp_gate_pass_messages','membership_assignments','membership_payments') THEN 'member' ELSE member_value->>'role' END,'subject_location_id',COALESCE(old_value->>'location_id',member_value->>'location_id'));END IF;
-    IF safe_new IS NOT NULL THEN safe_new:=safe_new||jsonb_build_object('subject_role',CASE WHEN table_name IN ('members','member_sessions','attendance','member_pictures','whatsapp_gate_pass_messages','membership_assignments','membership_payments') THEN 'member' ELSE member_value->>'role' END,'subject_location_id',member_value->>'location_id');END IF;
+    IF safe_old IS NOT NULL THEN safe_old:=safe_old||jsonb_build_object('subject_role',CASE WHEN table_name IN ('members','member_sessions','supplement_orders','attendance','member_pictures','whatsapp_gate_pass_messages','membership_assignments','membership_payments') THEN 'member' ELSE member_value->>'role' END,'subject_location_id',COALESCE(old_value->>'location_id',member_value->>'location_id'));END IF;
+    IF safe_new IS NOT NULL THEN safe_new:=safe_new||jsonb_build_object('subject_role',CASE WHEN table_name IN ('members','member_sessions','supplement_orders','attendance','member_pictures','whatsapp_gate_pass_messages','membership_assignments','membership_payments') THEN 'member' ELSE member_value->>'role' END,'subject_location_id',member_value->>'location_id');END IF;
    END IF;
    IF event_operation='UPDATE' AND safe_old IS NOT DISTINCT FROM safe_new THEN RETURN;END IF;
    INSERT INTO audit_records(admin_id,gym_name,actor_id,actor_user_id,actor_name,source_table,entity,record_id,record_name,operation,before_data,after_data,event_key)
@@ -62,11 +62,11 @@ export async function ensureAuditSchema(sql){
    ELSIF TG_OP='INSERT' THEN PERFORM record_business_audit(TG_TABLE_NAME,to_jsonb(NEW),TG_OP,NULL,to_jsonb(NEW));RETURN NEW;
    ELSE PERFORM record_business_audit(TG_TABLE_NAME,to_jsonb(NEW),TG_OP,to_jsonb(OLD),to_jsonb(NEW));RETURN NEW;END IF;
   END $fn$`,
-  sql`DO $fn$ DECLARE item TEXT;BEGIN FOREACH item IN ARRAY ARRAY['gym_videos','users','members','plans','gym_locations','membership_assignments','membership_payments','attendance','member_pictures','whatsapp_gate_pass_messages','sessions','member_sessions'] LOOP
+  sql`DO $fn$ DECLARE item TEXT;BEGIN FOREACH item IN ARRAY ARRAY['gym_supplements','supplement_orders','gym_videos','users','members','plans','gym_locations','membership_assignments','membership_payments','attendance','member_pictures','whatsapp_gate_pass_messages','sessions','member_sessions'] LOOP
    EXECUTE format('DROP TRIGGER IF EXISTS business_audit ON %I',item);
    EXECUTE format('CREATE TRIGGER business_audit BEFORE INSERT OR UPDATE OR DELETE ON %I FOR EACH ROW EXECUTE FUNCTION capture_business_audit()',item);
   END LOOP;END $fn$`,
-  sql`DO $fn$ DECLARE item TEXT;BEGIN FOREACH item IN ARRAY ARRAY['gym_videos','users','members','plans','gym_locations','membership_assignments','membership_payments','attendance','member_pictures','whatsapp_gate_pass_messages'] LOOP
+  sql`DO $fn$ DECLARE item TEXT;BEGIN FOREACH item IN ARRAY ARRAY['gym_supplements','supplement_orders','gym_videos','users','members','plans','gym_locations','membership_assignments','membership_payments','attendance','member_pictures','whatsapp_gate_pass_messages'] LOOP
    EXECUTE format('SELECT record_business_audit(%L,to_jsonb(t),''EXISTING'',NULL,to_jsonb(t)) FROM %I t',item,item);
   END LOOP;END $fn$`,
   sql`CREATE OR REPLACE FUNCTION protect_audit_history() RETURNS TRIGGER LANGUAGE plpgsql AS $fn$ BEGIN RAISE EXCEPTION 'Audit history is append-only';END $fn$`,

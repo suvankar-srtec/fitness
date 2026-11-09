@@ -1,3 +1,4 @@
+import {ensureCommerceSchema} from '../lib/commerce-schema.mjs';
 import {ensureMemberMeasurementSchema} from './member-measurement-schema.mjs';
 import {ensureScanEventSchema} from './scan-event-schema.mjs';
 import {ensureVideoSchema} from './video-schema.mjs';
@@ -72,6 +73,7 @@ await ensureArchiveSchema(sql);
 await ensureMemberLoginSchema(sql);
 await sql`UPDATE users SET name='Superadmin' WHERE role='superadmin' AND name='Gym owner'`;
 await ensureVideoSchema(sql);
+await ensureCommerceSchema(sql);
 await ensureAuditSchema(sql);
 await ensureScanEventSchema(sql);
 await ensureMemberMeasurementSchema(sql);
