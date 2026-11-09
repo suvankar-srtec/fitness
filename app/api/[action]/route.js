@@ -58,7 +58,7 @@ try {
  sql=withAuditActor(sql,u);
  const gymId=u.role==='manager'?u.created_by:u.id,branch=u.role==='manager'?u.location_id:null;
  if(u.role==='manager'&&!branch)return fail('Assigned location required',403);
- if(u.role==='manager'&&!['gate-pass-scan','staff-pass','supplement-image','supplements','supplement-orders','payment-info','me','logout','manager-dashboard','member-time-calendar','gym-time-report','supervisors','attendance','credentials','member-photo','members','member-registration','plans','gym-locations','gym-logo','memberships','membership-payments','videos','video-stream','audit','admin-recent-activity','gate-pass','whatsapp-gate-pass','managers','manager-registration'].includes(action))return fail('Manager access is limited to your assigned location',403);
+ if(u.role==='manager'&&!['leads','gate-pass-scan','staff-pass','supplement-image','supplements','supplement-orders','payment-info','me','logout','manager-dashboard','member-time-calendar','gym-time-report','supervisors','attendance','credentials','member-photo','members','member-registration','plans','gym-locations','gym-logo','memberships','membership-payments','videos','video-stream','audit','admin-recent-activity','gate-pass','whatsapp-gate-pass','managers','manager-registration'].includes(action))return fail('Manager access is limited to your assigned location',403);
  if(action==='leads')return leadsApi(req,u,sql);
  if(action==='staff-pass')return req.method==='GET'?staffPassImage(u,sql):fail('Method not allowed',405);
  if(['supplement-image','supplements','supplement-cart','supplement-orders','payment-info'].includes(action))return commerceApi(action,req,u,sql);
