@@ -1,3 +1,4 @@
+import {advanceRenewal} from '../../../lib/advance-renewal-api';
 import {memberGroupsApi} from '../../../lib/member-groups-api';
 import {leadsApi} from '../../../lib/leads-api';
 import {staffPassImage} from '../../../lib/staff-pass-api';
@@ -44,7 +45,7 @@ const fail=(error,status)=>response({error},status);
 async function handle(req,context) {
 try {
  const {action}=await context.params;
- if(!['member-groups','leads','staff-pass','supplement-image','supplements','supplement-cart','supplement-orders','payment-info','admin-recent-activity','gym-logo','member-time-calendar','gym-time-report','videos','video-stream','member-login','member-pass','member-otp-request','member-otp-verify','member-otp-set-password','otp-request','otp-verify','otp-set-password','manager-registration','managers','manager-dashboard','audit','gym-locations','supervisor-summary','gate-pass','gate-pass-scan','whatsapp-gate-pass','login','logout','me','superadmins','admins','members','supervisors','credentials','plans','member-photo','member-registration','memberships','membership-payments','users','attendance'].includes(action))return fail('Not found',404);
+ if(!['membership-renew','member-groups','leads','staff-pass','supplement-image','supplements','supplement-cart','supplement-orders','payment-info','admin-recent-activity','gym-logo','member-time-calendar','gym-time-report','videos','video-stream','member-login','member-pass','member-otp-request','member-otp-verify','member-otp-set-password','otp-request','otp-verify','otp-set-password','manager-registration','managers','manager-dashboard','audit','gym-locations','supervisor-summary','gate-pass','gate-pass-scan','whatsapp-gate-pass','login','logout','me','superadmins','admins','members','supervisors','credentials','plans','member-photo','member-registration','memberships','membership-payments','users','attendance'].includes(action))return fail('Not found',404);
  if(['POST','PATCH','DELETE'].includes(req.method)) {const origin=req.headers.get('origin');if(origin&&origin!==new URL(req.url).origin)return fail('Invalid origin',403);}
  let sql=database();
  if(action.startsWith('member-otp-'))return await memberPhoneAuthApi(action.slice(7),req,sql);
@@ -59,7 +60,8 @@ try {
  sql=withAuditActor(sql,u);
  const gymId=u.role==='manager'?u.created_by:u.id,branch=u.role==='manager'?u.location_id:null;
  if(u.role==='manager'&&!branch)return fail('Assigned location required',403);
- if(u.role==='manager'&&!['member-groups','leads','gate-pass-scan','staff-pass','supplement-cart','supplement-image','supplements','supplement-orders','payment-info','me','logout','manager-dashboard','member-time-calendar','gym-time-report','supervisors','attendance','credentials','member-photo','members','member-registration','plans','gym-locations','gym-logo','memberships','membership-payments','videos','video-stream','audit','admin-recent-activity','gate-pass','whatsapp-gate-pass','managers','manager-registration'].includes(action))return fail('Manager access is limited to your assigned location',403);
+ if(u.role==='manager'&&!['membership-renew','member-groups','leads','gate-pass-scan','staff-pass','supplement-cart','supplement-image','supplements','supplement-orders','payment-info','me','logout','manager-dashboard','member-time-calendar','gym-time-report','supervisors','attendance','credentials','member-photo','members','member-registration','plans','gym-locations','gym-logo','memberships','membership-payments','videos','video-stream','audit','admin-recent-activity','gate-pass','whatsapp-gate-pass','managers','manager-registration'].includes(action))return fail('Manager access is limited to your assigned location',403);
+ if(action==='membership-renew'){const result=await advanceRenewal(req,u,sql);if(result.status===201){const payment=await result.clone().json();after(async()=>{try{await sendPaymentPass(sql,u,{paymentId:payment.id});}catch{console.error('Automatic renewal WhatsApp delivery failed');}});}return result;}
  if(action==='member-groups')return memberGroupsApi(req,u,sql);
  if(action==='leads')return leadsApi(req,u,sql);
  if(action==='staff-pass')return req.method==='GET'?staffPassImage(u,sql):fail('Method not allowed',405);
