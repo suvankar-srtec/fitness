@@ -1,0 +1,6 @@
+﻿import test from 'node:test';import assert from 'node:assert/strict';
+import {memberGroupsApi} from '../lib/member-groups-api.js';
+const req=(method,body)=>new Request('https://gym.test/api/member-groups?adminId=999',{method,...(body?{body:JSON.stringify(body)}:{})});
+test('group choices include Default and are scoped to manager gym',async()=>{const result=await memberGroupsApi(req('GET'),{role:'manager',created_by:7},async(parts,...values)=>{assert.deepEqual(values,[7]);return [{id:2,name:'Morning'}];});assert.deepEqual(await result.json(),[{name:'Default'},{id:2,name:'Morning'}]);});
+test('group creation rejects member access and invalid names before querying',async()=>{const sql=()=>{throw Error('Unexpected query');};assert.equal((await memberGroupsApi(req('POST',{name:'A'}),{role:'member'},sql)).status,403);assert.equal((await memberGroupsApi(req('POST',{name:' '}),{id:7,role:'admin'},sql)).status,400);});
+test('group creation normalizes names and uses owning gym',async()=>{const result=await memberGroupsApi(req('POST',{name:' Morning '}),{id:7,role:'admin'},async(parts,...values)=>{assert.deepEqual(values,['Morning',7]);assert.match(parts.join('?'),/ON CONFLICT/);return [{id:2,name:'Morning'}];});assert.equal(result.status,201);});
