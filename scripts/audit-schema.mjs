@@ -9,7 +9,7 @@ export async function ensureAuditSchema(sql){
   BEGIN
    actor:=COALESCE(NULLIF(current_setting('app.audit_actor',true),'')::jsonb,'{}'::jsonb);
    owner_id:=NULLIF(row_value->>'admin_id','')::integer;
-   entity_name:=CASE table_name WHEN 'staff_attendance' THEN 'Staff attendance' WHEN 'gym_supplements' THEN 'Supplements' WHEN 'supplement_orders' THEN 'Supplement orders' WHEN 'gym_videos' THEN 'Videos' WHEN 'members' THEN 'Members' WHEN 'plans' THEN 'Plans' WHEN 'membership_assignments' THEN 'Memberships' WHEN 'membership_payments' THEN 'Payments' WHEN 'attendance' THEN 'Attendance' WHEN 'gym_locations' THEN 'Locations' WHEN 'member_pictures' THEN 'Member photos' WHEN 'whatsapp_gate_pass_messages' THEN 'WhatsApp' WHEN 'sessions' THEN 'Sessions' WHEN 'member_sessions' THEN 'Sessions' ELSE 'Staff' END;
+   entity_name:=CASE table_name WHEN 'gym_leads' THEN 'Leads' WHEN 'staff_attendance' THEN 'Staff attendance' WHEN 'gym_supplements' THEN 'Supplements' WHEN 'supplement_orders' THEN 'Supplement orders' WHEN 'gym_videos' THEN 'Videos' WHEN 'members' THEN 'Members' WHEN 'plans' THEN 'Plans' WHEN 'membership_assignments' THEN 'Memberships' WHEN 'membership_payments' THEN 'Payments' WHEN 'attendance' THEN 'Attendance' WHEN 'gym_locations' THEN 'Locations' WHEN 'member_pictures' THEN 'Member photos' WHEN 'whatsapp_gate_pass_messages' THEN 'WhatsApp' WHEN 'sessions' THEN 'Sessions' WHEN 'member_sessions' THEN 'Sessions' ELSE 'Staff' END;
    IF table_name='users' THEN
     owner_id:=CASE WHEN row_value->>'role'='admin' THEN (row_value->>'id')::integer WHEN row_value->>'role' IN ('manager','supervisor') THEN (row_value->>'created_by')::integer ELSE NULL END;
     entity_name:=CASE row_value->>'role' WHEN 'admin' THEN 'Admins' WHEN 'supervisor' THEN 'Supervisors' WHEN 'manager' THEN 'Managers' ELSE 'Superadmin' END;
@@ -62,11 +62,11 @@ export async function ensureAuditSchema(sql){
    ELSIF TG_OP='INSERT' THEN PERFORM record_business_audit(TG_TABLE_NAME,to_jsonb(NEW),TG_OP,NULL,to_jsonb(NEW));RETURN NEW;
    ELSE PERFORM record_business_audit(TG_TABLE_NAME,to_jsonb(NEW),TG_OP,to_jsonb(OLD),to_jsonb(NEW));RETURN NEW;END IF;
   END $fn$`,
-  sql`DO $fn$ DECLARE item TEXT;BEGIN FOREACH item IN ARRAY ARRAY['staff_attendance','gym_supplements','supplement_orders','gym_videos','users','members','plans','gym_locations','membership_assignments','membership_payments','attendance','member_pictures','whatsapp_gate_pass_messages','sessions','member_sessions'] LOOP
+  sql`DO $fn$ DECLARE item TEXT;BEGIN FOREACH item IN ARRAY ARRAY['gym_leads','staff_attendance','gym_supplements','supplement_orders','gym_videos','users','members','plans','gym_locations','membership_assignments','membership_payments','attendance','member_pictures','whatsapp_gate_pass_messages','sessions','member_sessions'] LOOP
    EXECUTE format('DROP TRIGGER IF EXISTS business_audit ON %I',item);
    EXECUTE format('CREATE TRIGGER business_audit BEFORE INSERT OR UPDATE OR DELETE ON %I FOR EACH ROW EXECUTE FUNCTION capture_business_audit()',item);
   END LOOP;END $fn$`,
-  sql`DO $fn$ DECLARE item TEXT;BEGIN FOREACH item IN ARRAY ARRAY['staff_attendance','gym_supplements','supplement_orders','gym_videos','users','members','plans','gym_locations','membership_assignments','membership_payments','attendance','member_pictures','whatsapp_gate_pass_messages'] LOOP
+  sql`DO $fn$ DECLARE item TEXT;BEGIN FOREACH item IN ARRAY ARRAY['gym_leads','staff_attendance','gym_supplements','supplement_orders','gym_videos','users','members','plans','gym_locations','membership_assignments','membership_payments','attendance','member_pictures','whatsapp_gate_pass_messages'] LOOP
    EXECUTE format('SELECT record_business_audit(%L,to_jsonb(t),''EXISTING'',NULL,to_jsonb(t)) FROM %I t',item,item);
   END LOOP;END $fn$`,
   sql`CREATE OR REPLACE FUNCTION protect_audit_history() RETURNS TRIGGER LANGUAGE plpgsql AS $fn$ BEGIN RAISE EXCEPTION 'Audit history is append-only';END $fn$`,

@@ -1,3 +1,4 @@
+import {ensureLeadSchema} from '../lib/leads.mjs';
 import {ensureStaffPassSchema} from '../lib/staff-pass.mjs';
 import {ensureCommerceSchema} from '../lib/commerce-schema.mjs';
 import {ensureMemberMeasurementSchema} from './member-measurement-schema.mjs';
@@ -77,6 +78,7 @@ await ensureVideoSchema(sql);
 await ensureCommerceSchema(sql);
 await ensureScanEventSchema(sql);
 await ensureStaffPassSchema(sql);
+await ensureLeadSchema(sql);
 await ensureAuditSchema(sql);
 await ensureMemberMeasurementSchema(sql);
 console.log('Neon schema ready. Main superadmin user ID: sp00. Existing accounts are preserved.');
