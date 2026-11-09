@@ -1,3 +1,4 @@
+import {sendPaymentPass} from '../../../lib/payment-whatsapp.mjs';
 import {canUpgradePlan,fixedDateOfBirth,updateMemberWithUpgrade} from '../../../lib/member-upgrade.mjs';
 import {loginApi} from '../../../lib/login-api.js';
 import {adminRecentActivity} from '../../../lib/admin-recent-activity';
@@ -28,7 +29,7 @@ import { validateMember, ageFromDateOfBirth, memberToday } from '../../../lib/me
 const normalizeMemberPicture=async(...args)=>(await import('../../../lib/member-picture.mjs')).normalizeMemberPicture(...args);
 import { validatePlan } from '../../../lib/plans.mjs';
 import { normalizeWhatsAppPhone } from '../../../lib/whatsapp.mjs';
-import { NextResponse } from 'next/server';
+import { NextResponse, after } from 'next/server';
 import { randomBytes } from 'node:crypto';
 import { database } from '../../../lib/db';
 import { hashPassword, tokenHash } from '../../../lib/password.mjs';
@@ -82,7 +83,7 @@ try {
  if(action==='member-time-calendar')return await gymTimeCalendar(req,u,sql);
  if(action==='gym-time-report')return await gymTimeReport(req,u,sql);
  if(action==='attendance')return await attendanceApi(req,u,sql);
- if(['memberships','membership-payments'].includes(action))return await membershipApi(action,req,u,sql);
+ if(['memberships','membership-payments'].includes(action)){const result=await membershipApi(action,req,u,sql);if(action==='membership-payments'&&req.method==='POST'&&result.status===201){const payment=await result.clone().json();after(async()=>{try{await sendPaymentPass(sql,u,{paymentId:payment.id});}catch{console.error('Automatic payment WhatsApp delivery failed');}});}return result;}
  if(action==='me'&&req.method==='GET')return response(sessionProfile(u));
  if(action==='logout'&&req.method==='POST'){await sql`DELETE FROM sessions WHERE token_hash=${tokenHash(token)}`;const result=response({ok:true});result.cookies.set('session','',{httpOnly:true,sameSite:'strict',secure:process.env.NODE_ENV==='production',path:'/',maxAge:0});return result;}
  if(action==='credentials'&&req.method==='POST'){
@@ -232,6 +233,7 @@ try {
    const picture=await normalizeMemberPicture(b.profilePicture);
    const [created]=await sql`WITH reserved AS (DELETE FROM member_registrations WHERE token_hash=${tokenHash(b.registrationToken)} AND admin_id=${gymId} AND expires_at>NOW() AND EXISTS(SELECT 1 FROM plans WHERE id=${m.planId} AND admin_id=${gymId} AND archived=FALSE AND amount IS NOT NULL) RETURNING member_id,public_id), added AS (INSERT INTO members(id,public_id,admin_id,location_id,name,phone,email,plan,plan_id,gender,age,dob,address,height_ft,weight_kg,interested_area,status,valid_from,valid_to) SELECT reserved.member_id,reserved.public_id,${gymId},${location.id},${m.name},${m.phone},'',p.name,p.id,${m.gender},${m.age},${m.dob},${m.address},${m.height},${m.weight},${m.interestedArea},${m.status},${m.validFrom},${m.validTo} FROM plans p CROSS JOIN reserved WHERE p.id=${m.planId} AND p.admin_id=${gymId} AND p.archived=FALSE RETURNING id,public_id), saved_picture AS (INSERT INTO member_pictures(member_id,data) SELECT id,${picture}::text FROM added WHERE ${picture}::text IS NOT NULL), initial_membership AS (INSERT INTO membership_assignments(admin_id,member_id,plan_id,plan_name,amount,paid,valid_from,valid_to,request_key) SELECT ${gymId},a.id,p.id,p.name,p.amount,CASE WHEN ${paymentType}='Full' THEN p.amount ELSE ${initialPaid}::numeric END,${m.validFrom},${m.validTo},'registration-'||a.id FROM added a CROSS JOIN plans p WHERE p.id=${m.planId} AND p.amount IS NOT NULL RETURNING id,amount,paid), initial_payment AS (INSERT INTO membership_payments(assignment_id,admin_id,amount,method,reference,paid_on,request_key) SELECT id,${gymId},paid,${b.paymentMode},'',(NOW() AT TIME ZONE 'Asia/Kolkata')::date,'registration-'||id FROM initial_membership WHERE paid>0) SELECT id,public_id FROM added`;
    if(!created)return fail('Membership or registration is invalid. Reopen Add Member.',400);
+   after(async()=>{try{await sendPaymentPass(sql,u,{memberId:created.id});}catch{console.error('Automatic registration WhatsApp delivery failed');}});
    return response({memberId:created.public_id,registrationNo:created.public_id},201);
   }
  }
