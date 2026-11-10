@@ -57,8 +57,8 @@ test('resend repeats the valid code without resetting expiry or failed attempts'
  const resent=await call('otp-request',{phone:'9876543210',country:'IN',challengeId});assert.equal(resent.status,202);assert.equal(resent.data.challengeId,challengeId);assert.equal(state.code,original);assert.equal(state.sent,2);assert.equal(state.attempts,1);assert.ok(resent.data.expiresIn<=300);
  assert.equal((await call('otp-verify',{challengeId,code:' '+original+' '})).status,200);
 });
-test('unconfirmed provider delivery keeps the received OTP usable without warning text',async()=>{
- const {state,call}=fixture();state.deliveryUnknown=true;const first=await call('otp-request',{phone:'9876543210',country:'IN'});assert.equal(first.status,202);assert.ok(!first.data.message);const code=state.code;
+test('unconfirmed provider delivery keeps the received OTP usable with an honest delivery status',async()=>{
+ const {state,call}=fixture();state.deliveryUnknown=true;const first=await call('otp-request',{phone:'9876543210',country:'IN'});assert.equal(first.status,202);assert.match(first.data.message,/unconfirmed/);const code=state.code;
  const resend=await call('otp-request',{phone:'9876543210',country:'IN',challengeId:first.data.challengeId});assert.equal(resend.status,202);assert.equal(state.code,code);assert.equal((await call('otp-verify',{challengeId:first.data.challengeId,code})).status,200);
 });
 
