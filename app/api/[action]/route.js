@@ -184,7 +184,7 @@ try {
  }
  if(action==='plans'){
   if(req.method==='GET'&&u.role==='superadmin')return response(await sql`SELECT p.id,p.name,p.duration_days,p.amount,p.description,COALESCE(NULLIF(u.gym_name,''),u.name) AS admin_name FROM plans p JOIN users u ON p.admin_id=u.id WHERE p.archived=FALSE ORDER BY p.id DESC`);
-  if(u.role==='manager'&&req.method==='POST')return fail('Only gym admins can create plans',403);
+  if(u.role==='manager'&&['POST','PATCH'].includes(req.method))return fail('Only gym admins can create or edit plans',403);
   if(!['admin','manager'].includes(u.role)&&!(u.role==='superadmin'&&req.method==='PATCH'))return fail('Admin access required',403);
   if(req.method==='GET')return response(await sql`SELECT id,name,duration_days,amount,description FROM plans WHERE admin_id=${gymId} AND archived=FALSE ORDER BY id DESC`);
   if(['POST','PATCH'].includes(req.method)){
