@@ -26,7 +26,5 @@ test('follow-up history is branch scoped and append only',async()=>{
  response=await leadFollowupsApi(new Request('https://gym.example/api/lead-followups?leadId=2'),user,sql);assert.equal(response.status,200);assert.match(calls[1].text,/JOIN gym_leads/);
  response=await leadFollowupsApi(new Request('https://gym.example/api/lead-followups?leadId=2'),{role:'member'},sql);assert.equal(response.status,403);
 });
-import test from 'node:test';
-import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 test('email challenges bind verification and password consumption to the saved email',()=>{for(const file of ['phone-auth-api.js','member-phone-auth-api.js']){const source=readFileSync(new URL('../lib/'+file,import.meta.url),'utf8');assert.equal((source.match(/c.email_snapshot=u.email/g)||[]).length,3);}});
