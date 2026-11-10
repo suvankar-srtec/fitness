@@ -567,3 +567,5 @@ h1, h2, h3, label, .brand, .gym-brand, .plan-tile-price { color: #111111; }
 .staff-qr-dialog .staff-pass-identity strong{font-size:19px}
 .staff-qr-dialog .staff-pass-code{width:auto;max-width:100%;height:min(300px,calc(100dvh - 230px));object-fit:contain;margin:0 auto}
 @media(max-height:440px){.staff-qr-dialog{padding:10px!important}.staff-qr-dialog .staff-pass-brand{padding:6px 0}.staff-qr-dialog .staff-pass-identity{margin:6px 0}.staff-qr-dialog .staff-pass-code{height:calc(100dvh - 200px)}}
+
+.location-collections{padding:18px;margin:18px 0;border:1px solid var(--gym-border,#ddd);border-radius:12px;background:white;min-width:0}.location-collections h2{font-size:18px;margin:0 0 14px}.location-collections table{width:100%;border-collapse:collapse}.location-collections th,.location-collections td{text-align:left;padding:10px;font-size:14px;border-bottom:1px solid #eee}.location-collections .tablewrap{overflow:auto}.location-collections p{color:#64748b;font-size:14px}
