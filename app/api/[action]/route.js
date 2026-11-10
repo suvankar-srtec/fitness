@@ -220,8 +220,8 @@ try {
    const b=await req.json();if(!Number.isInteger(b.id)||b.id<1)return fail('Invalid member',400);
    const [existing]=await sql`SELECT *,GREATEST(COALESCE((SELECT amount FROM plans WHERE id=members.plan_id),0),COALESCE((SELECT amount FROM membership_assignments WHERE member_id=members.id AND superseded_by IS NULL ORDER BY id DESC LIMIT 1),0)) AS current_plan_amount,to_char(valid_from,'YYYY-MM-DD') AS valid_from,to_char(valid_to,'YYYY-MM-DD') AS valid_to,to_char(dob,'YYYY-MM-DD') AS dob FROM members WHERE id=${b.id} AND (${u.role}='superadmin' OR admin_id=${gymId}) AND (${!branch} OR location_id=${branch})`;
    if(!existing||branch&&existing.location_id!==branch)return fail('Member not found',404);
-   const validFrom=String(existing.valid_from).slice(0,10),validTo=String(existing.valid_to).slice(0,10);
-   if(b.validFrom!==undefined&&b.validFrom!==validFrom||b.validTo!==undefined&&b.validTo!==validTo)return fail('Membership dates cannot be changed while editing member details',409);
+   const validFrom=existing.plan_id?String(existing.valid_from).slice(0,10):b.validFrom,validTo=existing.plan_id?String(existing.valid_to).slice(0,10):b.validTo;
+   if(existing.plan_id&&(b.validFrom!==undefined&&b.validFrom!==validFrom||b.validTo!==undefined&&b.validTo!==validTo))return fail('Membership dates cannot be changed while editing member details',409);
    if(existing.gender&&b.gender!==undefined&&b.gender!==existing.gender)return fail('Gender cannot be changed once saved',409);
    if(fixedDateOfBirth(existing.dob,b.dob))return fail('Date of birth cannot be changed once saved',409);
    const requestedPlanId=Number(b.planId??existing.plan_id);
