@@ -1,5 +1,6 @@
+import {ensureEmailSchema} from '../lib/email-otp.mjs';
 import {ensureMemberGroupSchema} from '../lib/member-groups.mjs';
-import {ensureLeadSchema} from '../lib/leads.mjs';
+import {ensureLeadSchema,ensureFollowupSchema} from '../lib/leads.mjs';
 import {ensureStaffPassSchema} from '../lib/staff-pass.mjs';
 import {ensureCommerceSchema} from '../lib/commerce-schema.mjs';
 import {ensureMemberMeasurementSchema} from './member-measurement-schema.mjs';
@@ -80,6 +81,8 @@ await ensureCommerceSchema(sql);
 await ensureScanEventSchema(sql);
 await ensureStaffPassSchema(sql);
 await ensureLeadSchema(sql);
+await ensureFollowupSchema(sql);
+await ensureEmailSchema(sql);
 await ensureMemberGroupSchema(sql);
 await ensureAuditSchema(sql);
 await ensureMemberMeasurementSchema(sql);

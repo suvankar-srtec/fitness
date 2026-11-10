@@ -9,9 +9,9 @@ function fixture(){
  const state={attempts:0,rate:1,eligible:true,verified:false,used:false,expired:false,phoneChanged:false,cooldown:false,user:{id:17,public_id:'ad01',name:'Owner',role:'admin',phone:'+919876543210'},sent:0};
  const sql=(strings,...values)=>{const text=strings.join('?');let rows=[];
   if(text.includes('INSERT INTO login_attempts'))rows=[{attempts:state.rate}];
-  else if(text.includes('SELECT u.id FROM users'))rows=state.eligible?[{id:17}]:[];
+  else if(text.includes('SELECT u.id,u.email FROM users'))rows=state.eligible?[{id:17}]:[];
   else if(text.includes('INSERT INTO phone_otp_challenges')){if(!state.cooldown){state.challenge=values[2];state.digest=values[3];state.attempts=0;state.verified=false;state.used=false;rows=[{user_id:17}];}}
-  else if(text.includes('UPDATE phone_otp_challenges SET created_at=NOW()')){if(!state.cooldown&&!state.expired&&!state.used&&!state.verified&&!state.phoneChanged&&state.attempts<5&&state.challenge===values[2]&&state.digest===values[3])rows=[{expires_at:new Date(Date.now()+300000).toISOString()}];}
+  else if(text.includes('UPDATE phone_otp_challenges SET created_at=NOW()')){if(!state.cooldown&&!state.expired&&!state.used&&!state.verified&&!state.phoneChanged&&state.attempts<5&&state.challenge===values[3]&&state.digest===values[4])rows=[{expires_at:new Date(Date.now()+300000).toISOString()}];}
   else if(text.includes('SET attempts=c.attempts+1')){if(!state.expired&&!state.used&&!state.verified&&!state.phoneChanged&&state.attempts<5&&state.challenge===values[0]){state.attempts++;rows=[{otp_hash:state.digest}];}}
   else if(text.includes('SET verified_at=NOW()')){if(!state.verified&&!state.used&&!state.expired&&state.challenge===values[1]){state.verified=true;state.reset=values[0];state.digest='';rows=[{user_id:17}];}}
   else if(text.includes('SELECT u.* FROM phone_otp_challenges')){if(state.verified&&!state.used&&!state.expired&&!state.phoneChanged&&state.challenge===values[0]&&state.reset===values[1])rows=[state.user];}

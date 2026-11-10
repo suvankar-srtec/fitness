@@ -20,6 +20,6 @@ export default function PhoneInput({id,defaultValue='',required=true,name='phone
    <summary aria-label={`Country: ${names.of(country)} +${getCountryCallingCode(country)}`}><Flag aria-hidden="true"/> +{getCountryCallingCode(country)} <span aria-hidden="true">▾</span></summary>
    <div className="country-menu">{countries.map(code=>{const Icon=flags[code];return <button type="button" key={code} onClick={()=>{setCountry(code);menu.current.open=false;}} aria-pressed={code===country}>{Icon&&<Icon aria-hidden="true"/>}<span>{names.of(code)}</span><span>+{getCountryCallingCode(code)}</span></button>;})}</div>
   </details>
-  <input id={id} name={name} placeholder={placeholder} aria-label={placeholder||'Phone number'} type="tel" autoComplete="tel-national" required={required} defaultValue={initial.number} pattern="[0-9 ()-]+" maxLength={20}/>
+  <input id={id} name={name} placeholder={placeholder} aria-label={placeholder||'Phone number'} type="tel" autoComplete="tel-national" required={required} defaultValue={initial.number} maxLength={20}/>
  </div>;
 }
