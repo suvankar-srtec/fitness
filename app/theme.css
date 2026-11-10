@@ -555,3 +555,15 @@ h1, h2, h3, label, .brand, .gym-brand, .plan-tile-price { color: #111111; }
 .verification-page .login-notice,.verification-page .login-error{margin-top:12px}
 @media(max-width:600px){.verification-page .verification-form{padding:18px 14px}.verification-page .login-panel-header{padding:16px 12px}.verification-page .login-panel-header h1{font-size:20px}}
 @media(max-height:500px){.verification-page{padding:8px}.verification-page .login-panel-header{padding:10px 14px}.verification-page .verification-form{padding-top:12px;padding-bottom:12px}.verification-page .verification-symbol{display:none}.verification-page .verification-tabs{margin-bottom:10px}.verification-page .verification-form h2{margin-bottom:12px}.verification-page .login-submit{margin-top:12px}.verification-page .login-links{margin-top:6px}}
+
+/* Staff pass fits short screens without clipping the code. */
+.staff-qr-dialog{width:min(430px,calc(100vw - 24px))!important;padding:16px!important;max-height:calc(100dvh - 24px)!important;box-sizing:border-box;overflow:visible!important}
+.staff-qr-dialog header h2{margin:0;font-size:19px}
+.staff-qr-dialog .staff-pass-brand{display:grid;grid-template-columns:44px 1fr;column-gap:12px;align-items:center;text-align:left;padding:12px 0}
+.staff-qr-dialog .staff-pass-brand img,.staff-qr-dialog .staff-pass-brand>span{grid-row:1/3;width:44px!important;height:44px!important;margin:0;line-height:44px;text-align:center}
+.staff-qr-dialog .staff-pass-brand h3{margin:0;font-size:18px}
+.staff-qr-dialog .staff-pass-brand p{margin:3px 0 0}
+.staff-qr-dialog .staff-pass-identity{margin:10px 0;gap:3px}
+.staff-qr-dialog .staff-pass-identity strong{font-size:19px}
+.staff-qr-dialog .staff-pass-code{width:auto;max-width:100%;height:min(300px,calc(100dvh - 230px));object-fit:contain;margin:0 auto}
+@media(max-height:440px){.staff-qr-dialog{padding:10px!important}.staff-qr-dialog .staff-pass-brand{padding:6px 0}.staff-qr-dialog .staff-pass-identity{margin:6px 0}.staff-qr-dialog .staff-pass-code{height:calc(100dvh - 200px)}}

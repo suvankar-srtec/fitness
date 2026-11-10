@@ -17,3 +17,9 @@ test('closing while permission is pending releases the eventual stream',async()=
 test('denied permission reports an actionable error',async()=>{
  let error;const session=startQrCamera({video:{},getMedia:async()=>{throw {name:'NotAllowedError'};},loadReader:async()=>({}),onError:e=>error=e,onResult:()=>{}});await session.ready;assert.match(cameraErrorMessage(error),/Allow camera/);
 });
+
+test('camera falls back when preferred camera constraints are unavailable',async()=>{
+ const requests=[];let ready=false;const stream={getTracks:()=>[{stop(){}}]};
+ const session=startQrCamera({video:{},getMedia:async constraints=>{requests.push(constraints);if(requests.length===1)throw {name:'OverconstrainedError'};return stream;},loadReader:async()=>({decodeFromStream:async()=>({stop(){}})}),onResult(){},onReady(){ready=true;},onError:error=>{throw error;}});
+ await session.ready;assert.equal(ready,true);assert.equal(requests.length,2);assert.equal(requests[1].video,true);session.stop();
+});
