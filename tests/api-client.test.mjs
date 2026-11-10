@@ -28,3 +28,7 @@ test('concurrent browser reads share one request but completed reads are refresh
  globalThis.fetch=()=>{count++;return new Promise(resolve=>{release=()=>resolve(response(200,[]));});};
  try{const a=requestApi('plans'),b=requestApi('plans');assert.equal(count,1);release();await Promise.all([a,b]);const c=requestApi('plans');assert.equal(count,2);release();await c;}finally{globalThis.fetch=previousFetch;if(previousWindow===undefined)delete globalThis.window;else globalThis.window=previousWindow;}
 });
+
+test('ID reservations recover from temporary failures with a bounded timeout',async()=>{
+ for(const action of ['member-registration','manager-registration']){let calls=0;const result=await requestApi(action,'POST',{}, {fetcher:async(_url,options)=>{assert.ok(options.signal instanceof AbortSignal);calls++;if(calls===1)throw new Error('Network interruption');return response(201,{registrationNo:'mem99'});},wait:async()=>{}});assert.equal(calls,2);assert.equal(result.registrationNo,'mem99');}
+});

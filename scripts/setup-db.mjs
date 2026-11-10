@@ -1,3 +1,4 @@
+import {ensureRenewalOptionsSchema} from './renewal-options-schema.mjs';
 import {ensureEmailSchema} from '../lib/email-otp.mjs';
 import {ensureMemberGroupSchema} from '../lib/member-groups.mjs';
 import {ensureLeadSchema,ensureFollowupSchema} from '../lib/leads.mjs';
@@ -66,6 +67,7 @@ await sql`CREATE INDEX IF NOT EXISTS member_admin ON members(admin_id)`;
 await sql`CREATE TABLE IF NOT EXISTS login_attempts (key TEXT PRIMARY KEY, attempts INTEGER NOT NULL, started_at TIMESTAMPTZ NOT NULL DEFAULT NOW())`;
 await ensureGatePassSchema(sql);
 await ensureMembershipIntegrity(sql);
+await ensureRenewalOptionsSchema(sql);
 await migratePublicIds(sql);
 const password=await hashPassword('sp00');
 await sql`INSERT INTO users(public_id,name,password,role,gym_name,created_by) VALUES('sp00','Main Superadmin',${password},'superadmin',NULL,NULL) ON CONFLICT(public_id) DO NOTHING`;

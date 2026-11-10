@@ -6,5 +6,5 @@ function formatDate(value){
 }
 export default function MembershipValidity({member}){
  const status=gatePassStatus(member);
- return <div className="membership-validity"><span className={'membership-validity-status '+(status==='Active'?'is-active':'')}>{status}</span><span><span className="muted">From </span>{formatDate(member.valid_from)}</span><span><span className="muted">To </span>{formatDate(member.valid_to)}</span></div>;
+ return <div className="membership-validity"><span className={'membership-validity-status '+(status==='Active'?'is-active':'')}>{status==='Expired'?'Expired · Disabled':status}</span><span><span className="muted">From </span>{formatDate(member.valid_from)}</span><span><span className="muted">To </span>{formatDate(member.valid_to)}</span></div>;
 }
