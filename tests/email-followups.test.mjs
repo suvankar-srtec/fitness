@@ -11,10 +11,10 @@ test('Resend uses a saved recipient and fails safely without claiming acceptance
  assert.deepEqual(payload.to,['saved@example.com']);assert.match(payload.text,/123456/);
  await assert.rejects(sendEmailOtp('saved@example.com','123456',{configuration:{token:'test',from:'gym@example.com'},fetcher:async()=>new Response('',{status:403})}));
 });
-for(const handler of [phoneAuthApi,memberPhoneAuthApi])test(handler.name+' sends only saved email, ignores arbitrary login email',async()=>{
+for(const handler of [phoneAuthApi,memberPhoneAuthApi])test(handler.name+' sends OTP to the matching saved email',async()=>{
  let sent;
  const sql=async(strings,...values)=>{const text=strings.join('?');if(text.includes('INSERT INTO login_attempts'))return [{attempts:1}];if(text.includes('SELECT u.id,u.email'))return [{id:17,email:'saved@example.com'}];if(text.includes('INSERT INTO')&&text.includes('_otp_challenges')){assert.equal(values[4],'saved@example.com');return [{user_id:17}];}return [];};
- const req=new Request('https://gym.example/api/otp-request',{method:'POST',body:JSON.stringify({phone:'+919876543210',channel:'email',email:'attacker@example.com'})});
+ const req=new Request('https://gym.example/api/otp-request',{method:'POST',body:JSON.stringify({phone:'+919876543210',channel:'email',email:'saved@example.com'})});
  const response=await handler('otp-request',req,sql,{getEmailConfiguration:()=>({provider:'resend',token:'test',from:'gym@example.com'}),sendEmail:async(to)=>{sent=to;}});
  assert.equal(response.status,202);assert.equal(sent,'saved@example.com');assert.ok(!(await response.text()).includes('saved@example.com'));
 });

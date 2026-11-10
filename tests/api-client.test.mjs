@@ -22,3 +22,9 @@ test('expired scan session notifies the UI once, includes cookies and never retr
  events.length=0;await assert.rejects(requestApi('login','POST',{}, {fetcher:async()=>response(401,{error:'Invalid credentials'})}));assert.deepEqual(events,[]);
  }finally{if(original===undefined)delete globalThis.window;else globalThis.window=original;}
 });
+
+test('concurrent browser reads share one request but completed reads are refreshed',async()=>{
+ const previousWindow=globalThis.window,previousFetch=globalThis.fetch;globalThis.window={};let count=0,release;
+ globalThis.fetch=()=>{count++;return new Promise(resolve=>{release=()=>resolve(response(200,[]));});};
+ try{const a=requestApi('plans'),b=requestApi('plans');assert.equal(count,1);release();await Promise.all([a,b]);const c=requestApi('plans');assert.equal(count,2);release();await c;}finally{globalThis.fetch=previousFetch;if(previousWindow===undefined)delete globalThis.window;else globalThis.window=previousWindow;}
+});

@@ -11,7 +11,7 @@ import {loginApi} from '../../../lib/login-api.js';
 import {adminRecentActivity} from '../../../lib/admin-recent-activity';
 const gymLogoApi=async(...args)=>(await import('../../../lib/gym-logo-api')).gymLogoApi(...args);
 import {gymTimeReport,gymTimeCalendar} from '../../../lib/gym-time-report';
-import {resolvePhoneAccount} from '../../../lib/phone-account.mjs';
+import {resolvePhoneAccount,resolveEmailOtpAccount} from '../../../lib/phone-account.mjs';
 const videoApi=async(...args)=>(await import('../../../lib/video-api')).videoApi(...args);
 const memberSession=async(...args)=>(await import('../../../lib/member-auth')).memberSession(...args);
 import {memberPhoneAuthApi} from '../../../lib/member-phone-auth-api';
@@ -53,6 +53,15 @@ try {
  let sql=database();
  if(action.startsWith('member-otp-'))return await memberPhoneAuthApi(action.slice(7),req,sql);
  if(action==='member-login'&&req.method==='POST')return await loginApi(req,sql,{memberOnly:true});
+ if(action==='otp-request'){
+  const body=await req.clone().json();
+  if(body.channel==='email'&&body.email&&!body.phone){
+   const account=await resolveEmailOtpAccount(body,sql);
+   if(!account)return response({challengeId:randomBytes(32).toString('hex'),expiresIn:600,resendAfter:60},202);
+   const emailRequest=new Request(req.url,{method:'POST',headers:req.headers,body:JSON.stringify({...body,phone:account.phone})});
+   return await (account.source_table==='members'?memberPhoneAuthApi:phoneAuthApi)(action,emailRequest,sql);
+  }
+ }
  if(['otp-request','otp-verify','otp-set-password'].includes(action)){const account=await resolvePhoneAccount(action,await req.clone().json(),sql);return await (account==='member'?memberPhoneAuthApi:phoneAuthApi)(action,req,sql);}
  if(action==='login'&&req.method==='POST')return await loginApi(req,sql);
  const token=req.cookies.get('session')?.value;if(!token)return fail('Please sign in',401);
@@ -159,7 +168,7 @@ try {
  if(req.method==='DELETE'){
   const b=await req.json();if(!Number.isInteger(b.id)||b.id<=0)return fail('Invalid record',400);
   let deleted=[];
-  if(action==='plans'&&['admin','manager'].includes(u.role))deleted=await sql`UPDATE plans SET archived=TRUE WHERE id=${b.id} AND admin_id=${gymId} AND archived=FALSE RETURNING id`;
+  if(action==='plans'&&u.role==='admin')deleted=await sql`UPDATE plans SET archived=TRUE WHERE id=${b.id} AND admin_id=${gymId} AND archived=FALSE RETURNING id`;
   else if(action==='members'&&['superadmin','admin','manager'].includes(u.role))deleted=u.role==='superadmin'?await sql`UPDATE members SET archived_at=NOW() WHERE archived_at IS NULL AND id=${b.id} RETURNING id`:await sql`UPDATE members SET archived_at=NOW() WHERE archived_at IS NULL AND id=${b.id} AND admin_id=${gymId} AND (${!branch} OR location_id=${branch}) RETURNING id`;
   else if(action==='supervisors'&&['superadmin','admin'].includes(u.role))deleted=u.role==='superadmin'?await sql`UPDATE users SET archived_at=NOW() WHERE archived_at IS NULL AND id=${b.id} AND role='supervisor' RETURNING id`:await sql`UPDATE users SET archived_at=NOW() WHERE archived_at IS NULL AND id=${b.id} AND role='supervisor' AND created_by=${u.id} RETURNING id`;
   else if(action==='admins'&&u.role==='superadmin')deleted=await sql`UPDATE users SET archived_at=NOW() WHERE archived_at IS NULL AND id=${b.id} AND role='admin' RETURNING id`;
