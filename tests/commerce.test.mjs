@@ -23,3 +23,13 @@ test('staff purchase requires a payment mode and records the entire server-price
  let m=mock([[{id:42}]]);let r=await commerceApi('supplement-orders',request('POST',{memberId:42,requestKey:'full-purchase-123456'}),{id:7,role:'admin'},m.sql);assert.equal(r.status,400);assert.equal(m.calls.length,1);
  m=mock([[{id:42}],[],[{id:4}]]);r=await commerceApi('supplement-orders',request('POST',{memberId:42,method:'Online',amount:1,requestKey:'full-purchase-123456'}),{id:7,role:'admin'},m.sql);assert.equal(r.status,201);assert.match(m.calls[2].text,/request_key,method,paid_at,paid_by/);assert.match(m.calls[2].text,/sum\(quantity\*price\)/);assert.ok(m.calls[2].values.includes('Online'));assert.match(m.calls[2].text,/THEN now\(\)/);
 });
+
+test('bag cart reads are scoped to the manager location and omit payment history',async()=>{
+ const m=mock([[{id:42}],[{product_id:3,quantity:1,name:'Protein',price:'1500'}]]);
+ const r=await commerceApi('supplement-cart',request('GET',null,'supplement-cart?memberId=42'),{id:8,created_by:7,location_id:3,role:'manager'},m.sql);
+ assert.equal(r.status,200);assert.deepEqual(m.calls[0].values,[42,7,false,3]);assert.match(m.calls[0].text,/archived_at IS NULL/);assert.match(m.calls[1].text,/p.admin_id=/);assert.doesNotMatch(m.calls[1].text,/membership_payments/);assert.equal((await r.json())[0].quantity,1);
+});
+test('bag cart reads reject foreign members and members cannot read another cart',async()=>{
+ let m=mock([[]]);assert.equal((await commerceApi('supplement-cart',request('GET',null,'supplement-cart?memberId=99'),{id:8,created_by:7,location_id:3,role:'manager'},m.sql)).status,404);assert.equal(m.calls.length,1);
+ m=mock([[{id:42}],[]]);assert.equal((await commerceApi('supplement-cart',request('GET',null,'supplement-cart?memberId=99'),{id:42,admin_id:7,role:'member'},m.sql)).status,200);assert.equal(m.calls[0].values[0],42);assert.equal(m.calls[1].values[0],42);
+});
