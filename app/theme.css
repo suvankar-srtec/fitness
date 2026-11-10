@@ -537,3 +537,21 @@ h1, h2, h3, label, .brand, .gym-brand, .plan-tile-price { color: #111111; }
 .gym-time-filters{display:flex;align-items:end;gap:14px;margin-bottom:12px;flex-wrap:wrap}.gym-time-filters label{margin:0;min-width:160px}.gym-time-filters label input{margin-top:8px}.gym-time-filters>input{margin-left:auto;width:300px;max-width:100%}.gym-time-note{font-size:14px;margin:12px 0 20px}@media(max-width:600px){.gym-time-filters label{min-width:0;flex:1}.gym-time-filters>input{width:100%;margin-left:0}}
 
 .scan-member-identity{display:flex;align-items:center;gap:14px;margin-bottom:10px;min-width:0}.scan-member-identity>img{width:82px;height:82px;object-fit:cover;border-radius:50%;flex-shrink:0}.scan-member-identity>div{min-width:0}.scan-member-identity h2,.scan-member-identity p{overflow-wrap:anywhere}.scan-member-identity p{margin-bottom:0}@media(max-width:700px){.scanner-main{display:flex;flex-direction:column}.scanner-main>.gate-pass-scan-result{order:-2;margin:0 0 14px;padding:14px;scroll-margin-top:120px}.scan-member-identity>img{width:64px;height:64px}.scan-member-identity h2{font-size:19px;margin-bottom:5px}.scan-member-identity p{font-size:14px}.gate-pass-scan-result>p{font-size:14px;margin:8px 0}}
+
+/* Compact password verification at desktop and mobile viewport heights. */
+.verification-page{padding:16px;box-sizing:border-box}
+.verification-page .login-panel-header{display:flex;align-items:center;justify-content:center;gap:12px;padding:20px 24px}
+.verification-page .login-mark{width:42px;height:42px;border-radius:12px;margin:0;flex-shrink:0}
+.verification-page .login-mark svg{width:26px;height:26px}
+.verification-page .login-panel-header h1{font-size:21px}
+.verification-page .verification-form{padding:20px 28px}
+.verification-page .verification-symbol{width:48px;height:48px;border-radius:15px;margin:0 auto 14px}
+.verification-page .verification-symbol svg{width:30px;height:30px}
+.verification-page .verification-tabs{margin-bottom:16px;gap:8px}
+.verification-page .verification-tabs button{padding:8px;min-height:40px;font-size:14px}
+.verification-page .verification-form h2{font-size:20px;margin-bottom:18px}
+.verification-page .login-submit{margin-top:18px;height:44px}
+.verification-page .login-links{margin-top:12px}
+.verification-page .login-notice,.verification-page .login-error{margin-top:12px}
+@media(max-width:600px){.verification-page .verification-form{padding:18px 14px}.verification-page .login-panel-header{padding:16px 12px}.verification-page .login-panel-header h1{font-size:20px}}
+@media(max-height:500px){.verification-page{padding:8px}.verification-page .login-panel-header{padding:10px 14px}.verification-page .verification-form{padding-top:12px;padding-bottom:12px}.verification-page .verification-symbol{display:none}.verification-page .verification-tabs{margin-bottom:10px}.verification-page .verification-form h2{margin-bottom:12px}.verification-page .login-submit{margin-top:12px}.verification-page .login-links{margin-top:6px}}
