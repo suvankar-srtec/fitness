@@ -1,5 +1,5 @@
 ﻿'use client';
-import {useState} from 'react';
+import {useEffect,useState} from 'react';
 import CommerceIcon from './CommerceIcon';
 import PaymentInfo from './PaymentInfo';
 import Supplements from './Supplements';
@@ -11,6 +11,22 @@ function MenuIcon({name}){if(['payment','box','orders'].includes(name))return <C
 const menus=[['overview','Overview'],['payment','Payments'],['box','Supplements'],['orders','Orders'],['videos','Videos'],['pass','My pass']];
 export default function MemberDashboard({user,onSignOut}){
  const [service,setService]=useState('overview'),[attendance,setAttendance]=useState({days:0,month:'',loading:true});
+ const [passImage,setPassImage]=useState(''),[passError,setPassError]=useState(''),[passRetry,setPassRetry]=useState(0);
+ useEffect(()=>{
+  const controller=new AbortController();let active=true,objectUrl;
+  setPassImage('');setPassError('');
+  const timer=setTimeout(async()=>{
+   try{
+    const response=await fetch('/api/member-pass',{credentials:'same-origin',cache:'no-store',signal:controller.signal});
+    if(!response.ok)throw new Error('Unable to load your pass. Please retry.');
+    const blob=await response.blob();if(!active)return;
+    objectUrl=URL.createObjectURL(blob);
+    const image=new Image();image.src=objectUrl;await image.decode();
+    if(active)setPassImage(objectUrl);
+   }catch(error){if(active&&error.name!=='AbortError')setPassError('Unable to load your pass. Please retry.');}
+  },300);
+  return()=>{active=false;clearTimeout(timer);controller.abort();if(objectUrl)URL.revokeObjectURL(objectUrl);};
+ },[user.id,user.validFrom,user.validTo,user.plan,user.name,user.gymLogo,passRetry]);
  return <main className={styles.dashboard}>
  <header className={styles.header}><div className={styles.brand}><span className={styles.brandMark} aria-hidden="true">{user.gymLogo?<img src={user.gymLogo} alt=""/>:user.gymName?.trim().charAt(0)||'G'}</span><div><h1>{user.gymName||'Gym Management'}</h1></div></div><div className={styles.headerActions}><div className={styles.memberIdentity}><strong>{user.name}</strong><span className="account-role">Member</span></div><button type="button" className={styles.logout} onClick={onSignOut}>Logout</button></div></header>
  <div className={styles.workspace}>
@@ -20,6 +36,6 @@ export default function MemberDashboard({user,onSignOut}){
  {service==='payment'&&<PaymentInfo/>}
  {(service==='box'||service==='orders')&&<Supplements key={service} view={service==='orders'?'orders':'products'}/>}
  {service==='videos'&&<section className={styles.videos}><VideoLibrary/></section>}
- {service==='pass'&&<section className={styles.passView} id="member-pass"><img src="/api/member-pass" alt={`${user.name}'s gym pass`}/><div><strong>{user.plan}</strong><p>{dateLabel(user.validFrom)} / {dateLabel(user.validTo)}</p>{user.gymPhone&&<a href={'tel:'+user.gymPhone}>Contact gym</a>}</div></section>}
+ {service==='pass'&&<section className={styles.passView} id="member-pass">{passImage?<img src={passImage} alt={`${user.name}'s gym pass`}/>:<div role="status">{passError?<><p>{passError}</p><button type="button" onClick={()=>setPassRetry(value=>value+1)}>Retry</button></>:'Loading your pass…'}</div>}<div><strong>{user.plan}</strong><p>{dateLabel(user.validFrom)} / {dateLabel(user.validTo)}</p>{user.gymPhone&&<a href={'tel:'+user.gymPhone}>Contact gym</a>}</div></section>}
  </div></div></main>;
 }
