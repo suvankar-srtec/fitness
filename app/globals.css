@@ -125,3 +125,5 @@ body small,body label{font-size:14px}
 .membership-profile-shop{position:absolute;top:8px;right:8px;z-index:1}
 .membership-profile-shop~.membership-profile-body .membership-profile-status{margin-top:30px}
 @media(max-width:700px){.modal-card.member-shopping-dialog{width:calc(100vw - 16px);height:min(680px,calc(100dvh - 24px));max-height:calc(100dvh - 24px)}.member-shopping-dialog>header{padding:12px 14px}}
+
+.lead-location-cell{min-width:155px}.lead-location-cell select{width:100%;min-width:135px;margin:0;padding:8px 10px;min-height:38px;font-size:14px}
