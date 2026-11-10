@@ -39,6 +39,7 @@ import { requestApi as api } from '../lib/api-client.mjs';
 export default function Home() {
  const [me,setMe]=useState(null),[rows,setRows]=useState([]),[members,setMembers]=useState([]),[loading,setLoading]=useState(true),[error,setError]=useState(''),[query,setQuery]=useState(''),[modal,setModal]=useState(false),[formError,setFormError]=useState(''),[busy,setBusy]=useState(false);
  const loadRun=useRef(0);
+ const signingOut=useRef(false);
  const [dataLoading,setDataLoading]=useState(false);
  const [plans,setPlans]=useState([]),[planOpen,setPlanOpen]=useState(false),[planError,setPlanError]=useState(''),[planMenuOpen,setPlanMenuOpen]=useState(false),[editingPlan,setEditingPlan]=useState(null);
  const [supervisorGymId,setSupervisorGymId]=useState('');
@@ -83,7 +84,7 @@ export default function Home() {
  async function createPlan(e){e.preventDefault();setBusy(true);setPlanError('');try{await api('plans',editingPlan?'PATCH':'POST',{...Object.fromEntries(new FormData(e.currentTarget)),...(editingPlan?{id:editingPlan.id}:{})});setPlans(await api('plans'));setPlanOpen(false);setTab('plans');setQuery('');setPlanMenuOpen(true);}catch(e){setPlanError(e.message);}finally{setBusy(false);}}
  function editPlan(plan){setEditingPlan(plan);setPlanError('');setPlanOpen(true);}
  async function deletePlan(plan){if(!window.confirm('Delete '+plan.name+'?'))return;setBusy(true);setError('');try{await api('plans','DELETE',{id:plan.id});setPlans(await api('plans'));setError('');}catch(e){setError(e.message);}finally{setBusy(false);}}
- async function signOut(){loadRun.current++;try{await api('logout','POST');setMe(null);setMobileNavOpen(false);setPlans([]);setPlanOpen(false);setPlanMenuOpen(false);setRows([]);setMembers([]);setQuery('');setTab('dashboard');setSupervisors([]);setManagers([]);setError('');}catch(e){setError(e.message);}}
+ async function signOut(){if(signingOut.current)return;signingOut.current=true;loadRun.current++;try{await api('logout','POST');setMe(null);setMobileNavOpen(false);setPlans([]);setPlanOpen(false);setPlanMenuOpen(false);setRows([]);setMembers([]);setQuery('');setTab('dashboard');setSupervisors([]);setManagers([]);setSuperadmins([]);setModal(false);setEditingMember(null);setEditingStaff(null);setBusy(false);setDataLoading(false);setError('');window.history.replaceState(null,'',window.location.pathname);}catch(e){setError(e.message);window.alert(e.message);}finally{signingOut.current=false;}}
  async function deleteRecord(record){
   if(!window.confirm('Delete '+record.name+'? Their records will be kept and access disabled.'))return;
   setBusy(true);setError('');

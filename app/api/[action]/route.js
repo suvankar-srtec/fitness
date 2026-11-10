@@ -1,3 +1,5 @@
+import {sameRequestOrigin} from '../../../lib/request-origin.mjs';
+import {logoutApi} from '../../../lib/logout-api.js';
 import {normalizeEmail} from '../../../lib/email-otp.mjs';
 import {leadFollowupsApi} from '../../../lib/lead-followups-api';
 import {advanceRenewal} from '../../../lib/advance-renewal-api';
@@ -48,7 +50,8 @@ async function handle(req,context) {
 try {
  const {action}=await context.params;
  if(!['lead-followups','membership-renew','member-groups','leads','staff-pass','supplement-image','supplements','supplement-cart','supplement-orders','payment-info','admin-recent-activity','gym-logo','member-time-calendar','gym-time-report','videos','video-stream','member-login','member-pass','member-otp-request','member-otp-verify','member-otp-set-password','otp-request','otp-verify','otp-set-password','manager-registration','managers','manager-dashboard','audit','gym-locations','supervisor-summary','gate-pass','gate-pass-scan','whatsapp-gate-pass','login','logout','me','superadmins','admins','members','supervisors','credentials','plans','member-photo','member-registration','memberships','membership-payments','users','attendance'].includes(action))return fail('Not found',404);
- if(['POST','PATCH','DELETE'].includes(req.method)) {const origin=req.headers.get('origin');if(origin&&origin!==new URL(req.url).origin)return fail('Invalid origin',403);}
+ if(['POST','PATCH','DELETE'].includes(req.method)&&!sameRequestOrigin(req))return fail('Invalid origin',403);
+ if(action==='logout')return await logoutApi(req,database);
  if(['POST','PATCH'].includes(req.method)){const body=await req.clone().json();if(body.email!==undefined){try{normalizeEmail(body.email);}catch{return fail('Enter a valid email address',400);}}}
  let sql=database();
  if(action.startsWith('member-otp-'))return await memberPhoneAuthApi(action.slice(7),req,sql);
@@ -108,7 +111,6 @@ try {
  if(action==='attendance')return await attendanceApi(req,u,sql);
  if(['memberships','membership-payments'].includes(action)){const result=await membershipApi(action,req,u,sql);if(action==='membership-payments'&&req.method==='POST'&&result.status===201){const payment=await result.clone().json();after(async()=>{try{await sendPaymentPass(sql,u,{paymentId:payment.id});}catch{console.error('Automatic payment WhatsApp delivery failed');}});}return result;}
  if(action==='me'&&req.method==='GET')return response(sessionProfile(u));
- if(action==='logout'&&req.method==='POST'){await sql`DELETE FROM sessions WHERE token_hash=${tokenHash(token)}`;const result=response({ok:true});result.cookies.set('session','',{httpOnly:true,sameSite:'strict',secure:process.env.NODE_ENV==='production',path:'/',maxAge:0});return result;}
  if(action==='credentials'&&req.method==='POST'){
   const b=await req.json();if(!Number.isInteger(b.id))return fail('Invalid account',400);
   const [target]=u.role==='superadmin'?await sql`SELECT * FROM users WHERE id=${b.id} AND role IN ('admin','manager','supervisor')`:u.role==='admin'?await sql`SELECT * FROM users WHERE id=${b.id} AND role='manager' AND created_by=${u.id}`:u.role==='manager'?await sql`SELECT * FROM users WHERE id=${b.id} AND role IN ('supervisor','manager') AND created_by=${u.created_by} AND location_id=${u.location_id}`:[];
