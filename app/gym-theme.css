@@ -118,3 +118,4 @@
 /* Keep task navigation quiet until selected, consistent with workspace navigation. */
 [data-gym-theme] .sidebar .supervisor-task-nav button:not([aria-current=page]){background:transparent!important;color:var(--gym-accent)!important}
 [data-gym-theme] .sidebar .supervisor-task-nav button:not([aria-current=page]):hover{background:white!important}
+.manager-overview-heading{align-items:center;gap:16px;flex-wrap:wrap}.manager-assigned-location{display:flex;align-items:center;gap:8px;margin-right:auto;color:var(--gym-accent,#111);font-size:16px;font-weight:600;overflow-wrap:anywhere;min-width:0}.manager-assigned-location svg{flex-shrink:0}@media(max-width:600px){.manager-overview-heading{gap:12px}.manager-overview .manager-member-select{width:100%}}
