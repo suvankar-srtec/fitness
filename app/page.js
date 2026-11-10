@@ -52,7 +52,7 @@ export default function Home() {
  useGymTheme(me);
  useEffect(()=>{
   if(!me)return;
-  const expired=()=>{loadRun.current++;setMe(null);setModal(false);setPlanOpen(false);setEditingStaff(null);setBusy(false);setError('Session expired. Please sign in again.');};
+  const expired=()=>{loadRun.current++;setMe(null);setShoppingMember(null);setRenewingMember(null);setLeadMember(null);setModal(false);setPlanOpen(false);setEditingStaff(null);setBusy(false);setError('Session expired. Please sign in again.');};
   window.addEventListener('gym-session-expired',expired);
   return()=>window.removeEventListener('gym-session-expired',expired);
  },[me]);
@@ -88,7 +88,7 @@ export default function Home() {
  async function createPlan(e){e.preventDefault();setBusy(true);setPlanError('');try{await api('plans',editingPlan?'PATCH':'POST',{...Object.fromEntries(new FormData(e.currentTarget)),...(editingPlan?{id:editingPlan.id}:{})});setPlans(await api('plans'));setPlanOpen(false);setTab('plans');setQuery('');setPlanMenuOpen(true);}catch(e){setPlanError(e.message);}finally{setBusy(false);}}
  function editPlan(plan){setEditingPlan(plan);setPlanError('');setPlanOpen(true);}
  async function deletePlan(plan){if(!window.confirm('Delete '+plan.name+'?'))return;setBusy(true);setError('');try{await api('plans','DELETE',{id:plan.id});setPlans(await api('plans'));setError('');}catch(e){setError(e.message);}finally{setBusy(false);}}
- async function signOut(){if(signingOut.current)return;signingOut.current=true;loadRun.current++;try{await api('logout','POST');setMe(null);setMobileNavOpen(false);setPlans([]);setPlanOpen(false);setPlanMenuOpen(false);setRows([]);setMembers([]);setQuery('');setTab('dashboard');setSupervisors([]);setManagers([]);setSuperadmins([]);setModal(false);setEditingMember(null);setEditingStaff(null);setRenewingMember(null);setLeadMember(null);setBusy(false);setDataLoading(false);setError('');window.history.replaceState(null,'',window.location.pathname);}catch(e){setError(e.message);window.alert(e.message);}finally{signingOut.current=false;}}
+ async function signOut(){if(signingOut.current)return;signingOut.current=true;loadRun.current++;try{await api('logout','POST');setMe(null);setMobileNavOpen(false);setPlans([]);setPlanOpen(false);setPlanMenuOpen(false);setRows([]);setMembers([]);setQuery('');setTab('dashboard');setSupervisors([]);setManagers([]);setSuperadmins([]);setModal(false);setEditingMember(null);setEditingStaff(null);setShoppingMember(null);setRenewingMember(null);setLeadMember(null);setBusy(false);setDataLoading(false);setError('');window.history.replaceState(null,'',window.location.pathname);}catch(e){setError(e.message);window.alert(e.message);}finally{signingOut.current=false;}}
  async function moveExpiredToLead(){setBusy(true);setLeadError('');try{await api('leads','POST',{memberId:leadMember.id});setLeadMember(null);await load(me);window.dispatchEvent(new Event('gym-members-changed'));}catch(e){setLeadError(e.message);}finally{setBusy(false);}}
  async function deleteRecord(record){
  if(!record.userId){window.alert('Members cannot be deleted. Use Renew or Back to Lead.');return;}
