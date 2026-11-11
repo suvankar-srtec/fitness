@@ -6,10 +6,10 @@ import CommerceIcon from './CommerceIcon';
 import {requestApi} from '../../lib/api-client.mjs';
 import styles from './PaymentInfo.module.css';
 export const money=value=>new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR'}).format(Number(value||0));
-export default function PaymentInfo({memberId,staff=false}){
- const [data,setData]=useState(null),[error,setError]=useState(''),[busy,setBusy]=useState(false),[tab,setTab]=useState('history'),[methods,setMethods]=useState({});
+export default function PaymentInfo({memberId,staff=false,initialData=null,onData}){
+ const [data,setData]=useState(initialData),[error,setError]=useState(''),[busy,setBusy]=useState(false),[tab,setTab]=useState('history'),[methods,setMethods]=useState({});
  const pending=useRef(false);
- const load=useCallback(async()=>{if(pending.current)return;pending.current=true;try{setData(await requestApi('payment-info'+(memberId?'?memberId='+memberId:'')));setError('');}catch(e){setError(e.message);}finally{pending.current=false;}},[memberId]);
+ const load=useCallback(async()=>{if(pending.current)return;pending.current=true;try{const value=await requestApi('payment-info'+(memberId?'?memberId='+memberId:''));setData(value);onData?.(value);setError('');}catch(e){setError(e.message);}finally{pending.current=false;}},[memberId,onData]);
  useEffect(()=>{load();const refresh=()=>{if(!document.hidden)load();};const timer=setInterval(refresh,5000);window.addEventListener('focus',refresh);return()=>{clearInterval(timer);window.removeEventListener('focus',refresh);};},[load]);
  async function pay(item){setBusy(true);setError('');try{if(item.type==='Membership')await requestApi('membership-payments','POST',{assignmentId:item.id,amount:Number(item.amount),method:methods[item.key]||'Cash',paidOn:new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Kolkata'}),requestKey:crypto.randomUUID()});else await requestApi('supplement-orders','PATCH',{id:item.id,method:methods[item.key]||'Cash'});await load();}catch(e){setError(e.message);}finally{setBusy(false);}}
  const history=data?paymentHistory(data):[],dues=data?[...data.memberships.filter(a=>Number(a.due)>0).map(a=>({key:'membership-'+a.id,id:a.id,type:'Membership',title:a.plan_name,amount:a.due})),...data.orders.filter(o=>!o.paid_at).map(o=>({key:'supplement-'+o.id,id:o.id,type:'Supplement',title:'Order #'+o.id,amount:o.amount,items:o.items}))]:[];

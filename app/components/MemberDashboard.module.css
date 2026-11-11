@@ -31,3 +31,9 @@
 .dashboard .menu button:focus-visible{outline:2px solid var(--gym-accent,#111);outline-offset:2px}
 @media(max-width:800px){.menu{gap:5px;padding:8px;border-bottom:1px solid var(--gym-border,#ddd)}.dashboard .menu button{font-size:14px;min-height:64px;flex-direction:column;padding:10px 4px;gap:7px}.dashboard .menu button[aria-current=page]{box-shadow:inset 0 -3px var(--gym-accent,#111)}}
 @media(max-width:480px){.menu{grid-template-columns:repeat(3,minmax(0,1fr))}.dashboard .menu button{min-height:66px}}
+
+/* Keep the complete pass in view without cropping the QR. */
+.passDashboard{padding-top:18px;padding-bottom:18px;max-width:none}.passDashboard .header{padding-bottom:14px}.passDashboard .workspace{margin-top:18px}.passDashboard .pageHeading{margin-bottom:12px}.passDashboard .passView{height:calc(100dvh - 170px);min-height:240px;padding:14px;align-items:center;justify-content:center;gap:26px}.passDashboard .passView>img{width:auto;max-width:65%;height:100%;object-fit:contain;border-radius:12px}.passDashboard .passView>div{max-width:260px;padding:0}.passDashboard .passView p{line-height:1.6}
+@media(max-width:800px){.passDashboard .workspace{gap:12px}.passDashboard .menu{grid-template-columns:repeat(6,minmax(0,1fr));padding:5px}.passDashboard .menu button{min-height:46px;padding:8px 2px}.passDashboard .menu button span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}.passDashboard .passView{height:calc(100dvh - 260px);min-height:210px;flex-direction:row;padding:10px;gap:12px}.passDashboard .passView>img{max-width:100%;max-height:100%;height:100%;width:auto}.passDashboard .passMetadata{display:none}}
+
+.passMetadata{min-width:0}@media(max-width:400px){.passDashboard .passView{height:calc(100dvh - 274px)}}

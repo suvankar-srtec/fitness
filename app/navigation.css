@@ -43,3 +43,17 @@
  :root[data-gym-theme] body .supervisor-focus-app .sidebar .supervisor-task-nav button[aria-current=page]{background:var(--gym-soft,#f1f5f9)!important;color:var(--gym-accent,#111)!important}
  :root[data-gym-theme] body .management-app .management-bottom-nav>.mobile-add{background:var(--gym-accent,#111)!important;color:#fff!important}
 }
+
+.supplement-cart-trigger{display:inline-flex;align-items:center;gap:8px;margin-left:auto;min-height:40px}.supplement-cart-trigger svg{width:21px;height:21px}
+@media(min-width:1101px){
+ .management-app .member-directory-table{width:100%;table-layout:fixed}
+ .management-app .member-directory-table th,.management-app .member-directory-table td{padding:16px 9px;min-width:0;overflow:hidden;text-overflow:ellipsis}
+ .member-directory-table th:nth-child(1){width:8%}.member-directory-table th:nth-child(2){width:18%}.member-directory-table th:nth-child(3){width:15%}.member-directory-table th:nth-child(4){width:11%}.member-directory-table th:nth-child(5){width:12%}.member-directory-table th:nth-child(6){width:20%}.member-directory-table th:nth-child(7){width:16%}
+ .member-directory-table .member-directory-person{min-width:0;gap:5px}.member-directory-person>div{min-width:0}.member-directory-table td:nth-child(2) small{display:block;overflow:hidden;text-overflow:ellipsis}.member-directory-table .row-actions{gap:5px;flex-wrap:wrap}.member-directory-table .row-actions button{padding:8px 9px;font-size:14px}.member-directory-table .membership-validity{white-space:normal}
+}
+@media(max-width:1100px){
+ .member-directory-table{width:100%;table-layout:fixed}.member-directory-table thead{display:none}.member-directory-table tbody,.member-directory-table tr{display:block;width:100%}.member-directory-table tr{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px 14px;padding:16px;border-bottom:1px solid var(--gym-border,#ddd)}
+ .management-app .member-directory-table td{display:block;padding:0;min-width:0;border:0;white-space:normal;overflow-wrap:anywhere}.member-directory-table td:nth-child(2){grid-column:1/-1;grid-row:1}.member-directory-table td:last-child{grid-column:1/-1}.member-directory-table .row-actions{flex-wrap:wrap}.member-directory-table .membership-validity{white-space:normal}.member-directory-table td:nth-child(4)::before{content:'Gym Location: ';color:#667085}.member-directory-table td:nth-child(5)::before{content:'Plan: ';color:#667085}
+}
+
+@media(min-width:1101px){.management-app .member-directory-table th{white-space:normal;overflow:visible;letter-spacing:.4px;overflow-wrap:normal;font-size:14px}.management-app .member-directory-table td:nth-child(2) small{max-width:100%}}
