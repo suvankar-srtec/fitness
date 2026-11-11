@@ -57,3 +57,12 @@
 }
 
 @media(min-width:1101px){.management-app .member-directory-table th{white-space:normal;overflow:visible;letter-spacing:.4px;overflow-wrap:normal;font-size:14px}.management-app .member-directory-table td:nth-child(2) small{max-width:100%}}
+
+/* Keep themed navigation readable in every interaction state. */
+:root[data-gym-theme] body :is(.management-app,.supervisor-focus-app) .sidebar :is(.sidebar-actions>button,.plan-menu-toggle,.supervisor-task-nav button){background:transparent!important;color:#566173!important;filter:none}
+:root[data-gym-theme] body :is(.management-app,.supervisor-focus-app) .sidebar :is(.sidebar-actions>button,.plan-menu-toggle,.supervisor-task-nav button):is(:hover,:focus-visible),
+:root[data-gym-theme] body :is(.management-app,.supervisor-focus-app) .sidebar :is(.sidebar-actions>button,.plan-menu-toggle,.supervisor-task-nav button)[aria-current=page],
+:root[data-gym-theme] body .management-app .sidebar :is(.has-active-page>.plan-menu-toggle,.plan-menu-toggle[aria-expanded=true]){background:var(--gym-soft,#f1f5f9)!important;color:var(--gym-accent,#111)!important;filter:none}
+:root[data-gym-theme] body .management-app .sidebar .sidebar-inline-submenu button{background:transparent!important;color:#647084!important;filter:none}
+:root[data-gym-theme] body .management-app .sidebar .sidebar-inline-submenu button:is(:hover,:focus-visible,[aria-current=page]){background:var(--gym-soft,#f1f5f9)!important;color:var(--gym-accent,#111)!important}
+.sidebar :is(.nav-menu-label,.nav-menu-label>span,.nav-chevron){color:inherit!important}
