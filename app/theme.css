@@ -580,3 +580,10 @@ h1, h2, h3, label, .brand, .gym-brand, .plan-tile-price { color: #111111; }
 .staff-qr-dialog .staff-pass-brand{padding:12px;border-radius:12px;border:1px solid transparent;margin-top:10px}
 .staff-qr-dialog .staff-pass-brand h3,.staff-qr-dialog .staff-pass-brand p{color:inherit!important}
 .staff-qr-dialog .staff-pass-brand img{background:white;border-radius:8px;padding:3px}
+
+/* Edge-to-edge role-colored pass header. */
+.staff-qr-dialog .staff-pass-top{margin:-16px -16px 0;padding:10px 16px 14px;border-radius:16px 16px 0 0}
+.staff-qr-dialog .staff-pass-top header{justify-content:flex-end}
+.staff-qr-dialog .staff-pass-top header button{background:transparent!important;color:inherit!important;border:1px solid currentColor;opacity:.9}
+.staff-qr-dialog .staff-pass-top .staff-pass-brand{margin:0;padding:4px 0 0;border:0;border-radius:0;color:inherit}
+@media(max-height:440px){.staff-qr-dialog .staff-pass-top{margin:-10px -10px 0;padding:6px 10px 10px}}
