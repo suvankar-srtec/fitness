@@ -50,3 +50,13 @@ test('admin lead creation saves the selected gym location; managers inherit thei
  assert.equal((await leadsApi(request('POST',data),{id:7,role:'admin'},async()=>[])).status,404);
  assert.equal((await leadsApi(request('POST',{...data,locationId:4}),{id:9,role:'manager',created_by:7,location_id:3},()=>{throw Error('Unexpected SQL');})).status,403);
 });
+
+test('admin and manager lead lists return the latest follow-up description with original-note fallback',async()=>{
+ for(const user of [{id:7,role:'admin'},{id:9,role:'manager',created_by:7,location_id:3}]){
+  const result=await leadsApi(request('GET'),user,async(parts,...values)=>{
+   const query=parts.join('?');assert.match(query,/COALESCE\(\(SELECT f.description FROM lead_followups f WHERE f.lead_id=lead.id ORDER BY f.follow_up_date DESC,f.id DESC LIMIT 1\),lead.description\) AS last_description/);
+   assert.deepEqual(values,user.role==='admin'?[7,true,null]:[7,false,3]);
+   return [{id:2,description:'Initial inquiry',last_description:'Requested a trial'}];
+  });assert.equal(result.status,200);assert.equal((await result.json())[0].last_description,'Requested a trial');
+ }
+});
