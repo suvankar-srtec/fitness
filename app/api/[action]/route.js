@@ -52,7 +52,7 @@ try {
  if(!['lead-followups','membership-renew','member-groups','leads','staff-pass','supplement-image','supplements','supplement-cart','supplement-orders','payment-info','admin-recent-activity','gym-logo','member-time-calendar','gym-time-report','videos','video-stream','member-login','member-pass','member-otp-request','member-otp-verify','member-otp-set-password','otp-request','otp-verify','otp-set-password','manager-registration','managers','manager-dashboard','audit','gym-locations','supervisor-summary','gate-pass','gate-pass-scan','whatsapp-gate-pass','login','logout','me','superadmins','admins','members','supervisors','credentials','plans','member-photo','member-registration','memberships','membership-payments','users','attendance'].includes(action))return fail('Not found',404);
  if(['POST','PATCH','DELETE'].includes(req.method)&&!sameRequestOrigin(req))return fail('Invalid origin',403);
  if(action==='logout')return await logoutApi(req,database);
- if(['POST','PATCH'].includes(req.method)){const body=await req.clone().json();if(body.email!==undefined){try{normalizeEmail(body.email);}catch{return fail('Enter a valid email address',400);}}}
+ if(['POST','PATCH'].includes(req.method)&&!['member-registration','manager-registration'].includes(action)){const body=await req.clone().json();if(body.email!==undefined){try{normalizeEmail(body.email);}catch{return fail('Enter a valid email address',400);}}}
  let sql=database();
  if(action.startsWith('member-otp-'))return await memberPhoneAuthApi(action.slice(7),req,sql);
  if(action==='member-login'&&req.method==='POST')return await loginApi(req,sql,{memberOnly:true});

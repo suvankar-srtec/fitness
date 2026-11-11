@@ -32,3 +32,15 @@ test('concurrent browser reads share one request but completed reads are refresh
 test('ID reservations recover from temporary failures with a bounded timeout',async()=>{
  for(const action of ['member-registration','manager-registration']){let calls=0;const result=await requestApi(action,'POST',{}, {fetcher:async(_url,options)=>{assert.ok(options.signal instanceof AbortSignal);calls++;if(calls===1)throw new Error('Network interruption');return response(201,{registrationNo:'mem99'});},wait:async()=>{}});assert.equal(calls,2);assert.equal(result.registrationNo,'mem99');}
 });
+
+
+test('bodyless ID reservation calls send valid JSON through request validation',async()=>{
+ for(const action of ['member-registration','manager-registration']){
+  const result=await requestApi(action,'POST',undefined,{fetcher:async(url,options)=>{
+   const request=new Request('https://gym.test'+url,options);
+   assert.deepEqual(await request.clone().json(),{});
+   return response(201,{registrationNo:'mem99'});
+  }});
+  assert.equal(result.registrationNo,'mem99');
+ }
+});
