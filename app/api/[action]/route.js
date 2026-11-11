@@ -214,9 +214,10 @@ try {
  }
  if(action==='member-registration'&&req.method==='POST'){
   if(!['admin','manager'].includes(u.role))return fail('Admin access required',403);
+  await sql`DELETE FROM member_registrations WHERE expires_at<NOW()`;
   const registrationToken=randomBytes(32).toString('hex');
-  const [reserved]=await sql`INSERT INTO member_registrations(token_hash,admin_id,member_id,public_id) VALUES(${tokenHash(registrationToken)},${gymId},nextval(pg_get_serial_sequence('members','id')),gym_next_public_id('mem','gym_member_ids')) RETURNING member_id,public_id`;
-  return response({registrationToken,registrationNo:reserved.public_id},201);
+  const [reserved]=await sql`INSERT INTO member_registrations(token_hash,admin_id,member_id,public_id) VALUES(${tokenHash(registrationToken)},${gymId},nextval(pg_get_serial_sequence('members','id')),gym_next_public_id('mem','gym_member_ids')) RETURNING member_id,public_id,expires_at`;
+  return response({registrationToken,registrationNo:reserved.public_id,expiresAt:reserved.expires_at},201);
  }
  if(action==='member-photo'&&req.method==='GET'){
   const id=Number(new URL(req.url).searchParams.get('id'));if(!Number.isInteger(id)||id<1)return fail('Not found',404);

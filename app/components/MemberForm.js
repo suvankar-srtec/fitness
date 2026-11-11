@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import PaymentInfo from './PaymentInfo';
+import {reserveMemberId} from '../../lib/member-reservation.mjs';
 import GymLocationInput from './GymLocationInput';
 import PhoneInput from './PhoneInput';
 import { membershipEndDate, validateMember, ageFromDateOfBirth, memberToday } from '../../lib/members.mjs';
@@ -9,7 +10,7 @@ import {canUpgradePlan} from '../../lib/member-upgrade.mjs';
 import { PAYMENT_MODES, registrationPayment } from '../../lib/payments.mjs';
 
 function today(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
-export default function MemberForm({gymAdminId,assignedLocation=null,plans,member=null,onSave,onCancel}) {
+export default function MemberForm({reservationResource,gymAdminId,assignedLocation=null,plans,member=null,onSave,onCancel}) {
  const [planId,setPlanId]=useState(member?.plan_id?String(member.plan_id):''),[from,setFrom]=useState(member?.valid_from||today),[to,setTo]=useState(member?.valid_to||''),[photo,setPhoto]=useState(member?.profilePictureUrl||null),[error,setError]=useState(''),[busy,setBusy]=useState(false);
  const [dob,setDob]=useState(member?.dob||''),[age,setAge]=useState(member?.dob?ageFromDateOfBirth(member.dob):member?.age??'');
  const [groups,setGroups]=useState([{name:'Default'},...(member?.group_name&&member.group_name!=='Default'?[{name:member.group_name}]:[])]),[groupName,setGroupName]=useState(member?.group_name||'Default'),[groupOpen,setGroupOpen]=useState(false),[newGroup,setNewGroup]=useState('');
@@ -21,10 +22,10 @@ export default function MemberForm({gymAdminId,assignedLocation=null,plans,membe
  const dialog=useRef(null),paymentSelect=useRef(null);
  useEffect(()=>{if(step==='payment'){dialog.current?.scrollTo(0,0);paymentSelect.current?.focus();}else if(step==='additional')dialog.current?.querySelector('.member-additional-grid input')?.focus();},[step]);
  useEffect(()=>{const bodyOverflow=document.body.style.overflow,rootOverflow=document.documentElement.style.overflow;document.body.style.overflow='hidden';document.documentElement.style.overflow='hidden';return()=>{document.body.style.overflow=bodyOverflow;document.documentElement.style.overflow=rootOverflow;};},[]);
- const fileInput=useRef(null),reservationRequest=useRef(null);
+ const fileInput=useRef(null),reservationRequest=useRef(null),localReservation=useRef(null);
  const [registration,setRegistration]=useState(member?{registrationNo:member.memberId}:null);
  const [registrationFailed,setRegistrationFailed]=useState(false);
- useEffect(()=>{if(member)return;let current=true;setRegistrationFailed(false);if(!reservationRequest.current)reservationRequest.current=requestApi('member-registration','POST');reservationRequest.current.then(value=>{if(current){setRegistration(value);setError('');}}).catch(e=>{reservationRequest.current=null;if(current){setRegistrationFailed(true);setError(e.message);}});return()=>{current=false;};},[member]);
+ useEffect(()=>{if(member)return;let current=true;setRegistrationFailed(false);if(!reservationRequest.current)reservationRequest.current=reserveMemberId(reservationResource||localReservation,requestApi);reservationRequest.current.then(value=>{if(current){setRegistration(value);setError('');}}).catch(e=>{reservationRequest.current=null;if(current){setRegistrationFailed(true);setError(e.message);}});return()=>{current=false;};},[member]);
  useEffect(()=>{const escape=e=>{if(e.key==='Escape'&&!busy)onCancel();};document.addEventListener('keydown',escape);return()=>document.removeEventListener('keydown',escape);},[busy,onCancel]);
  function changeDates(start,plan){setTo(membershipEndDate(start,plans.find(p=>String(p.id)===plan)?.duration_days));}
  async function choosePhoto(e){setPhotoChanged(true);const file=e.target.files?.[0];setError('');if(!file){setPhoto(null);return;}if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>2*1024*1024){e.target.value='';setPhoto(null);setError('Choose a JPG, PNG or WebP image up to 2 MB');return;}try{const data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file);});setPhoto(data);}catch{setError('Unable to read picture');}}
