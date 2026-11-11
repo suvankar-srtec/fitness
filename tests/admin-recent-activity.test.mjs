@@ -13,3 +13,8 @@ test('invalid QR attempts are persisted as rejected without marking attendance',
  let logged=false;const sql=async(strings,...values)=>{const query=strings.join('?');assert.ok(!query.includes('INSERT INTO attendance'));if(query.includes('INSERT INTO gym_scan_events')){logged=true;assert.equal(values[5],'Rejected');}return [];};
  const request=new Request('https://gym.test/api/gate-pass-scan',{method:'POST',body:JSON.stringify({qr:'not a pass'})});assert.equal((await gatePassApi('gate-pass-scan',request,{role:'supervisor',id:11,created_by:8,location_id:3},sql)).status,400);assert.equal(logged,true);
 });
+
+test('manager collection reads enforce assigned gym and location, ignoring URL overrides',async()=>{
+ let checked=false;const sql=async(strings,...values)=>{const text=strings.join('?');if(text.includes('GROUP BY p.paid_on')){checked=true;assert.deepEqual(values,[17,false,7]);assert.match(text,/a.admin_id=/);assert.match(text,/m.location_id=/);return [{location:'Assigned branch',method:'Cash',date:'2026-11-11',amount:'100.00'}];}return [];};
+ const res=await adminRecentActivity(new Request('https://gym.test/api/admin-recent-activity?locationId=999&adminId=999'),{id:30,role:'manager',created_by:17,location_id:7},sql);assert.equal(res.status,200);assert.equal(checked,true);assert.deepEqual((await res.json()).revenue,[{location:'Assigned branch',method:'Cash',date:'2026-11-11',amount:'100.00'}]);
+});
