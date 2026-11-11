@@ -66,3 +66,29 @@
 :root[data-gym-theme] body .management-app .sidebar .sidebar-inline-submenu button{background:transparent!important;color:#647084!important;filter:none}
 :root[data-gym-theme] body .management-app .sidebar .sidebar-inline-submenu button:is(:hover,:focus-visible,[aria-current=page]){background:var(--gym-soft,#f1f5f9)!important;color:var(--gym-accent,#111)!important}
 .sidebar :is(.nav-menu-label,.nav-menu-label>span,.nav-chevron){color:inherit!important}
+
+/* Manager navigation fits the workspace and keeps expanded links inside it. */
+.manager-workspace .sidebar-actions,.manager-workspace .plan-menu{min-width:0;width:100%}
+.manager-workspace .sidebar .sidebar-actions>button,.manager-workspace .sidebar .plan-menu-toggle{width:100%;height:auto;gap:8px;flex-shrink:0}
+.manager-workspace .sidebar .nav-menu-label{display:flex;align-items:center;min-width:0;flex:1}
+.manager-workspace .sidebar .nav-menu-label>span{white-space:normal;overflow-wrap:normal}
+.manager-workspace .sidebar .nav-chevron{flex-shrink:0}
+.manager-workspace .sidebar .sidebar-inline-submenu{width:auto;min-width:0}
+.manager-workspace .sidebar .sidebar-inline-submenu button{width:100%;height:auto;text-align:left;white-space:normal}
+@media(min-width:851px){
+ .manager-workspace>.sidebar{gap:12px;padding-top:16px}
+ .manager-workspace .sidebar .sidebar-identity{padding-bottom:12px}
+ .manager-workspace .sidebar-actions{gap:3px}
+ .manager-workspace .sidebar .sidebar-actions>button,.manager-workspace .sidebar .plan-menu-toggle{min-height:36px;padding:8px 10px}
+ .manager-workspace .sidebar .sidebar-inline-submenu{margin:3px 0 5px 18px;padding-left:10px;gap:2px}
+ .manager-workspace .sidebar .sidebar-inline-submenu button{min-height:32px;padding:6px 8px}
+ .manager-workspace .management-nav-wrap{overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;padding-bottom:12px}
+}
+@media(max-width:850px){
+ .manager-workspace .sidebar .management-nav-wrap{max-height:calc(100dvh - 210px - env(safe-area-inset-bottom));overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain;scroll-padding-block:10px;box-sizing:border-box}
+ .manager-workspace .sidebar .sidebar-actions{height:auto;gap:3px}
+ .manager-workspace .sidebar .sidebar-inline-submenu{margin-left:18px;padding-left:10px}
+ .manager-workspace .sidebar .sidebar-inline-submenu button{min-height:40px;padding:9px 8px}
+ .manager-workspace .management-bottom-nav>button{min-width:0;max-width:25%;gap:4px}
+ .manager-workspace .management-bottom-nav>button span{font-size:12px;line-height:1.25;text-align:center}
+}
