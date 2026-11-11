@@ -569,3 +569,10 @@ h1, h2, h3, label, .brand, .gym-brand, .plan-tile-price { color: #111111; }
 @media(max-height:440px){.staff-qr-dialog{padding:10px!important}.staff-qr-dialog .staff-pass-brand{padding:6px 0}.staff-qr-dialog .staff-pass-identity{margin:6px 0}.staff-qr-dialog .staff-pass-code{height:calc(100dvh - 200px)}}
 
 .location-collections{padding:18px;margin:18px 0;border:1px solid var(--gym-border,#ddd);border-radius:12px;background:white;min-width:0}.location-collections h2{font-size:18px;margin:0 0 14px}.location-collections table{width:100%;border-collapse:collapse}.location-collections th,.location-collections td{text-align:left;padding:10px;font-size:14px;border-bottom:1px solid #eee}.location-collections .tablewrap{overflow:auto}.location-collections p{color:#64748b;font-size:14px}
+
+/* Shared gym document identity: contact left, logo right. */
+.staff-qr-dialog .staff-pass-brand{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.staff-pass-contact{min-width:0;text-align:left}.staff-pass-contact p{overflow-wrap:anywhere}
+.staff-qr-dialog .staff-pass-brand img,.staff-qr-dialog .staff-pass-brand>span{flex:0 0 52px;width:52px!important;height:52px!important;margin:0!important}
+.staff-pass-footer{text-align:left;border-top:1px solid #eee;padding-top:8px;margin-top:8px;font-size:14px;overflow-wrap:anywhere}
+.staff-qr-dialog .staff-pass-code{height:min(280px,calc(100dvh - 285px))}
