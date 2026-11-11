@@ -127,3 +127,5 @@ body small,body label{font-size:14px}
 @media(max-width:700px){.modal-card.member-shopping-dialog{width:calc(100vw - 16px);height:min(680px,calc(100dvh - 24px));max-height:calc(100dvh - 24px)}.member-shopping-dialog>header{padding:12px 14px}}
 
 .lead-location-cell{min-width:155px}.lead-location-cell select{width:100%;min-width:135px;margin:0;padding:8px 10px;min-height:38px;font-size:14px}
+
+.lead-phone{display:flex;align-items:center;gap:8px;white-space:nowrap}.lead-phone .lead-call{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;flex-shrink:0;border-radius:8px;background:var(--gym-soft,#edf4fc);color:var(--gym-accent,#1765c1);text-decoration:none}.lead-phone .lead-call:hover{background:var(--gym-accent,#1765c1);color:#fff}.lead-phone .lead-call:focus-visible{outline:2px solid var(--gym-accent,#1765c1);outline-offset:2px}@media(pointer:coarse){.lead-phone .lead-call{width:40px;height:40px}}
