@@ -1,3 +1,4 @@
+import {ensureMembershipAddonsSchema} from '../lib/membership-addons.mjs';
 import {ensureRenewalOptionsSchema} from './renewal-options-schema.mjs';
 import {ensureEmailSchema} from '../lib/email-otp.mjs';
 import {ensureMemberGroupSchema} from '../lib/member-groups.mjs';
@@ -68,6 +69,7 @@ await sql`CREATE TABLE IF NOT EXISTS login_attempts (key TEXT PRIMARY KEY, attem
 await ensureGatePassSchema(sql);
 await ensureMembershipIntegrity(sql);
 await ensureRenewalOptionsSchema(sql);
+await ensureMembershipAddonsSchema(sql);
 await migratePublicIds(sql);
 const password=await hashPassword('sp00');
 await sql`INSERT INTO users(public_id,name,password,role,gym_name,created_by) VALUES('sp00','Main Superadmin',${password},'superadmin',NULL,NULL) ON CONFLICT(public_id) DO NOTHING`;
