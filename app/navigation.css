@@ -1,0 +1,45 @@
+﻿/* Shared navigation: quiet destinations, clear selection, inline nested links. */
+.management-app>.sidebar,.supervisor-focus-app>.sidebar{background:#fff!important;border-right:1px solid var(--gym-border,#e4e7ec);box-shadow:4px 0 24px #18243a03}
+.sidebar .sidebar-identity{padding-bottom:18px;border-bottom:1px solid var(--gym-border,#e4e7ec)}
+.management-app .management-nav-wrap{padding:0 10px 16px}
+.management-app .sidebar-actions{gap:5px}
+.management-app .sidebar .sidebar-actions>button,
+.management-app .sidebar .plan-menu-toggle,
+.supervisor-focus-app .sidebar .supervisor-task-nav button{position:relative;display:flex;align-items:center;min-height:42px;padding:11px 12px;border:0;border-radius:10px;background:transparent!important;color:#566173!important;font-size:14px;font-weight:500;line-height:1.35;text-align:left;transition:background .15s,color .15s;box-shadow:none}
+.management-app .sidebar .sidebar-actions>button:hover,
+.management-app .sidebar .plan-menu-toggle:hover,
+.supervisor-focus-app .sidebar .supervisor-task-nav button:hover{background:#f4f6f8!important;color:var(--gym-accent,#111)!important}
+.management-app .sidebar .sidebar-actions>button[aria-current=page],
+.management-app .sidebar .has-active-page>.plan-menu-toggle,
+.supervisor-focus-app .sidebar .supervisor-task-nav button[aria-current=page]{background:var(--gym-soft,#f1f5f9)!important;color:var(--gym-accent,#111)!important;font-weight:700;box-shadow:inset 3px 0 var(--gym-accent,#111)}
+.management-app .sidebar .plan-menu-toggle[aria-expanded=true]{color:var(--gym-accent,#111)!important}
+.management-app .sidebar .sidebar-inline-submenu{margin:5px 0 7px 21px;padding:0 0 0 15px;border-left:1px solid var(--gym-border,#ddd);gap:3px}
+.management-app .sidebar .sidebar-inline-submenu button{position:relative;min-height:34px;padding:8px 10px;border-radius:8px;background:transparent!important;color:#647084!important;font-size:14px;font-weight:500;line-height:1.35}
+.management-app .sidebar .sidebar-inline-submenu button:hover,
+.management-app .sidebar .sidebar-inline-submenu button[aria-current=page]{background:var(--gym-soft,#f1f5f9)!important;color:var(--gym-accent,#111)!important}
+.management-app .sidebar .sidebar-inline-submenu button[aria-current=page]{font-weight:700}
+.sidebar .nav-menu-label{gap:10px}.sidebar .nav-chevron{width:14px;height:14px;opacity:.65}.sidebar .plan-menu-toggle[aria-expanded=true]>.nav-chevron{transform:rotate(90deg)}
+.sidebar .dashboard-nav>svg,.sidebar .nav-menu-label>svg{width:18px;height:18px;flex-shrink:0;stroke-width:1.7}
+.sidebar nav button:focus-visible{outline:2px solid var(--gym-accent,#111);outline-offset:2px}
+@media(min-width:851px){.management-app>.sidebar,.supervisor-focus-app>.sidebar{padding-top:22px;gap:20px}.supervisor-focus-app>.sidebar{padding-inline:12px}.supervisor-focus-app .sidebar-identity{padding-inline:4px}.supervisor-task-nav{gap:6px}}
+@media(max-width:850px){
+ .management-app>.sidebar,.supervisor-focus-app>.sidebar{box-shadow:0 2px 12px #18243a05;border-bottom:1px solid var(--gym-border,#e4e7ec);background:#fff!important}
+ .sidebar .sidebar-identity{padding-bottom:0;border:0}
+ .management-app .sidebar .management-nav-wrap{background:white;padding:10px;border:1px solid var(--gym-border,#ddd);border-radius:14px;box-shadow:0 12px 32px #18243a18}
+ .management-app .sidebar .sidebar-actions>button,.management-app .sidebar .plan-menu-toggle{min-height:44px}
+ .management-bottom-nav,.supervisor-focus-app .sidebar .supervisor-task-nav{background:#fff!important;border:1px solid var(--gym-border,#e4e7ec);border-bottom:0;border-radius:20px 20px 0 0;box-shadow:0 -4px 24px #18243a0d;gap:4px;padding:8px 8px calc(8px + env(safe-area-inset-bottom))}
+ .management-bottom-nav>button,.supervisor-focus-app .sidebar .supervisor-task-nav button{color:#526173!important;background:transparent!important;font-weight:500;border-radius:12px;font-size:14px;min-width:0}
+ .management-bottom-nav>button[aria-current=page],.supervisor-focus-app .sidebar .supervisor-task-nav button[aria-current=page]{color:var(--gym-accent,#111)!important;background:var(--gym-soft,#f1f5f9)!important;box-shadow:none;font-weight:700}
+ .management-bottom-nav .mobile-add{background:var(--gym-accent,#111)!important;color:#fff!important;box-shadow:0 3px 9px #18243a20}
+ .supervisor-focus-app .sidebar .supervisor-task-nav button{flex-direction:column;justify-content:center;padding:10px 4px;gap:6px}
+ .management-bottom-nav button span{font-size:12px;line-height:1.3}.supervisor-task-nav button span{font-size:13px;line-height:1.3}
+}
+@media(max-width:850px){
+ :root[data-gym-theme] body .management-app .management-bottom-nav,
+ :root[data-gym-theme] body .supervisor-focus-app .sidebar .supervisor-task-nav{background:#fff!important}
+ :root[data-gym-theme] body .management-app .management-bottom-nav>button,
+ :root[data-gym-theme] body .supervisor-focus-app .sidebar .supervisor-task-nav button:not([aria-current=page]){background:transparent!important;color:#526173!important}
+ :root[data-gym-theme] body .management-app .management-bottom-nav>button[aria-current=page],
+ :root[data-gym-theme] body .supervisor-focus-app .sidebar .supervisor-task-nav button[aria-current=page]{background:var(--gym-soft,#f1f5f9)!important;color:var(--gym-accent,#111)!important}
+ :root[data-gym-theme] body .management-app .management-bottom-nav>.mobile-add{background:var(--gym-accent,#111)!important;color:#fff!important}
+}
