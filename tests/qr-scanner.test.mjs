@@ -23,3 +23,9 @@ test('camera falls back when preferred camera constraints are unavailable',async
  const session=startQrCamera({video:{},getMedia:async constraints=>{requests.push(constraints);if(requests.length===1)throw {name:'OverconstrainedError'};return stream;},loadReader:async()=>({decodeFromStream:async()=>({stop(){}})}),onResult(){},onReady(){ready=true;},onError:error=>{throw error;}});
  await session.ready;assert.equal(ready,true);assert.equal(requests.length,2);assert.equal(requests[1].video,true);session.stop();
 });
+
+test('continuous scanning keeps the live stream until the screen closes',async()=>{
+ let callback,stops=0;const results=[];const stream={getTracks:()=>[{stop:()=>stops++}]};const controls={stop(){}};const video={srcObject:stream};
+ const session=startQrCamera({continuous:true,video,getMedia:async()=>stream,loadReader:async()=>({decodeFromStream:async(s,v,cb)=>{callback=cb;return controls;}}),onResult:r=>results.push(r),onError:e=>{throw e;}});
+ await session.ready;callback({getText:()=> 'abc1234567'},null,controls);assert.equal(stops,0);assert.equal(video.srcObject,stream);assert.deepEqual(results,['abc1234567']);session.stop();assert.equal(stops,1);assert.equal(video.srcObject,null);
+});
