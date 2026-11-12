@@ -589,3 +589,4 @@ h1, h2, h3, label, .brand, .gym-brand, .plan-tile-price { color: #111111; }
 @media(max-height:440px){.staff-qr-dialog .staff-pass-top{margin:-10px -10px 0;padding:6px 10px 10px}}
 
 .staff-pass-footer>div+div{margin-top:3px}.staff-qr-dialog .staff-pass-code{height:min(270px,calc(100dvh - 310px))}.staff-pass-identity span{overflow-wrap:anywhere}
+.staff-qr-dialog .staff-pass-identity{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start;text-align:left;gap:12px}.staff-pass-identity>div{display:flex;flex-direction:column;gap:4px;min-width:0}.staff-pass-identity>div:last-child{text-align:right}.staff-qr-dialog .staff-pass-identity strong{font-size:16px}.staff-pass-identity span{font-size:14px}
