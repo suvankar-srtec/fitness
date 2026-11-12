@@ -127,3 +127,10 @@ Location dropdowns show every saved real location for the selected gym, refresh 
 Gym admins can open **Videos** to upload MP4, WebM, or MOV files up to 200 MB. Members see their gym's published videos after member login. Playback uses private authenticated streaming; expired or archived accounts cannot access it. Removing a video archives its metadata and retains its audit history.
 
 Create a **Private Vercel Blob** store and connect it to the project. The current integration provides `BLOB_STORE_ID` and `BLOB_WEBHOOK_PUBLIC_KEY`; uploads use Vercel OIDC and presigned multipart URLs. Redeploy after connecting the store. For local Blob testing, link the project and obtain the connected environment using Vercel CLI. Keep all environment credentials out of Git.
+
+
+### Membership renewal reminders
+
+Members see a renewal notice when they sign in during the final seven days of their membership. A daily Vercel cron (`30 3 * * *`, 09:00 IST) sends reminders three days before expiry to their saved email and WhatsApp number. Configure `CRON_SECRET`, `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `WHATSAPP_PROVIDER=wapmonkey`, `WAPMONKEY_API_KEY`, `WAPMONKEY_DEVICE_TOKEN`, and `APP_URL` privately in Production.
+
+Reminder delivery is tracked separately by member, expiry date, and channel. Unconfirmed requests are retained without automatic resending, avoiding duplicates after provider timeouts. The endpoint rejects requests without the cron bearer credential. QR pass branding remains separate from the shared dashboard theme.
