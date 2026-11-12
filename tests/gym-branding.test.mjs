@@ -5,7 +5,7 @@ import {normalizeGymBranding} from '../lib/gym-branding.mjs';
 import {formatPassDate,logoAccent} from '../lib/pass-branding.mjs';
 const data={gymAddress:'  12 Park Road, Kolkata  ',gymPhone:'9051668952',gymCountry:'IN',gymWebsite:'fitfusion.example'};
 test('gym branding validates required contact details and normalizes website',()=>{
- assert.deepEqual(normalizeGymBranding(data),{address:'12 Park Road, Kolkata',phone:'+919051668952',website:'https://fitfusion.example/'});
+ assert.deepEqual(normalizeGymBranding(data),{address:'12 Park Road, Kolkata',phone:'+919051668952',website:'https://fitfusion.example/',gstNumber:'',gstRate:0});
  for(const change of [{gymAddress:''},{gymPhone:'123'},{gymWebsite:'javascript:alert(1)'},{gymWebsite:'https://user:secret@example.com'}])assert.throws(()=>normalizeGymBranding({...data,...change}),error=>error.code==='GYM_BRANDING_INVALID');
 });
 test('pass dates use DD-MM-YYYY without changing the underlying QR dates',()=>{
