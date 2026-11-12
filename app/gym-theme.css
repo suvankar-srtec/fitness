@@ -1,4 +1,4 @@
-/* Applied only to an authenticated gym account; portals inherit these variables. */
+/* Shared fixed dashboard palette; portals inherit these variables. */
 :root[data-gym-theme]{--ui-background:var(--gym-background);--ui-soft:var(--gym-soft);--ui-border:var(--gym-border);accent-color:var(--gym-accent)}
 [data-gym-theme] body,[data-gym-theme] .management-app,[data-gym-theme] .supervisor-focus-app{background:var(--gym-background)}
 [data-gym-theme] h1,[data-gym-theme] h2,[data-gym-theme] h3,[data-gym-theme] .gym-brand,[data-gym-theme] .plan-tile-price{color:var(--gym-accent)}

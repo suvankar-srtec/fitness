@@ -1,6 +1,11 @@
-/* Shared monochrome theme for desktop and mobile. */
+/* Fixed white and blue theme shared by every dashboard. */
 :root {
   color-scheme: light;
+  --gym-accent: #1763c6;
+  --gym-hover: #124fa0;
+  --gym-soft: #edf4ff;
+  --gym-background: #f8fbff;
+  --gym-border: #d5e4fb;
   --ui-background: #f7f7f7;
   --ui-surface: #ffffff;
   --ui-text: #111111;

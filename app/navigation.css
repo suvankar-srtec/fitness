@@ -95,7 +95,7 @@
 
 /* Shared account menu, independent of gym branding. */
 .profile-account{position:relative;flex-shrink:0;z-index:50}
-.account-actions .profile-trigger{width:42px;height:42px;padding:0;border-radius:50%;background:#111;color:#fff;border:3px solid #eee;font-size:17px;font-weight:700;display:grid;place-items:center}
+.account-actions .profile-trigger{width:42px;height:42px;padding:0;border-radius:50%;background:var(--gym-accent);color:#fff;border:3px solid var(--gym-soft);font-size:17px;font-weight:700;display:grid;place-items:center}
 .profile-dropdown{position:absolute;right:0;top:calc(100% + 10px);width:230px;padding:16px;background:#fff;border:1px solid #e5e7eb;border-radius:16px;box-shadow:0 16px 48px #0002;display:flex;flex-direction:column;gap:14px;color:#111}
 .profile-dropdown[hidden]{display:none}.profile-details{display:flex;flex-direction:column;gap:5px;overflow-wrap:anywhere}.profile-details span{color:#666;font-size:14px}.profile-qr{display:flex;align-items:center;justify-content:space-between;border-top:1px solid #eee;padding-top:12px}.profile-dropdown .logout-button{width:100%;background:#c92525;color:#fff}
 .renewal-notice{width:min(440px,calc(100vw - 32px));padding:28px;display:flex;flex-direction:column;gap:16px}.renewal-notice p{line-height:1.6;margin:0}

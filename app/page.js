@@ -25,7 +25,6 @@ import {gatePassStatus} from '../lib/gate-pass.mjs';
 import UserEditor from './components/UserEditor';
 import MembershipValidity from './components/MembershipValidity';
 import GymBrand from './components/GymBrand';
-import useGymTheme from './hooks/useGymTheme';
 import useProfileRefresh from './hooks/useProfileRefresh';
 import MembershipWorkspace from './components/MembershipWorkspace';
 import AttendanceWorkspace from './components/AttendanceWorkspace';
@@ -52,7 +51,6 @@ export default function Home() {
  const [mobileNavOpen,setMobileNavOpen]=useState(false);
  useEffect(()=>{document.title=me?.gymName?me.gymName+' | Gym Management':me?.role==='superadmin'?'Superadmin | Gym Management':'Gym Management';},[me?.gymName,me?.role]);
  useProfileRefresh(me?.id,setMe);
- useGymTheme(me);
  useEffect(()=>{
   if(!me)return;
   const expired=()=>{loadRun.current++;setMe(null);setShoppingMember(null);setRenewingMember(null);setLeadMember(null);setModal(false);setPlanOpen(false);setEditingStaff(null);setBusy(false);setError('Session expired. Please sign in again.');};
