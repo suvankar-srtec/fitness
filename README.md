@@ -134,3 +134,11 @@ Create a **Private Vercel Blob** store and connect it to the project. The curren
 Members see a renewal notice when they sign in during the final seven days of their membership. A daily Vercel cron (`30 3 * * *`, 09:00 IST) sends reminders three days before expiry to their saved email and WhatsApp number. Configure `CRON_SECRET`, `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `WHATSAPP_PROVIDER=wapmonkey`, `WAPMONKEY_API_KEY`, `WAPMONKEY_DEVICE_TOKEN`, and `APP_URL` privately in Production.
 
 Reminder delivery is tracked separately by member, expiry date, and channel. Unconfirmed requests are retained without automatic resending, avoiding duplicates after provider timeouts. The endpoint rejects requests without the cron bearer credential. QR pass branding remains separate from the shared dashboard theme.
+
+## Gym subscription limits
+
+Superadmin creates an admin in two parts: **Plan Creation** sets the gym subscription validity and member, manager, supervisor and branch limits; **Admin Creation** captures the account and gym details. These settings apply only to that gym and can be updated through its admin editor.
+
+Blank dates are unrestricted and blank limits mean unlimited. Zero prevents creation in that category. Capacity counts non-archived records across the gym; expired members still count until archived. Database triggers enforce limits for creation, transfers and reactivation, including requests made directly to the API. Limits cannot be reduced below current usage. Subscription validity uses India time and blocks gym account access outside the configured period. Existing gyms remain unrestricted until superadmin configures their plan.
+
+Run `npm run db:setup` before deploying this version to a new database. The subscription migration is additive and does not remove existing records.

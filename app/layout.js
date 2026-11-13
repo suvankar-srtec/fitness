@@ -3,6 +3,7 @@ import './theme.css';
 import './gym-theme.css';
 import './navigation.css';
 import './login.css';
+import './subscription.css';
 export const metadata = { title: 'Gym Management', description: 'Manage your gym team and members' };
 export default function Layout({ children }) {
   return (
