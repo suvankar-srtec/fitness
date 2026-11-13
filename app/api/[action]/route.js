@@ -9,7 +9,7 @@ import {leadFollowupsApi} from '../../../lib/lead-followups-api';
 import {advanceRenewal} from '../../../lib/advance-renewal-api';
 import {memberGroupsApi} from '../../../lib/member-groups-api';
 import {leadsApi} from '../../../lib/leads-api';
-import {staffPassImage} from '../../../lib/staff-pass-api';
+const staffPassImage=async(...args)=>(await import('../../../lib/staff-pass-api')).staffPassImage(...args);
 import {commerceApi} from '../../../lib/commerce-api';
 import {sendPaymentPass} from '../../../lib/payment-whatsapp.mjs';
 import {canUpgradePlan,fixedDateOfBirth,updateMemberWithUpgrade} from '../../../lib/member-upgrade.mjs';
@@ -73,7 +73,7 @@ try {
  if(action==='login'&&req.method==='POST')return await loginApi(req,sql);
  const token=req.cookies.get('session')?.value;if(!token)return fail('Please sign in',401);
  if(token.startsWith('m.')){const memberResponse=await memberSession(action,req,sql,token);return memberResponse||fail('Please sign in',401);}
- const [u]=await sql`SELECT u.*,(SELECT COALESCE(NULLIF(gym_phone,''),phone) FROM users WHERE id=u.created_by AND role='admin') AS owner_gym_phone,(SELECT gym_website FROM users WHERE id=u.created_by AND role='admin') AS owner_gym_website,(SELECT email FROM users WHERE id=u.created_by AND role='admin') AS gym_email,CASE WHEN u.role IN ('manager','supervisor') THEN (SELECT gym_logo FROM users WHERE id=u.created_by AND role='admin') ELSE u.gym_logo END AS gym_logo,gym_account_enabled(u.id) AS account_enabled,gym_subscription_active(CASE WHEN u.role='admin' THEN u.id ELSE u.created_by END) AS subscription_active,(SELECT name FROM gym_locations WHERE id=u.location_id) AS location_name,CASE WHEN u.role IN ('manager','supervisor') THEN (SELECT COALESCE(NULLIF(gym_name,''),name) FROM users WHERE id=u.created_by AND role='admin') ELSE u.gym_name END AS gym_name FROM users u JOIN sessions s ON u.id=s.user_id WHERE s.token_hash=${tokenHash(token)} AND s.expires_at>NOW()`;
+ const [u]=await sql`SELECT u.*,g.contact_phone AS owner_gym_phone,g.gym_website AS owner_gym_website,g.email AS gym_email,CASE WHEN u.role IN ('manager','supervisor') THEN g.gym_logo ELSE u.gym_logo END AS gym_logo,gym_account_enabled(u.id) AS account_enabled,gym_subscription_active(CASE WHEN u.role='admin' THEN u.id ELSE u.created_by END) AS subscription_active,l.name AS location_name,CASE WHEN u.role IN ('manager','supervisor') THEN COALESCE(NULLIF(g.gym_name,''),g.name) ELSE u.gym_name END AS gym_name FROM users u JOIN sessions s ON u.id=s.user_id LEFT JOIN (SELECT *,COALESCE(NULLIF(gym_phone,''),phone) AS contact_phone FROM users WHERE role='admin') g ON g.id=u.created_by LEFT JOIN gym_locations l ON l.id=u.location_id WHERE s.token_hash=${tokenHash(token)} AND s.expires_at>NOW()`;
  if(!u||!u.account_enabled||u.role==='superadmin'&&!isMainSuperadmin(publicUser(u)))return fail('Please sign in',401);
  if(u.role!=='superadmin'&&!u.password_ready)return fail('Verify your WhatsApp number and set your password.',401);
  if(u.role!=='superadmin'&&u.subscription_active===false)return fail('Gym subscription is not active. Contact superadmin.',403);

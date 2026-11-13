@@ -1,11 +1,12 @@
 'use client';
+import dynamic from 'next/dynamic';
 import {MessageNotice,confirmMessage,showMessage} from './MessagePopup';
 
 import {matchesUserSearch} from '../../lib/user-search.mjs';
 import { useState } from 'react';
 import {isMainSuperadmin} from '../../lib/user-permissions.mjs';
-import UserEditor from './UserEditor';
-import GymUserCards from './GymUserCards';
+const UserEditor=dynamic(()=>import('./UserEditor'));
+const GymUserCards=dynamic(()=>import('./GymUserCards'));
 import {requestApi} from '../../lib/api-client.mjs';
 
 export const moduleLabels={membership:'Membership',notifications:'Audit Report',attendance:'Scan Report',reports:'Reports',users:'Admins'};

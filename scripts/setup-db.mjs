@@ -1,3 +1,4 @@
+import {ensurePerformanceIndexes} from './performance-indexes.mjs';
 import {ensureMemberQueriesSchema} from '../lib/member-queries-schema.mjs';
 import {ensureGymSubscriptionSchema} from './gym-subscription-schema.mjs';
 import {ensureMembershipAddonsSchema} from '../lib/membership-addons.mjs';
@@ -94,5 +95,6 @@ await ensureMemberGroupSchema(sql);
 await ensureMemberMeasurementSchema(sql);
 await ensureGymSubscriptionSchema(sql);
 await ensureAuditSchema(sql);
+await ensurePerformanceIndexes(sql);
 console.log('Neon schema ready. Main superadmin user ID: sp00. Existing accounts are preserved.');
 } catch { console.error('Database setup failed. Check the Neon connection string and database access.'); process.exitCode=1; }

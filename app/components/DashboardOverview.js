@@ -1,9 +1,10 @@
 'use client';
+import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import useAdminActivity from '../hooks/useAdminActivity';
-import AdminRecentActivity from './AdminRecentActivity';
-import AdminDashboardCharts from './AdminDashboardCharts';
-import AdminHome from './AdminHome';
+const AdminRecentActivity=dynamic(()=>import('./AdminRecentActivity'));
+const AdminDashboardCharts=dynamic(()=>import('./AdminDashboardCharts'));
+const AdminHome=dynamic(()=>import('./AdminHome'));
 import {gatePassStatus} from '../../lib/gate-pass.mjs';
 import {validDate} from '../../lib/members.mjs';
 const overviewDate=value=>validDate(value)?new Intl.DateTimeFormat('en-GB',{day:'2-digit',month:'short',year:'numeric',timeZone:'UTC'}).format(new Date(value+'T00:00:00Z')):'Not set';
