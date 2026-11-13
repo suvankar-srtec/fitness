@@ -52,7 +52,7 @@ const fail=(error,status)=>response({error},status);
 async function handle(req,context) {
 try {
  const {action}=await context.params;
- if(!['gym-subscription','membership-addons','lead-followups','membership-renew','member-groups','leads','staff-pass','supplement-image','supplements','supplement-cart','supplement-orders','payment-info','admin-recent-activity','gym-logo','member-time-calendar','gym-time-report','videos','video-stream','member-login','member-pass','member-otp-request','member-otp-verify','member-otp-set-password','otp-request','otp-verify','otp-set-password','manager-registration','managers','manager-dashboard','audit','gym-locations','supervisor-summary','gate-pass','gate-pass-scan','whatsapp-gate-pass','login','logout','me','superadmins','admins','members','supervisors','credentials','plans','member-photo','member-registration','memberships','membership-payments','users','attendance'].includes(action))return fail('Not found',404);
+ if(!['support','gym-subscription','membership-addons','lead-followups','membership-renew','member-groups','leads','staff-pass','supplement-image','supplements','supplement-cart','supplement-orders','payment-info','admin-recent-activity','gym-logo','member-time-calendar','gym-time-report','videos','video-stream','member-login','member-pass','member-otp-request','member-otp-verify','member-otp-set-password','otp-request','otp-verify','otp-set-password','manager-registration','managers','manager-dashboard','audit','gym-locations','supervisor-summary','gate-pass','gate-pass-scan','whatsapp-gate-pass','login','logout','me','superadmins','admins','members','supervisors','credentials','plans','member-photo','member-registration','memberships','membership-payments','users','attendance'].includes(action))return fail('Not found',404);
  if(['POST','PATCH','DELETE'].includes(req.method)&&!sameRequestOrigin(req))return fail('Invalid origin',403);
  if(action==='logout')return await logoutApi(req,database);
  if(['POST','PATCH'].includes(req.method)&&!['member-registration','manager-registration'].includes(action)){const body=await req.clone().json();if(body.email!==undefined){try{normalizeEmail(body.email);}catch{return fail('Enter a valid email address',400);}}}
@@ -115,10 +115,16 @@ try {
  if(action==='gym-time-report')return await gymTimeReport(req,u,sql);
  if(action==='attendance')return await attendanceApi(req,u,sql);
  if(['memberships','membership-payments'].includes(action)){const result=await membershipApi(action,req,u,sql);if(action==='membership-payments'&&req.method==='POST'&&result.status===201){const payment=await result.clone().json();after(async()=>{try{await sendPaymentPass(sql,u,{paymentId:payment.id});}catch{console.error('Automatic payment WhatsApp delivery failed');}});}return result;}
+ if(action==='support'&&req.method==='GET'){
+  if(u.role!=='admin')return fail('Admin access required',403);
+  const [contact]=await sql`SELECT name,phone,email FROM users WHERE role='superadmin' AND public_id='sp00' AND archived_at IS NULL`;
+  return response(contact||{});
+ }
  if(action==='gym-subscription'&&req.method==='GET'){
-  if(u.role!=='superadmin')return fail('Superadmin access required',403);
+  if(!['superadmin','admin'].includes(u.role))return fail('Admin access required',403);
+  if(u.role==='admin'&&new URL(req.url).searchParams.get('overview')==='1')return fail('Superadmin access required',403);
   if(new URL(req.url).searchParams.get('overview')==='1')return response(await sql`SELECT g.id,g.public_id AS "userId",g.name,g.gym_name AS "gymName",g.gym_logo AS "gymLogo",g.gym_address AS "gymAddress",s.member_limit,s.manager_limit,s.supervisor_limit,s.branch_limit,to_char(s.valid_from,'YYYY-MM-DD') AS valid_from,to_char(s.valid_until,'YYYY-MM-DD') AS valid_until,gym_subscription_active(g.id) AS active,(SELECT count(*)::int FROM members WHERE admin_id=g.id AND archived_at IS NULL) AS members_used,(SELECT count(*)::int FROM users WHERE created_by=g.id AND role='manager' AND archived_at IS NULL) AS managers_used,(SELECT count(*)::int FROM users WHERE created_by=g.id AND role='supervisor' AND archived_at IS NULL) AS supervisors_used,(SELECT count(*)::int FROM gym_locations WHERE admin_id=g.id) AS branches_used FROM users g LEFT JOIN gym_subscriptions s ON s.admin_id=g.id WHERE g.role='admin' AND g.archived_at IS NULL ORDER BY g.id DESC`);
-  const id=Number(new URL(req.url).searchParams.get('adminId'));if(!Number.isSafeInteger(id)||id<1)return fail('Invalid gym',400);
+  const id=u.role==='admin'?u.id:Number(new URL(req.url).searchParams.get('adminId'));if(!Number.isSafeInteger(id)||id<1)return fail('Invalid gym',400);
   const [plan]=await sql`SELECT s.*, (SELECT count(*)::int FROM members WHERE admin_id=g.id AND archived_at IS NULL) AS members_used,(SELECT count(*)::int FROM users WHERE created_by=g.id AND role='manager' AND archived_at IS NULL) AS managers_used,(SELECT count(*)::int FROM users WHERE created_by=g.id AND role='supervisor' AND archived_at IS NULL) AS supervisors_used,(SELECT count(*)::int FROM gym_locations WHERE admin_id=g.id) AS branches_used,to_char(s.valid_from,'YYYY-MM-DD') AS valid_from,to_char(s.valid_until,'YYYY-MM-DD') AS valid_until FROM users g LEFT JOIN gym_subscriptions s ON s.admin_id=g.id WHERE g.id=${id} AND g.role='admin'`;
   return plan?response(plan):fail('Gym not found',404);
  }
