@@ -1,3 +1,4 @@
+import MessagePopup from './components/MessagePopup';
 import './globals.css';
 import './theme.css';
 import './gym-theme.css';
@@ -9,7 +10,7 @@ export default function Layout({ children }) {
   return (
     <html lang="en" data-gym-theme="true">
       {/* Browser extensions can add attributes to body before hydration. */}
-      <body suppressHydrationWarning>{children}</body>
+      <body suppressHydrationWarning><MessagePopup/>{children}</body>
     </html>
   );
 }

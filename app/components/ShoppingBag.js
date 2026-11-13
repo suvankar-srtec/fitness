@@ -1,4 +1,6 @@
 'use client';
+import {MessageNotice} from './MessagePopup';
+
 import {useCallback,useState} from 'react';
 import CartDialog from './CartDialog';
 import CommerceIcon from './CommerceIcon';
@@ -22,7 +24,7 @@ export default function ShoppingBag({products,cart,loading,busy,error,method,onM
    })}</div>
    {!products.length&&<div className={styles.empty}>{loading?'Loading supplements…':'No supplements available'}</div>}
   </section>
-  {error&&!cartOpen&&<p role="alert" className={styles.error}>{error}</p>}
+  {error&&!cartOpen&&<MessageNotice>{error}</MessageNotice>}
   {cartOpen&&<CartDialog onClose={closeCart}><aside className={styles.cart} aria-label="Member cart">
    <header className={styles.sectionHeading}><h3><CommerceIcon name="bag"/>Cart</h3><span>{count} items</span></header>
    <div className={styles.items}>{cart.map(item=><article className={styles.item} key={item.product_id}>
@@ -30,7 +32,7 @@ export default function ShoppingBag({products,cart,loading,busy,error,method,onM
     <div className={styles.itemBottom}><div className={styles.quantity}><button type="button" aria-label={'Decrease '+item.name} disabled={busy} onClick={()=>onQuantity(item.product_id,item.quantity-1)}>−</button><span>{item.quantity}</span><button type="button" aria-label={'Increase '+item.name} disabled={busy||item.quantity>=99} onClick={()=>onQuantity(item.product_id,item.quantity+1)}>+</button></div><strong>{money(Number(item.price)*item.quantity)}</strong></div>
    </article>)}{!cart.length&&<div className={styles.empty}><CommerceIcon name="bag"/><span>{loading?'Loading cart…':purchased?'Purchase recorded':'Your cart is empty'}</span></div>}</div>
    <footer className={styles.checkout}>
-    {error&&<p className={styles.error} role="alert">{error}</p>}
+    {error&&<MessageNotice>{error}</MessageNotice>}
     <div className={styles.total}><span>Total</span><strong>{money(total)}</strong></div>
     <div className={styles.methods} role="group" aria-label="Payment mode">{['Cash','Online'].map(value=><button type="button" key={value} disabled={busy} aria-pressed={method===value} onClick={()=>onMethod(value)}><CommerceIcon name={value==='Cash'?'payment':'orders'}/>{value}</button>)}</div>
     <button type="button" className={styles.purchase} disabled={busy||loading||!cart.length} onClick={onPurchase}>{busy?'Saving…':'Pay & purchase'}</button>

@@ -1,4 +1,6 @@
 'use client';
+import {MessageNotice,showMessage} from './MessagePopup';
+
 import {useEffect,useRef,useState} from 'react';
 import PhoneInput from './PhoneInput';
 import {requestApi} from '../../lib/api-client.mjs';
@@ -16,7 +18,7 @@ export default function LoginPanel({onSignIn,error,onClearError,busy:signingIn})
   else if(mode==='setup')await requestCode({...data,channel});
   else if(mode==='otp'){const result=await requestApi('otp-verify','POST',{challengeId:challenge,code:data.code});setResetToken(result.resetToken);setMode('password');}
   else{await requestApi('otp-set-password','POST',{challengeId:challenge,resetToken,password:data.password,confirmPassword:data.confirmPassword});setMode('login');setChallenge(null);setResetToken(null);setNotice('Password saved. Sign in with your mobile number.');}
- }catch(error){if(['MEMBERSHIP_EXPIRED','MEMBER_INACTIVE'].includes(error.code)){window.alert(error.message);setLocalError('');return;}setLocalError(error.message);if(error.code==='PASSWORD_SETUP_REQUIRED'){setRoot(false);setMode('setup');}}finally{inFlight.current=false;setBusy(false);}}
+ }catch(error){if(['MEMBERSHIP_EXPIRED','MEMBER_INACTIVE'].includes(error.code)){showMessage(error.message);setLocalError('');return;}setLocalError(error.message);if(error.code==='PASSWORD_SETUP_REQUIRED'){setRoot(false);setMode('setup');}}finally{inFlight.current=false;setBusy(false);}}
  async function resend(){if(inFlight.current)return;inFlight.current=true;setBusy(true);setLocalError('');try{await requestCode({...phone,challengeId:challenge});}catch(error){setLocalError(error.message);}finally{inFlight.current=false;setBusy(false);}}
  const disabled=busy||signingIn;
  return <div className={'login-page'+(mode!=='login'?' verification-page':'')}><div className="login-ambient" aria-hidden="true"/><section className="login-panel"><header className="login-panel-header"><div className="login-mark" aria-hidden="true"><svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 16h10M5 12v8m4-12v16m14-16v16m4-12v8M5 16H2m28 0h-3"/></svg></div><h1>Gym Management</h1></header><form key={mode+String(root)} className={'login-form phone-login-form '+(mode!=='login'?'verification-form':'')} onSubmit={submit}>
@@ -28,7 +30,7 @@ export default function LoginPanel({onSignIn,error,onClearError,busy:signingIn})
  {mode==='login'&&<Secret name="password" placeholder="Password" autoComplete="current-password"/>}
  {mode==='otp'&&<input className="verification-code" name="code" aria-label="Verification code" placeholder="Six-digit OTP" autoComplete="one-time-code" inputMode="numeric" pattern="[0-9]{6}" minLength={6} maxLength={6} required autoFocus/>}
  {mode==='password'&&<><Secret name="password" placeholder="New password"/><Secret name="confirmPassword" placeholder="Confirm password"/></>}
- {(localError||error)&&<p className="login-error" role="alert">{localError||error}</p>}{notice&&<p className="login-notice" role="status">{notice}</p>}
+ {(localError||error)&&<MessageNotice>{localError||error}</MessageNotice>}{notice&&<MessageNotice>{notice}</MessageNotice>}
  <button className="login-submit" disabled={disabled}>{disabled?'Please wait...':mode==='login'?'Sign in':mode==='setup'?(channel==='email'?'Send Email OTP':'Send WhatsApp OTP'):mode==='otp'?'Verify OTP':'Save password'}</button>
  {mode==='login'?<div className="login-links">{!root&&<button type="button" disabled={disabled} onClick={()=>change('setup')}>Set / reset password</button>}</div>:<div className="login-links">{mode==='otp'&&<button type="button" onClick={resend} disabled={disabled||cooldown>0}>{cooldown?'Resend OTP in '+cooldown+'s':'Resend OTP'}</button>}<button type="button" disabled={disabled} onClick={()=>change('login')}>Back to login</button></div>}
  </form></section></div>;

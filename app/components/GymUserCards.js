@@ -1,4 +1,6 @@
-﻿'use client';
+'use client';
+import {MessageNotice} from './MessagePopup';
+
 import {useEffect,useState} from 'react';
 import {groupGymUsers} from '../../lib/gym-user-groups.mjs';
 import {requestApi} from '../../lib/api-client.mjs';
@@ -11,7 +13,7 @@ export default function GymUserCards({users,query,canManage,busy,onEdit,onDelete
  useEffect(()=>{let current=true;setLoading(true);requestApi('gym-subscription?overview=1').then(rows=>{if(current){setSubscriptions(Object.fromEntries(rows.map(row=>[row.id,row])));setError('');}}).catch(error=>{if(current)setError(error.message);}).finally(()=>{if(current)setLoading(false);});return()=>{current=false;};},[users]);
  return <div className={styles.directory}>
  <div className={styles.summary}><span className={styles.summaryIcon}><DashboardIcon name="home"/></span><div><strong>{users.filter(user=>user.role==='admin').length} gym accounts</strong><span>Manage gym details, subscription limits and admin access.</span></div></div>
- {error&&<p role="alert" className={styles.error}>Subscription details unavailable: {error}</p>}
+ {error&&<MessageNotice>Subscription details unavailable: {error}</MessageNotice>}
  <div className={styles.grid}>{gyms.map(gym=>{const admin=gym.users.find(user=>user.role==='admin'),plan=subscriptions[gym.id],staff=gym.users.filter(user=>user.role!=='admin');return <article className={styles.card} key={gym.id}>
  <header className={styles.header}><span className={styles.logo}>{gym.logo?<img src={gym.logo} alt=""/>:gym.name?.charAt(0)||'G'}</span><div><h3>{gym.name}</h3><p>{admin?.gymAddress||'Address not provided'}</p></div><span className={styles.status} data-active={plan?.active}>{plan?(plan.valid_from>new Date().toISOString().slice(0,10)?'Scheduled':plan.active?'Active':'Expired'):loading?'Loading…':'Unavailable'}</span></header>
  <div className={styles.body}><div className={styles.account}><span className={styles.avatar}>{admin?.name?.charAt(0).toUpperCase()||'A'}</span><div><span className={styles.caption}>GYM ADMIN</span><strong>{admin?.name}</strong><span className={styles.userId}>{admin?.userId}</span></div></div><div className={styles.contacts}><span><DashboardIcon name="membership"/>{admin?.phone?<a href={'tel:'+admin.phone}>{admin.phone}</a>:'Phone not provided'}</span><span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 6 9 7 9-7"/></svg>{admin?.email||'Email not provided'}</span></div>
