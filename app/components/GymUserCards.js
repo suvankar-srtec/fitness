@@ -1,42 +1,26 @@
-'use client';
-import {useRef,useState} from 'react';
+﻿'use client';
+import {useEffect,useState} from 'react';
 import {groupGymUsers} from '../../lib/gym-user-groups.mjs';
-import {isMainSuperadmin} from '../../lib/user-permissions.mjs';
-const roles=[['admin','Admins'],['manager','Managers'],['supervisor','Supervisors']];
-function CompanyAvatar({name,logo}){
- const [failed,setFailed]=useState(false);
- return <div className="gym-team-logo">{logo&&!failed?<img src={logo} alt={name+' logo'} onError={()=>setFailed(true)}/>:<span aria-hidden="true">{name?.trim().charAt(0).toUpperCase()||'G'}</span>}</div>;
-}
-function GymEnvelope({gym,onOpen}){
- const [accent,setAccent]=useState('#555555');
- function readLogo(event){
-  try{
-   const canvas=document.createElement('canvas');canvas.width=32;canvas.height=32;
-   const context=canvas.getContext('2d',{willReadFrequently:true});context.drawImage(event.currentTarget,0,0,32,32);
-   const pixels=context.getImageData(0,0,32,32).data;const buckets=new Map();
-   for(let i=0;i<pixels.length;i+=4){const r=pixels[i],g=pixels[i+1],b=pixels[i+2];if(pixels[i+3]<128||Math.max(r,g,b)-Math.min(r,g,b)<35)continue;const key=[r>>5,g>>5,b>>5].join(',');const bucket=buckets.get(key)||{r:0,g:0,b:0,n:0};bucket.r+=r;bucket.g+=g;bucket.b+=b;bucket.n++;buckets.set(key,bucket);}
-   const best=[...buckets.values()].sort((a,b)=>b.n-a.n)[0];if(best)setAccent('rgb('+[best.r,best.g,best.b].map(value=>Math.round(value/best.n)).join(',')+')');
-  }catch{/* A remote logo without CORS permission uses the neutral fallback. */}
- }
- const owner=gym.users.find(user=>user.role==='admin');
- return <button type="button" className="gym-pocket" style={{'--gym-accent':accent}} onClick={()=>onOpen(gym)} aria-label={'Open '+gym.name+' accounts'}><span className="gym-pocket-insert gym-pocket-insert-back" aria-hidden="true"/><span className="gym-pocket-insert gym-pocket-insert-front">{gym.logo?<img src={gym.logo} alt={gym.name+' logo'} onLoad={readLogo}/>:<span className="gym-pocket-initial">{gym.name?.trim().charAt(0).toUpperCase()||'G'}</span>}</span><span className="gym-pocket-front"><strong>{gym.name}</strong>{owner?.gymAddress&&<span>{owner.gymAddress}</span>}</span></button>;
-}
-export default function GymUserCards({users,query,currentUser,canManage,busy,onEdit,onDelete}){
+import {requestApi} from '../../lib/api-client.mjs';
+import {DashboardIcon} from './DashboardOverview';
+import styles from './GymUserCards.module.css';
+const formatDate=value=>value?new Intl.DateTimeFormat('en-GB',{day:'2-digit',month:'short',year:'numeric',timeZone:'UTC'}).format(new Date(value+'T00:00:00Z')):'No expiry';
+export default function GymUserCards({users,query,canManage,busy,onEdit,onDelete}){
  const {gyms,unassigned}=groupGymUsers(users,query);
- const dialog=useRef(null);
- const [selected,setSelected]=useState(null);
- const groups=[...gyms,...(unassigned.length?[{id:'unassigned',name:'Unassigned staff',users:unassigned}]:[])];
- const active=groups.find(gym=>gym.id===selected);
- function close(){dialog.current?.close();setSelected(null);}
- function open(gym){setSelected(gym.id);dialog.current?.showModal();}
- function person(user){
-  const editable=canManage&&user.role!=='manager'&&(user.role!=='superadmin'||user.id===currentUser?.id||isMainSuperadmin(currentUser));
-  const removable=canManage&&!['superadmin','manager'].includes(user.role);
-  return <li className="gym-team-person" key={user.id}><div className="gym-team-person-main"><span className="gym-team-person-avatar" aria-hidden="true">{user.name?.trim().charAt(0).toUpperCase()||'U'}</span><div className="gym-team-person-detail"><div className="gym-team-person-name"><strong>{user.name}</strong><span className="gym-team-user-id">{user.userId}</span></div>{user.phone?<a className="gym-team-phone" href={'tel:'+user.phone}>{user.phone}</a>:user.phoneNeedsUpdate&&<span className="gym-team-phone-missing">Update phone</span>}{user.locationName&&<span className="gym-team-location">{user.locationName}</span>}</div></div>{(editable||removable)&&<div className="gym-team-person-actions">{editable&&<button type="button" className="secondary" disabled={busy} aria-label={'Edit '+user.name} onClick={()=>{close();onEdit(user);}}>Edit</button>}{removable&&<button type="button" className="delete-button" disabled={busy} aria-label={'Delete '+user.name} onClick={()=>{close();onDelete(user);}}>Delete</button>}</div>}</li>;
- }
- function card(gym){
-  const owner=gym.users.find(user=>user.role==='admin');
-  return <article className="gym-team-card" key={gym.id}><header className="gym-team-header"><CompanyAvatar key={gym.logo} name={gym.name} logo={gym.logo}/><div className="gym-team-heading"><h3>{gym.name||'Gym'}</h3>{owner?.gymAddress&&<p>{owner.gymAddress}</p>}</div><button type="button" className="gym-envelope-close" aria-label="Close gym accounts" onClick={close}>&#215;</button></header><div className="gym-team-roles">{roles.map(([role,label])=>{const people=gym.users.filter(user=>user.role===role);return people.length>0&&<section className="gym-team-role" key={role} aria-label={label+' at '+gym.name}><header><h4>{label}</h4><span>{people.length}</span></header><ul>{people.map(person)}</ul></section>;})}</div></article>;
- }
- return <div className="gym-users-directory"><div className="gym-envelope-grid">{groups.map(gym=><GymEnvelope key={gym.id} gym={gym} onOpen={open}/>)}</div>{!groups.length&&<div className="empty">No matching admins</div>}<dialog ref={dialog} className="gym-envelope-dialog" aria-label={active?active.name+' accounts':'Gym accounts'} onCancel={close} onClick={event=>{if(event.target===event.currentTarget)close();}}>{active&&card(active)}</dialog></div>;
+ const [subscriptions,setSubscriptions]=useState({}),[loading,setLoading]=useState(true),[error,setError]=useState('');
+ useEffect(()=>{let current=true;setLoading(true);requestApi('gym-subscription?overview=1').then(rows=>{if(current){setSubscriptions(Object.fromEntries(rows.map(row=>[row.id,row])));setError('');}}).catch(error=>{if(current)setError(error.message);}).finally(()=>{if(current)setLoading(false);});return()=>{current=false;};},[users]);
+ return <div className={styles.directory}>
+ <div className={styles.summary}><span className={styles.summaryIcon}><DashboardIcon name="home"/></span><div><strong>{users.filter(user=>user.role==='admin').length} gym accounts</strong><span>Manage gym details, subscription limits and admin access.</span></div></div>
+ {error&&<p role="alert" className={styles.error}>Subscription details unavailable: {error}</p>}
+ <div className={styles.grid}>{gyms.map(gym=>{const admin=gym.users.find(user=>user.role==='admin'),plan=subscriptions[gym.id],staff=gym.users.filter(user=>user.role!=='admin');return <article className={styles.card} key={gym.id}>
+ <header className={styles.header}><span className={styles.logo}>{gym.logo?<img src={gym.logo} alt=""/>:gym.name?.charAt(0)||'G'}</span><div><h3>{gym.name}</h3><p>{admin?.gymAddress||'Address not provided'}</p></div><span className={styles.status} data-active={plan?.active}>{plan?(plan.valid_from>new Date().toISOString().slice(0,10)?'Scheduled':plan.active?'Active':'Expired'):loading?'Loading…':'Unavailable'}</span></header>
+ <div className={styles.body}><div className={styles.account}><span className={styles.avatar}>{admin?.name?.charAt(0).toUpperCase()||'A'}</span><div><span className={styles.caption}>GYM ADMIN</span><strong>{admin?.name}</strong><span className={styles.userId}>{admin?.userId}</span></div></div><div className={styles.contacts}><span><DashboardIcon name="membership"/>{admin?.phone?<a href={'tel:'+admin.phone}>{admin.phone}</a>:'Phone not provided'}</span><span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 6 9 7 9-7"/></svg>{admin?.email||'Email not provided'}</span></div>
+ <div className={styles.validity}><span>Subscription</span><strong>{plan?(plan.valid_from?formatDate(plan.valid_from)+' – ':'')+formatDate(plan.valid_until):loading?'Loading…':'Unavailable'}</strong></div>
+ <div className={styles.limits}>{[['Members','members_used','member_limit'],['Managers','managers_used','manager_limit'],['Supervisors','supervisors_used','supervisor_limit'],['Branches','branches_used','branch_limit']].map(([name,used,limit])=><div key={name}><span>{name}</span><strong>{plan?plan[used]:'—'} <small>/ {plan?(plan[limit]??'Unlimited'):'—'}</small></strong></div>)}</div>
+ {staff.length>0&&<details className={styles.staff}><summary>Gym team <span>{staff.length}</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary><ul>{staff.map(person=><li key={person.id}><span className={styles.staffIcon}><DashboardIcon name={person.role==='manager'?'managers':'supervisors'}/></span><div><strong>{person.name}</strong><span>{person.userId} · {person.role==='manager'?'Manager':'Supervisor'}{person.locationName?' · '+person.locationName:''}</span></div></li>)}</ul></details>}
+ </div>{canManage&&admin&&<footer className={styles.footer}><button type="button" className="secondary" disabled={busy} onClick={()=>onEdit(admin)}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="m16 3 5 5-12 12-6 1 1-6ZM14 5l5 5"/></svg>Edit admin &amp; plan</button><button type="button" className={styles.remove} disabled={busy} onClick={()=>onDelete(admin)} aria-label={'Delete admin '+admin.name}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/></svg></button></footer>}
+ </article>;})}</div>
+ {!gyms.length&&<div className={styles.empty}><DashboardIcon name="home"/><h3>No matching gym accounts</h3><p>{query?'Try another name, gym or phone number.':'Create an admin to register a gym.'}</p></div>}
+ {unassigned.length>0&&<section className={styles.unassigned}><h3>Unassigned staff</h3>{unassigned.map(person=><p key={person.id}>{person.name} · {person.userId}</p>)}</section>}
+ </div>;
 }
