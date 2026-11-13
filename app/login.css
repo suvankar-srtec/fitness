@@ -1,0 +1,31 @@
+﻿/* Authentication screens use a consistent palette independently of gym branding. */
+.login-page{box-sizing:border-box;background:radial-gradient(ellipse at 20% 15%,#e0edff 0,transparent 48%),radial-gradient(ellipse at 90% 90%,#e8f1ff 0,transparent 44%),#f5f8fd;padding:24px;min-height:100dvh}
+.login-ambient{background-image:radial-gradient(#1763c619 1px,transparent 1px);background-size:24px 24px;mask-image:none;opacity:.5}
+.login-panel{box-sizing:border-box;max-width:420px;border:1px solid #dce6f5;border-radius:24px;box-shadow:0 24px 80px #214d8812;overflow:visible;background:#fff}
+.login-panel-header{display:flex;align-items:center;justify-content:flex-start;gap:14px;padding:28px 28px 24px;border-bottom:1px solid #edf1f7;border-radius:24px 24px 0 0;background:linear-gradient(120deg,#fff,#f0f6ff);text-align:left}
+.login-mark{width:48px;height:48px;margin:0;flex-shrink:0;border-radius:14px;background:#1763c6;color:#fff;box-shadow:0 6px 15px #1763c621}
+.login-mark svg{width:29px;height:29px}
+.login-panel-header h1{font-size:23px;letter-spacing:-.7px;color:#16345b}
+.login-form{padding:24px 28px 22px}
+.login-methods{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;background:#f0f4fa;border:1px solid #e6edf7;border-radius:12px;margin-bottom:24px}
+[data-gym-theme] .login-methods button{background:transparent!important;color:#62738b!important;min-height:40px;padding:8px;font-size:14px;font-weight:600;border:0;border-radius:8px;box-shadow:none}
+[data-gym-theme] .login-methods button[aria-pressed=true]{background:#fff!important;color:#1763c6!important;box-shadow:0 2px 6px #1c437014}
+[data-gym-theme] .login-methods button:hover{background:#e6eefb!important;color:#124fa0!important;filter:none}
+.login-form input{box-sizing:border-box;height:50px;background:#fff;border:1px solid #d8e1ee;border-radius:11px;color:#172d49;font-size:15px;padding:12px 14px;transition:border-color .15s,box-shadow .15s}
+.login-form input::placeholder{color:#7a889c;opacity:1}
+.login-form input:focus{outline:0;border-color:#1763c6;box-shadow:0 0 0 3px #1763c618}
+.login-form .country-picker summary{box-sizing:border-box;height:50px;min-height:50px;border-color:#d8e1ee;border-radius:11px;background:#fff}
+.login-form .password-field{margin-top:16px}
+.login-form .password-toggle{top:7px;color:#62738b;background:transparent!important;border-radius:7px}
+[data-gym-theme] .login-form .login-submit{height:50px;margin-top:24px;border-radius:11px;background:#1763c6;color:#fff;font-size:15px;box-shadow:0 5px 12px #1763c61a}
+[data-gym-theme] .login-form .login-submit:hover{background:#124fa0;filter:none}
+.login-links{justify-content:center;margin-top:16px;min-height:0}
+.login-links:empty{display:none}
+[data-gym-theme] .login-links button{background:transparent!important;color:#46658c!important;min-height:36px;padding:4px 8px;border-radius:6px;font-weight:500;font-size:14px;box-shadow:none}
+[data-gym-theme] .login-links button:hover{background:#edf4ff!important;color:#1763c6!important;text-decoration:none;filter:none}
+.login-error{background:#fff4f4;border-color:#f4d5d5;color:#a62b2b}
+.verification-page .login-panel-header{justify-content:flex-start;padding:20px 24px}
+.verification-page .verification-form{padding:20px 24px}
+@media(max-width:600px){.login-page{padding:18px;background:linear-gradient(155deg,#edf4ff,#f8faff);align-items:center}.login-ambient{display:block}.login-panel{max-width:420px;border:1px solid #dce6f5;border-radius:20px;box-shadow:0 16px 48px #214d8810}.login-panel-header{padding:24px 22px 20px;border-radius:20px 20px 0 0}.login-panel-header h1{font-size:22px}.login-mark{width:44px;height:44px;border-radius:13px}.login-form{padding:22px}.login-methods{margin-bottom:20px}.login-form input{font-size:16px}.login-page .country-menu{max-width:calc(100vw - 70px)}}
+@media(max-height:560px){.login-page{padding:12px;align-items:flex-start;overflow:auto}.login-panel-header{padding:16px 22px}.login-mark{width:38px;height:38px}.login-form{padding:18px 22px}.login-methods{margin-bottom:16px}.login-form .login-submit{margin-top:18px}.login-links{margin-top:10px}}
+@media(prefers-reduced-motion:reduce){.login-form input{transition:none}}
