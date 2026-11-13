@@ -1,3 +1,4 @@
+import {ensureMemberQueriesSchema} from '../lib/member-queries-schema.mjs';
 import {ensureGymSubscriptionSchema} from './gym-subscription-schema.mjs';
 import {ensureMembershipAddonsSchema} from '../lib/membership-addons.mjs';
 import {ensureRenewalOptionsSchema} from './renewal-options-schema.mjs';
@@ -83,6 +84,7 @@ await ensureMemberLoginSchema(sql);
 await sql`UPDATE users SET name='Superadmin' WHERE role='superadmin' AND name='Gym owner'`;
 await ensureVideoSchema(sql);
 await ensureCommerceSchema(sql);
+await ensureMemberQueriesSchema(sql);
 await ensureScanEventSchema(sql);
 await ensureStaffPassSchema(sql);
 await ensureLeadSchema(sql);

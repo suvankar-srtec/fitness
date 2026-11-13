@@ -2,7 +2,8 @@
 'use client';
 import {useEffect} from 'react';
 import {createPortal} from 'react-dom';
-import Supplements from './Supplements';
+import dynamic from 'next/dynamic';
+const Supplements=dynamic(()=>import('./Supplements'));
 import CommerceIcon from './CommerceIcon';
 export function MemberShoppingButton({member,onClick}){return <button type="button" className="secondary member-shopping-button" title={'Shop for '+member.name} aria-label={'Shop for '+member.name} onClick={onClick}><CommerceIcon name="bag"/></button>;}
 export default function MemberShopping({member,onClose}){

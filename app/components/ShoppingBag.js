@@ -19,7 +19,7 @@ export default function ShoppingBag({products,cart,loading,busy,error,method,onM
     return <article className={styles.product} key={product.id}>
      <div className={styles.image}>{product.imageUrl?<img src={product.imageUrl} alt={product.name}/>:<CommerceIcon/>}</div>
      <div className={styles.productInfo}><h4>{product.name}</h4>{product.description&&<p title={product.description}>{product.description}</p>}<strong>{money(product.price)}</strong></div>
-     <button type="button" disabled={busy||loading||quantity>0} onClick={()=>onQuantity(product.id,1)}>{quantity?'Added':'+ Add'}</button>
+     <button type="button" disabled={busy||loading||product.stock===0||quantity>0} onClick={()=>onQuantity(product.id,1)}>{product.stock===0?'Out of stock':quantity?'Added':'+ Add'}</button>
     </article>;
    })}</div>
    {!products.length&&<div className={styles.empty}>{loading?'Loading supplements…':'No supplements available'}</div>}

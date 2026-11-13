@@ -38,3 +38,14 @@ test('payment info returns all histories and cart from one scoped database read'
  const record={name:'Member',memberId:'mem01',gym_name:'Gym',memberships:[{id:1,amount:'2000',paid:'500',due:'1500'}],payments:[{id:2,amount:'500',method:'Cash'}],orders:[{id:3,items:[],amount:'100',paid_at:null}],cart:[{product_id:4,quantity:2,price:'50'}]};
  const {sql,calls}=mock([[record]]);const res=await commerceApi('payment-info',request('GET',null,'payment-info?memberId=42'),{id:8,created_by:7,location_id:3,role:'manager'},sql);assert.equal(res.status,200);const result=await res.json();for(const key of ['memberships','payments','orders','cart'])assert.deepEqual(result[key],record[key]);assert.deepEqual(calls[0].values,[42,'manager',7,false,3]);assert.equal(calls.length,1);
 });
+
+test('inventory is gym scoped and only staff can add positive whole stock',async()=>{
+ for(const quantity of [0,-1,1.5,1000001]){const {sql,calls}=mock();assert.equal((await commerceApi('product-inventory',request('POST',{productId:3,quantity}),{role:'admin',id:7},sql)).status,400);assert.equal(calls.length,0);}
+ const {sql,calls}=mock([[],[{id:3,stock:8}]]);const response=await commerceApi('product-inventory',request('POST',{productId:3,quantity:5,adminId:99}),{role:'manager',id:8,created_by:7,location_id:3},sql);assert.equal(response.status,200);assert.deepEqual(calls[0].values,[7]);assert.deepEqual(calls[1].values,[5,3,7]);assert.match(calls[1].text,/stock=COALESCE/);
+ assert.equal((await commerceApi('product-inventory',request('POST',{productId:3,quantity:5}),{role:'member',id:42,admin_id:7},sql)).status,403);
+});
+test('checkout serializes gym stock, prevents overselling and deducts only for newly inserted order',async()=>{
+ const {sql,calls}=mock([[],[{id:4}]]);await commerceApi('supplement-orders',request('POST',{requestKey:'test-request-123456'}),{id:42,admin_id:7,role:'member'},sql);
+ assert.match(calls[0].text,/pg_advisory_xact_lock\(9358/);assert.ok(calls[0].values.includes(7));assert.match(calls[1].text,/bool_and\(stock IS NULL OR stock>=quantity\)/);assert.match(calls[1].text,/SET stock=p.stock-c.quantity/);assert.match(calls[1].text,/AND EXISTS\(SELECT 1 FROM added\) RETURNING p.id/);assert.match(calls[1].text,/request_key=/);
+});
+test('stock shortage returns failure without reporting a successful purchase',async()=>{const {sql}=mock([[],[]]);const r=await commerceApi('supplement-orders',request('POST',{requestKey:'test-request-123456'}),{id:42,admin_id:7,role:'member'},sql);assert.equal(r.status,400);assert.match((await r.json()).error,/stock/);});
