@@ -89,8 +89,8 @@ await ensureLeadSchema(sql);
 await ensureFollowupSchema(sql);
 await ensureEmailSchema(sql);
 await ensureMemberGroupSchema(sql);
-await ensureAuditSchema(sql);
 await ensureMemberMeasurementSchema(sql);
 await ensureGymSubscriptionSchema(sql);
+await ensureAuditSchema(sql);
 console.log('Neon schema ready. Main superadmin user ID: sp00. Existing accounts are preserved.');
 } catch { console.error('Database setup failed. Check the Neon connection string and database access.'); process.exitCode=1; }

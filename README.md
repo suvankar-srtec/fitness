@@ -142,3 +142,9 @@ Superadmin creates an admin in two parts: **Plan Creation** sets the gym subscri
 Blank dates are unrestricted and blank limits mean unlimited. Zero prevents creation in that category. Capacity counts non-archived records across the gym; expired members still count until archived. Database triggers enforce limits for creation, transfers and reactivation, including requests made directly to the API. Limits cannot be reduced below current usage. Subscription validity uses India time and blocks gym account access outside the configured period. Existing gyms remain unrestricted until superadmin configures their plan.
 
 Run `npm run db:setup` before deploying this version to a new database. The subscription migration is additive and does not remove existing records.
+
+### Audit visibility
+
+Superadmin can read all gyms and platform activity. Admin can read all activity in their own gym, including their own actions and those of managers, supervisors and members. Managers can read their own actions and manager, supervisor and member activity within their assigned gym location. All checks are server-side.
+
+Audit triggers cover account and session changes, verification metadata, gym subscription limits, members, measurements, groups, leads and follow-ups, plans and add-ons, memberships and payments, supplements, carts and orders, videos, passes, scans and attendance, and renewal reminders. History remains append-only. Passwords, OTP values, token hashes, QR secrets and image bytes are excluded. Newly covered existing records are labelled Existing record; past unlogged actions cannot be reconstructed.
