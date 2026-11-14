@@ -4,3 +4,5 @@
 .subscription-grid>input[type=hidden]{display:none}
 
 .user-editor [hidden]{display:none!important}.edit-subscription-tabs{padding:12px 28px 0;margin-bottom:0;flex-shrink:0}.subscription-tabs button[aria-pressed=true]{background:#1763c6;color:#fff}.subscription-editor{min-height:0;overflow-y:auto}
+
+.subscription-hint-asterisks{color:#dc2626;font-weight:700}
