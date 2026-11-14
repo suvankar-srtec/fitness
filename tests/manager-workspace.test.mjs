@@ -5,3 +5,15 @@ test('manager payment history restricts gym and location',async()=>{let called=f
 test('manager cannot move another manager to a different branch',async()=>{const response=await managerApi('managers',req('managers','PATCH',{id:21,name:'Test',phone:'+919831134311',locationId:4}),manager,async()=>[{id:21,location_id:3}]);assert.equal(response.status,403);});
 test('manager cannot create a supervisor in a different branch',async()=>{const response=await managerSupervisors(req('supervisors','POST',{name:'Test',locationId:4}),manager,()=>{throw Error('Unexpected query')});assert.equal(response.status,403);});
 test('payment update enforces settlement after the initial partial payment atomically',async()=>{const response=await membershipApi('membership-payments',req('membership-payments','POST',{assignmentId:1,requestKey:'payment-request-123456',amount:'500',method:'Cash',paidOn:'2026-11-07'}),manager,async(strings)=>{assert.match(strings.join('?'),/paid=0 OR paid\+\?::numeric=amount/);return [];});assert.equal(response.status,400);});
+
+ test('manager deletion needs one scoped write and refuses self-deletion',async()=>{
+ let queries=0;const sql=async(strings,...values)=>{queries++;assert.match(strings.join('?'),/UPDATE users SET archived_at/);assert.match(strings.join('?'),/location_id=/);assert.ok(values.includes(8));assert.ok(values.includes(3));return [{id:21}];};
+ assert.equal((await managerApi('managers',req('managers','DELETE',{id:21}),manager,sql)).status,200);assert.equal(queries,1);
+ assert.equal((await managerApi('managers',req('managers','DELETE',{id:20}),manager,()=>{throw Error('Unexpected query');})).status,403);
+ assert.equal((await managerApi('managers',req('managers','DELETE',{id:999}),manager,async()=>[])).status,404);
+});
+test('supervisor deletion uses one scoped write and returns not found outside the branch',async()=>{
+ let queries=0;const sql=async(strings,...values)=>{queries++;assert.match(strings.join('?'),/role='supervisor'/);assert.match(strings.join('?'),/location_id=/);assert.deepEqual(values,[9,8,3]);return [{id:9}];};
+ assert.equal((await managerSupervisors(req('supervisors','DELETE',{id:9}),manager,sql)).status,200);assert.equal(queries,1);
+ assert.equal((await managerSupervisors(req('supervisors','DELETE',{id:999}),manager,async()=>[])).status,404);
+});

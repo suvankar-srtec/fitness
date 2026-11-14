@@ -1,3 +1,4 @@
+import {workspaceApi} from '../../../lib/workspace-api';
 import {employeeRolesApi} from '../../../lib/employee-roles-api';
 import {employeesApi} from '../../../lib/employees-api';
 import {employeeDetails} from '../../../lib/employee-details';
@@ -56,7 +57,7 @@ const fail=(error,status)=>response({error},status);
 async function handle(req,context) {
 try {
  const {action}=await context.params;
- if(!['employee-roles','employees','employee-details','member-queries','product-inventory','support','gym-subscription','membership-addons','lead-followups','membership-renew','member-groups','leads','staff-pass','supplement-image','supplements','supplement-cart','supplement-orders','payment-info','admin-recent-activity','gym-logo','member-time-calendar','gym-time-report','videos','video-stream','member-login','member-pass','member-otp-request','member-otp-verify','member-otp-set-password','otp-request','otp-verify','otp-set-password','manager-registration','managers','manager-dashboard','audit','gym-locations','supervisor-summary','gate-pass','gate-pass-scan','whatsapp-gate-pass','login','logout','me','superadmins','admins','members','supervisors','credentials','plans','member-photo','member-registration','memberships','membership-payments','users','attendance'].includes(action))return fail('Not found',404);
+ if(!['workspace','employee-roles','employees','employee-details','member-queries','product-inventory','support','gym-subscription','membership-addons','lead-followups','membership-renew','member-groups','leads','staff-pass','supplement-image','supplements','supplement-cart','supplement-orders','payment-info','admin-recent-activity','gym-logo','member-time-calendar','gym-time-report','videos','video-stream','member-login','member-pass','member-otp-request','member-otp-verify','member-otp-set-password','otp-request','otp-verify','otp-set-password','manager-registration','managers','manager-dashboard','audit','gym-locations','supervisor-summary','gate-pass','gate-pass-scan','whatsapp-gate-pass','login','logout','me','superadmins','admins','members','supervisors','credentials','plans','member-photo','member-registration','memberships','membership-payments','users','attendance'].includes(action))return fail('Not found',404);
  if(['POST','PATCH','DELETE'].includes(req.method)&&!sameRequestOrigin(req))return fail('Invalid origin',403);
  if(action==='logout')return await logoutApi(req,database);
  if(['POST','PATCH'].includes(req.method)&&!['member-registration','manager-registration'].includes(action)){const body=await req.clone().json();if(body.email!==undefined){try{normalizeEmail(body.email);}catch{return fail('Enter a valid email address',400);}}}
@@ -83,7 +84,8 @@ try {
  sql=withAuditActor(sql,u);
  const gymId=u.role==='manager'?u.created_by:u.id,branch=u.role==='manager'?u.location_id:null;
  if(u.role==='manager'&&!branch)return fail('Assigned location required',403);
- if(u.role==='manager'&&!['employee-roles','employees','employee-details','product-inventory','membership-addons','lead-followups','membership-renew','member-groups','leads','gate-pass-scan','staff-pass','supplement-cart','supplement-image','supplements','supplement-orders','payment-info','me','logout','manager-dashboard','member-time-calendar','gym-time-report','supervisors','attendance','credentials','member-photo','members','member-registration','plans','gym-locations','gym-logo','memberships','membership-payments','videos','video-stream','audit','admin-recent-activity','gate-pass','whatsapp-gate-pass','managers','manager-registration'].includes(action))return fail('Manager access is limited to your assigned location',403);
+ if(u.role==='manager'&&!['workspace','employee-roles','employees','employee-details','product-inventory','membership-addons','lead-followups','membership-renew','member-groups','leads','gate-pass-scan','staff-pass','supplement-cart','supplement-image','supplements','supplement-orders','payment-info','me','logout','manager-dashboard','member-time-calendar','gym-time-report','supervisors','attendance','credentials','member-photo','members','member-registration','plans','gym-locations','gym-logo','memberships','membership-payments','videos','video-stream','audit','admin-recent-activity','gate-pass','whatsapp-gate-pass','managers','manager-registration'].includes(action))return fail('Manager access is limited to your assigned location',403);
+ if(action==='workspace')return await workspaceApi(req,u,sql);
  if(action==='employee-roles')return await employeeRolesApi(req,u,sql);
  if(action==='employees')return await employeesApi(req,u,sql);
  if(action==='employee-details')return await employeeDetails(req,u,sql);

@@ -81,3 +81,15 @@ test('persistent non-JSON reads produce a readable error after bounded retries',
  await assert.rejects(requestApi('employees','GET',undefined,{fetcher:async()=>{calls++;return new Response('<html>Error</html>',{status:500});},wait:async()=>{}}),error=>error.code==='INVALID_RESPONSE'&&/refresh/.test(error.message));
  assert.equal(calls,3);
 });
+
+test('writes start a fresh workspace read without older completions discarding it',async()=>{
+ const previousWindow=globalThis.window,previousFetch=globalThis.fetch;globalThis.window={dispatchEvent(){}};const releases=[];let reads=0;
+ globalThis.fetch=(_url,options)=>options.method==='GET'?new Promise(resolve=>{reads++;releases.push(resolve);}):Promise.resolve(response(200,{ok:true}));
+ try{
+  const old=requestApi('workspace');await requestApi('employees','PATCH',{id:1});
+  const fresh=requestApi('workspace');assert.equal(reads,2);
+  releases[0](response(200,{version:'old'}));await old;
+  const shared=requestApi('workspace');assert.equal(reads,2);
+  releases[1](response(200,{version:'fresh'}));assert.deepEqual(await fresh,{version:'fresh'});assert.deepEqual(await shared,{version:'fresh'});
+ }finally{globalThis.fetch=previousFetch;if(previousWindow===undefined)delete globalThis.window;else globalThis.window=previousWindow;}
+});
