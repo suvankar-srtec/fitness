@@ -10,7 +10,7 @@ export async function POST(request){try{
  const body=await request.json(),sql=database();
  const result=await handleUploadPresigned({request,body,getSignedToken:async(pathname)=>{
   const origin=request.headers.get('origin');if(origin&&origin!==new URL(request.url).origin)throw Error('Invalid origin');
-  const user=await videoUploader(request,sql);if(!user)throw Error('Gym admin login required');
+  const user=await videoUploader(request,sql);if(!user)throw Error('Organization admin login required');
   const [row]=await sql`SELECT * FROM gym_videos WHERE pathname=${pathname} AND uploaded_by=${user.id} AND status='pending' AND archived_at IS NULL AND created_at>NOW()-INTERVAL '1 hour'`;
   if(!row||!canManageVideo(user,row))throw Error('Upload not authorized');
   const validUntil=Date.now()+60*60*1000,maximumSizeInBytes=Math.min(Number(row.size),MAX_VIDEO_BYTES);

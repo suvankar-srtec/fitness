@@ -65,3 +65,18 @@ test('employees cannot change their own role or edit an out-of-scope account',as
  assert.equal((await employeesApi(req('PATCH',{...details,id:20}),manager,async()=>[{id:20,role:'manager',created_by:8,location_id:3}])).status,403);
  assert.equal((await employeesApi(req('PATCH',{...details,id:99}),manager,async()=>[])).status,404);
 });
+
+test('custom employee roles use stored access rather than a forged client role',async()=>{
+ const sql=async(strings,...values)=>{
+  const query=strings.join('?');
+  if(query.includes('FROM employee_roles')){assert.deepEqual(values,[5,8]);return [{id:5,name:'Trainer',base_role:'supervisor'}];}
+  if(query.includes('FROM gym_locations'))return [{id:3,name:'Dum Dum',admin_id:8}];
+  assert.ok(values.includes('supervisor'));assert.equal(values.includes('manager'),false);assert.ok(values.includes(5));
+  return [{id:9,role:'supervisor',employee_role_id:5,public_id:'EMP-FITFUSION-DUMDUM-00009',created_by:8,location_id:3}];
+ };
+ const response=await employeesApi(req('POST',{...details,role:'manager',employeeRoleId:5}),manager,sql);
+ assert.equal(response.status,201);const person=await response.json();assert.equal(person.role,'supervisor');assert.equal(person.employeeRoleName,'Trainer');assert.equal(person.employeeRoleId,5);
+});
+test('roles belonging to another organization cannot be assigned',async()=>{
+ assert.equal((await employeesApi(req('POST',{...details,employeeRoleId:99}),manager,async()=>[])).status,400);
+});

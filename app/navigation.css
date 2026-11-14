@@ -53,7 +53,7 @@
 }
 @media(max-width:1100px){
  .member-directory-table{width:100%;table-layout:fixed}.member-directory-table thead{display:none}.member-directory-table tbody,.member-directory-table tr{display:block;width:100%}.member-directory-table tr{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px 14px;padding:16px;border-bottom:1px solid var(--gym-border,#ddd)}
- .management-app .member-directory-table td{display:block;padding:0;min-width:0;border:0;white-space:normal;overflow-wrap:anywhere}.member-directory-table td:nth-child(2){grid-column:1/-1;grid-row:1}.member-directory-table td:last-child{grid-column:1/-1}.member-directory-table .row-actions{flex-wrap:wrap}.member-directory-table .membership-validity{white-space:normal}.member-directory-table td:nth-child(4)::before{content:'Gym Location: ';color:#667085}.member-directory-table td:nth-child(5)::before{content:'Plan: ';color:#667085}
+ .management-app .member-directory-table td{display:block;padding:0;min-width:0;border:0;white-space:normal;overflow-wrap:anywhere}.member-directory-table td:nth-child(2){grid-column:1/-1;grid-row:1}.member-directory-table td:last-child{grid-column:1/-1}.member-directory-table .row-actions{flex-wrap:wrap}.member-directory-table .membership-validity{white-space:normal}.member-directory-table td:nth-child(4)::before{content:'Location: ';color:#667085}.member-directory-table td:nth-child(5)::before{content:'Plan: ';color:#667085}
 }
 
 @media(min-width:1101px){.management-app .member-directory-table th{white-space:normal;overflow:visible;letter-spacing:.4px;overflow-wrap:normal;font-size:14px}.management-app .member-directory-table td:nth-child(2) small{max-width:100%}}
