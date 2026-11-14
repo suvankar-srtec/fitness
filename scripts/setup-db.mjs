@@ -1,3 +1,4 @@
+import {ensureEmployeeSchema} from './employee-schema.mjs';
 import {ensurePerformanceIndexes} from './performance-indexes.mjs';
 import {ensureMemberQueriesSchema} from '../lib/member-queries-schema.mjs';
 import {ensureGymSubscriptionSchema} from './gym-subscription-schema.mjs';
@@ -79,6 +80,7 @@ await sql`INSERT INTO users(public_id,name,password,role,gym_name,created_by) VA
 await ensureSingleSuperadmin(sql);
 await ensureGymLocationSchema(sql);
 await ensureManagerSchema(sql);
+await ensureEmployeeSchema(sql);
 await ensurePhoneAuthSchema(sql);
 await ensureArchiveSchema(sql);
 await ensureMemberLoginSchema(sql);
