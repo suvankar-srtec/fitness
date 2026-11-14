@@ -51,3 +51,17 @@ test('data reads have a timeout signal so an unresponsive server cannot hang for
   return response(200,[]);
  }});
 });
+
+test('successful writes notify open dashboards, while reads and sign-in do not',async()=>{
+ const savedWindow=globalThis.window,savedChannel=globalThis.BroadcastChannel,events=[],messages=[];
+ globalThis.window={dispatchEvent:event=>events.push(event.type)};
+ globalThis.BroadcastChannel=class{constructor(name){this.name=name;}postMessage(value){messages.push([this.name,value]);}close(){}};
+ const options={fetcher:async()=>response(200,{ok:true})};
+ try{
+  await requestApi('members','PATCH',{id:1},options);
+  assert.deepEqual(events,['gym-data-changed']);assert.equal(messages[0][0],'gym-data-updates');
+  await requestApi('members','GET',undefined,options);
+  await requestApi('login','POST',{},options);
+  assert.equal(events.length,1);assert.equal(messages.length,1);
+ }finally{globalThis.BroadcastChannel=savedChannel;if(savedWindow===undefined)delete globalThis.window;else globalThis.window=savedWindow;}
+});

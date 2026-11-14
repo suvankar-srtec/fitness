@@ -6,7 +6,7 @@ import './navigation.css';
 import './login.css';
 import './subscription.css';
 import './close-buttons.css';
-export const metadata = { title: 'Membership Management', description: 'Manage your gym team and members' };
+export const metadata = { title: 'Membership Management System', description: 'Manage your gym team and members' };
 export default function Layout({ children }) {
   return (
     <html lang="en" data-gym-theme="true">
