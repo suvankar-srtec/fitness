@@ -6,7 +6,7 @@ test('welcome email includes the QR attachment and public login website without 
  const writes=[];const sql=async(strings,...values)=>{writes.push([strings.join('?'),values]);return [{member_id:9}];};
  const image=Buffer.from('test-qr');let sends=0;
  const sent=await sendMemberWelcomeEmail(sql,member,image,{configuration,fetcher:async(url,options)=>{
-  sends++;assert.equal(url,'https://api.resend.com/emails');assert.equal(options.headers['Idempotency-Key'],'member-welcome-9');const body=JSON.parse(options.body);assert.deepEqual(body.to,['member@example.com']);assert.ok(body.text.includes('Member website: https://members.example.com/'));assert.match(body.text,/registered mobile number/);assert.equal(Buffer.from(body.attachments[0].content,'base64').toString(),'test-qr');assert.equal(body.attachments[0].filename,'ME-FIDU-01-gate-pass.png');assert.equal(body.text.includes('test-key'),false);return Response.json({id:'email-9'});
+  sends++;assert.equal(url,'https://api.resend.com/emails');assert.equal(options.headers['Idempotency-Key'],'member-welcome-9');const body=JSON.parse(options.body);assert.deepEqual(body.to,['member@example.com']);assert.ok(body.text.includes('Member portal Login-\nhttps://members.example.com/'));assert.match(body.text,/Greetings from ORGANIZATION/);assert.ok(body.html.includes('<strong>ORGANIZATION</strong>'));assert.equal(Buffer.from(body.attachments[0].content,'base64').toString(),'test-qr');assert.equal(body.attachments[0].filename,'ME-FIDU-01-gate-pass.png');assert.equal(body.text.includes('test-key'),false);return Response.json({id:'email-9'});
  }});assert.equal(sends,1);assert.equal(sent.accepted,true);assert.match(writes[1][0],/status='accepted'/);
 });
 test('already attempted welcome emails are not resent',async()=>{

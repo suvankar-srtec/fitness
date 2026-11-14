@@ -20,7 +20,7 @@ test('gate-pass status checks start, expiry, inactivity and missing dates',()=>{
  assert.equal(gatePassStatus({...member,status:'Inactive'},'2026-06-01'),'Inactive');
  assert.equal(gatePassStatus({...member,valid_to:null},'2026-06-01'),'Not set');
  assert.match(renewalMessage(member,'2027-01-01'),/expired.*renew/i);
- assert.match(gatePassMessage(member),/gate pass is attached/);
+ assert.match(gatePassMessage(member),/Digital ID card is attached/);
 });
 test('generated gate-pass PNG decodes to ten hex characters despite the centered logo',async()=>{
  const photo=await sharp({create:{width:50,height:50,channels:3,background:'#888888'}}).jpeg().toBuffer();
