@@ -1,3 +1,4 @@
+import {ensureMemberWelcomeSchema} from './member-welcome-schema.mjs';
 import {ensureAccountIdSchema} from './account-id-schema.mjs';
 import {ensureEmployeeRolesSchema} from './employee-roles-schema.mjs';
 import {ensureEmployeeSchema} from './employee-schema.mjs';
@@ -73,6 +74,7 @@ await sql`CREATE TABLE IF NOT EXISTS sessions (token_hash TEXT PRIMARY KEY, user
 await sql`CREATE INDEX IF NOT EXISTS member_admin ON members(admin_id)`;
 await sql`CREATE TABLE IF NOT EXISTS login_attempts (key TEXT PRIMARY KEY, attempts INTEGER NOT NULL, started_at TIMESTAMPTZ NOT NULL DEFAULT NOW())`;
 await ensureGatePassSchema(sql);
+await ensureMemberWelcomeSchema(sql);
 await ensureMembershipIntegrity(sql);
 await ensureRenewalOptionsSchema(sql);
 await ensureMembershipAddonsSchema(sql);

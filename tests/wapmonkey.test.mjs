@@ -20,3 +20,7 @@ test('staff setup invitations use mobile login and never transmit a password',as
 test('OTP rejects disconnected sender responses with a safe device reason',async()=>{const {sendWapMonkeyOtp}=await import('../lib/wapmonkey.mjs');await assert.rejects(sendWapMonkeyOtp('+919876543210','123456',{configuration,fetcher:async()=>Response.json({status:'FAILED',message:'Device disconnected'})}),e=>e.code==='MESSAGE_REJECTED'&&e.reason==='DEVICE'&&!e.message.includes('123456'));});
 
 test('provider HTML outages are reported without parsing or automatic retries',async()=>{const {sendWapMonkeyOtp}=await import('../lib/wapmonkey.mjs');for(const status of [429,502,503,504]){let calls=0;await assert.rejects(sendWapMonkeyOtp('+919876543210','123456',{configuration,fetcher:async()=>{calls++;return new Response('<html>Service unavailable</html>',{status});}}),e=>e.code==='DELIVERY_UNKNOWN'&&e.reason==='UNAVAILABLE'&&e.httpStatus===status);assert.equal(calls,1);}});
+
+test('first QR WhatsApp message includes the member website beside the attachment',async()=>{
+ await sendWapMonkeyGatePass({...member,website_url:'https://members.example.com/'},{configuration,fetcher:async(url,options)=>{const body=JSON.parse(options.body);assert.ok(body.message.includes('Member website: https://members.example.com/'));assert.equal(body.media.length,1);return Response.json({message_id:'welcome-qr'});}});
+});

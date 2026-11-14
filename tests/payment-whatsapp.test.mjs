@@ -2,3 +2,8 @@
 test('automatic payment pass uses a stable payment key and assigned location scope',async()=>{let calls=0;const user={id:20,role:'manager',created_by:8,location_id:3};const sql=async(strings,...values)=>{assert.match(strings.join('?'),/p.amount>0/);assert.match(strings.join('?'),/a.admin_id=/);assert.match(strings.join('?'),/m.location_id=/);assert.ok(values.includes(8));assert.ok(values.includes(3));return [{id:45,member_id:9}];};const send=async(action,request,actor)=>{calls++;assert.equal(action,'whatsapp-gate-pass');assert.deepEqual(await request.json(),{id:9,requestKey:'automatic-payment-45'});assert.equal(actor,user);return new Response('{}',{status:200});};assert.equal(await sendPaymentPass(sql,user,{paymentId:45},send),true);assert.equal(calls,1);});
 test('missing or zero payment never sends a WhatsApp message',async()=>{assert.equal(await sendPaymentPass(async()=>[],{role:'admin',id:8},{memberId:9},()=>{throw Error('Must not send');}),false);});
 test('delivery failure is not reported as success and is never retried automatically',async()=>{let sends=0;await assert.rejects(sendPaymentPass(async()=>[{id:45,member_id:9}],{role:'admin',id:8},{paymentId:45},async()=>{sends++;return new Response('{}',{status:502});}),/PAYMENT_WHATSAPP_DELIVERY_FAILED/);assert.equal(sends,1);});
+
+test('first registration QR enables welcome email and website delivery',async()=>{
+ let calls=0;const send=async(action,request)=>{calls++;assert.equal(action,'whatsapp-gate-pass');assert.deepEqual(await request.json(),{id:9,requestKey:'automatic-payment-45',welcome:true});return Response.json({accepted:true});};
+ assert.equal(await sendPaymentPass(async()=>[{id:45,member_id:9}],{role:'admin',id:8},{memberId:9},send),true);assert.equal(calls,1);
+});

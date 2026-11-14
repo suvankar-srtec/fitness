@@ -16,3 +16,10 @@ test('provider errors and ambiguous delivery never report success or retry sendi
  await assert.rejects(sendGatePassToWhatsApp(member,Buffer.from('image'),{configuration,fetcher:async()=>Response.json({error:{}},{status:400})}),/could not upload/);
  let calls=0;await assert.rejects(sendGatePassToWhatsApp(member,Buffer.from('image'),{configuration,fetcher:async()=>{if(++calls===1)return Response.json({id:'media'});throw Error('network');}}),/status is unknown/);assert.equal(calls,2);
 });
+
+test('first QR website fits the existing Cloud template parameter count',async()=>{
+ let calls=0;
+ await sendGatePassToWhatsApp({...member,website_url:'https://members.example.com/'},Buffer.from('qr'),{configuration,fetcher:async(url,options)=>{
+  if(++calls===1)return Response.json({id:'media'});const body=JSON.parse(options.body);assert.equal(body.template.components[1].parameters.length,7);assert.ok(body.template.components[1].parameters[6].text.includes('https://members.example.com/'));return Response.json({messages:[{id:'welcome-wa'}]});
+ }});
+});
