@@ -461,7 +461,10 @@ h1, h2, h3, label, .brand, .gym-brand, .plan-tile-price { color: #111111; }
 /* Keep directory values on one line; only validity uses stacked details. */
 .member-directory-table{table-layout:auto}
 .member-directory-table th,.member-directory-table td{white-space:nowrap}
-.member-directory-table td,.member-directory-table th{padding-left:16px;padding-right:16px}
+.member-directory-table td,.member-directory-table th{padding:10px 12px;font-size:13px;line-height:1.4}
+.member-directory-table .row-actions{gap:6px}
+.member-directory-table .row-actions>button{padding:7px 10px;min-height:32px;font-size:12px}
+.member-directory-table .membership-validity{font-size:12px;gap:3px}
 .member-directory-table td:nth-child(6){white-space:normal;min-width:145px}
 .member-directory-table .membership-validity{white-space:nowrap}
 .member-directory-table .row-actions{flex-wrap:nowrap;white-space:nowrap}
