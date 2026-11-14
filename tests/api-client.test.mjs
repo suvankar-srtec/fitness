@@ -44,3 +44,10 @@ test('bodyless ID reservation calls send valid JSON through request validation',
   assert.equal(result.registrationNo,'mem99');
  }
 });
+
+test('data reads have a timeout signal so an unresponsive server cannot hang forever',async()=>{
+ await requestApi('gym-time-report','GET',undefined,{fetcher:async(_url,options)=>{
+  assert.ok(options.signal instanceof AbortSignal);
+  return response(200,[]);
+ }});
+});

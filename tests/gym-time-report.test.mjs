@@ -29,3 +29,12 @@ test('admin report includes staff and members without ID collisions and uses his
  const result=await gymTimeReport(request('?from=2026-11-01&to=2026-11-06'),{role:'admin',id:8},sql);
  const rows=await result.json();assert.equal(calls,2);assert.equal(rows.length,2);assert.deepEqual(new Set(rows.map(row=>row.role)),new Set(['member','manager']));assert.equal(new Set(rows.map(row=>row.id)).size,2);
 });
+
+test('admin report starts member and employee reads before either finishes',async()=>{
+ const pending=[];
+ const sql=()=>new Promise(resolve=>pending.push(resolve));
+ const result=gymTimeReport(request('?from=2026-11-01&to=2026-11-06'),{role:'admin',id:8},sql);
+ assert.equal(pending.length,2);
+ pending.forEach(resolve=>resolve([]));
+ assert.deepEqual(await (await result).json(),[]);
+});
