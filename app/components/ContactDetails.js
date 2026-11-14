@@ -1,0 +1,1 @@
+export default function ContactDetails({person}){return <div className="contact-details"><span>{person.phone||'Update phone'}</span>{person.email&&<a href={'mailto:'+person.email}>{person.email}</a>}</div>;}

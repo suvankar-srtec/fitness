@@ -598,3 +598,11 @@ h1, h2, h3, label, .brand, .gym-brand, .plan-tile-price { color: #111111; }
 
 .staff-pass-footer>div+div{margin-top:3px}.staff-qr-dialog .staff-pass-code{height:min(270px,calc(100dvh - 310px))}.staff-pass-identity span{overflow-wrap:anywhere}
 .staff-qr-dialog .staff-pass-identity{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start;text-align:left;gap:12px}.staff-pass-identity>div{display:flex;flex-direction:column;gap:4px;min-width:0}.staff-pass-identity>div:last-child{text-align:right}.staff-qr-dialog .staff-pass-identity strong{font-size:16px}.staff-pass-identity span{font-size:14px}
+
+/* Shared membership status and contact presentation. */
+.contact-details{display:flex;flex-direction:column;gap:4px;min-width:0}.contact-details a,.contact-email{display:block;font-size:12px;color:#64748b;overflow-wrap:anywhere;white-space:normal;text-decoration:none}.contact-details a:hover{text-decoration:underline}
+.member-status-filters{display:flex;gap:18px;flex-wrap:wrap;margin:0;padding:12px 18px;border:0;border-bottom:1px solid #e5eaf2}.member-status-filters legend{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%)}.member-status-filters label{display:flex;align-items:center;gap:7px;margin:0;font-size:13px;cursor:pointer}.member-status-filters input{width:16px;height:16px;min-height:0;margin:0;padding:0;accent-color:#15803d}.member-status-filters label[data-status=Expired]{color:#b91c1c}.member-status-filters label[data-status=Active]{color:#15803d}.member-status-filters label[data-status=Expired] input{accent-color:#b91c1c}
+.membership-validity-status.is-active,.dashboard-membership-status.is-active{background:#ecfdf3!important;border-color:#bbf7d0!important;color:#15803d!important}.membership-validity-status.is-expired{background:#fef2f2!important;border-color:#fecaca!important;color:#b91c1c!important}
+.login-page{padding-bottom:76px}.login-footer{position:absolute;bottom:0;left:0;right:0;display:flex;justify-content:space-between;gap:16px;padding:20px 28px;color:#64748b;font-size:12px}.login-panel-header h1{overflow-wrap:normal}@media(max-width:600px){.login-footer{padding:16px;font-size:11px}.login-page .login-panel-header h1{font-size:21px}}
+
+.dashboard-membership-status.is-expired{background:#fef2f2!important;color:#b91c1c!important;border-color:#fecaca!important}
