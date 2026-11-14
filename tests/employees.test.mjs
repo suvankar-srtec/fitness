@@ -24,7 +24,7 @@ test('admin role changes preserve IDs and revoke sessions atomically',async()=>{
   return [{id:9,public_id:'sup01',role:'manager',created_by:8,location_id:3}];
  };
  const response=await employeesApi(req('PATCH',{...details,id:9,role:'manager'}),{id:8,role:'admin',gym_name:'Fit Fusion'},sql);
- assert.equal(response.status,200);const employee=await response.json();assert.equal(employee.role,'manager');assert.equal(employee.userType,'EMP');assert.equal(employee.userId,'sup01');
+ assert.equal(response.status,200);const employee=await response.json();assert.equal(employee.role,'manager');assert.equal(employee.userType,'MA');assert.equal(employee.userId,'sup01');
 });
 test('employee creation uses the selected role and server-generated ID',async()=>{
  const sql=async(strings,...values)=>{
@@ -79,4 +79,20 @@ test('custom employee roles use stored access rather than a forged client role',
 });
 test('roles belonging to another organization cannot be assigned',async()=>{
  assert.equal((await employeesApi(req('POST',{...details,employeeRoleId:99}),manager,async()=>[])).status,400);
+});
+
+test('Trainer is an employee role using supervisor access and its own saved designation',async()=>{
+ const sql=async(strings,...values)=>{
+  const query=strings.join('?');
+  if(query.includes('INSERT INTO employee_roles'))return [{id:7,name:'Trainer',base_role:'supervisor'}];
+  if(query.includes('FROM gym_locations'))return [{id:3,name:'Dum Dum',admin_id:8}];
+  assert.ok(values.includes('supervisor'));assert.ok(values.includes(7));
+  return [{id:9,public_id:'EM-FIDU-01',role:'supervisor',employee_role_id:7,created_by:8,location_id:3}];
+ };
+ const response=await employeesApi(req('POST',{...details,accountType:'employee',employeeRoleName:'Trainer'}),manager,sql);
+ assert.equal(response.status,201);const person=await response.json();assert.equal(person.userType,'EM');assert.equal(person.employeeRoleName,'Trainer');assert.equal(person.role,'supervisor');
+});
+test('employee forms cannot select Manager or an unrelated custom role',async()=>{
+ assert.equal((await employeesApi(req('POST',{...details,role:'manager',accountType:'employee'}),manager,async()=>{throw Error('Unexpected query');})).status,400);
+ assert.equal((await employeesApi(req('POST',{...details,employeeRoleId:5,accountType:'employee'}),manager,async()=>{throw Error('Unexpected query');})).status,400);
 });

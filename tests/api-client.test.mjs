@@ -65,3 +65,19 @@ test('successful writes notify open dashboards, while reads and sign-in do not',
   assert.equal(events.length,1);assert.equal(messages.length,1);
  }finally{globalThis.BroadcastChannel=savedChannel;if(savedWindow===undefined)delete globalThis.window;else globalThis.window=savedWindow;}
 });
+
+test('empty write responses give an actionable message without retrying the write',async()=>{
+ let calls=0;
+ await assert.rejects(requestApi('employees','POST',{}, {fetcher:async()=>{calls++;return new Response(null,{status:500});}}),error=>error.code==='INVALID_RESPONSE'&&error.status===500&&/check whether the record was saved/.test(error.message));
+ assert.equal(calls,1);
+});
+test('interrupted read responses recover on a later attempt',async()=>{
+ let calls=0;
+ const result=await requestApi('employees','GET',undefined,{fetcher:async()=>++calls===1?new Response('',{status:200}):response(200,[]),wait:async()=>{}});
+ assert.deepEqual(result,[]);assert.equal(calls,2);
+});
+test('persistent non-JSON reads produce a readable error after bounded retries',async()=>{
+ let calls=0;
+ await assert.rejects(requestApi('employees','GET',undefined,{fetcher:async()=>{calls++;return new Response('<html>Error</html>',{status:500});},wait:async()=>{}}),error=>error.code==='INVALID_RESPONSE'&&/refresh/.test(error.message));
+ assert.equal(calls,3);
+});

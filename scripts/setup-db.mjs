@@ -1,3 +1,4 @@
+import {ensureAccountIdSchema} from './account-id-schema.mjs';
 import {ensureEmployeeRolesSchema} from './employee-roles-schema.mjs';
 import {ensureEmployeeSchema} from './employee-schema.mjs';
 import {ensurePerformanceIndexes} from './performance-indexes.mjs';
@@ -83,6 +84,7 @@ await ensureGymLocationSchema(sql);
 await ensureManagerSchema(sql);
 await ensureEmployeeSchema(sql);
 await ensureEmployeeRolesSchema(sql);
+await ensureAccountIdSchema(sql);
 await ensurePhoneAuthSchema(sql);
 await ensureArchiveSchema(sql);
 await ensureMemberLoginSchema(sql);
