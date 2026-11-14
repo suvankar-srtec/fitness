@@ -1,3 +1,4 @@
+import {memberFormDates} from '../../../lib/member-dates.mjs';
 import {workspaceApi} from '../../../lib/workspace-api';
 import {employeeRolesApi} from '../../../lib/employee-roles-api';
 import {employeesApi} from '../../../lib/employees-api';
@@ -263,12 +264,13 @@ try {
    const b=await req.json();if(!Number.isInteger(b.id)||b.id<1)return fail('Invalid member',400);
    const [existing]=await sql`SELECT *,GREATEST(COALESCE((SELECT amount FROM plans WHERE id=members.plan_id),0),COALESCE((SELECT (amount-COALESCE(addon_amount,0))/COALESCE(duration_months,1) FROM membership_assignments WHERE member_id=members.id AND superseded_by IS NULL ORDER BY id DESC LIMIT 1),0)) AS current_plan_amount,to_char(valid_from,'YYYY-MM-DD') AS valid_from,to_char(valid_to,'YYYY-MM-DD') AS valid_to,to_char(dob,'YYYY-MM-DD') AS dob FROM members WHERE id=${b.id} AND (${u.role}='superadmin' OR admin_id=${gymId}) AND (${!branch} OR location_id=${branch})`;
    if(!existing||branch&&existing.location_id!==branch)return fail('Member not found',404);
-   const validFrom=existing.plan_id?String(existing.valid_from).slice(0,10):b.validFrom,validTo=existing.plan_id?String(existing.valid_to).slice(0,10):b.validTo;
-   if(existing.plan_id&&(b.validFrom!==undefined&&b.validFrom!==validFrom||b.validTo!==undefined&&b.validTo!==validTo))return fail('Membership dates cannot be changed while editing member details',409);
+   const storedDates=memberFormDates(null,existing),validFrom=storedDates.validFrom;let validTo=storedDates.validTo;
+   if(existing.valid_from&&existing.valid_to&&(b.validFrom!==undefined&&b.validFrom!==validFrom||b.validTo!==undefined&&b.validTo!==validTo))return fail('Membership dates cannot be changed while editing member details',409);
    if(existing.gender&&b.gender!==undefined&&b.gender!==existing.gender)return fail('Gender cannot be changed once saved',409);
    if(fixedDateOfBirth(existing.dob,b.dob))return fail('Date of birth cannot be changed once saved',409);
    const requestedPlanId=Number(b.planId??existing.plan_id);
-   const [requestedPlan]=await sql`SELECT id,name,amount FROM plans WHERE id=${requestedPlanId} AND admin_id=${existing.admin_id} AND (archived=FALSE OR id=${existing.plan_id})`;
+   const [requestedPlan]=await sql`SELECT id,name,amount,duration_days FROM plans WHERE id=${requestedPlanId} AND admin_id=${existing.admin_id} AND (archived=FALSE OR id=${existing.plan_id})`;
+   if(!validTo)validTo=memberFormDates(requestedPlan,existing).validTo;
    if(!canUpgradePlan(existing.plan_id,existing.current_plan_amount,requestedPlan))return fail('Select your current plan or a higher-priced plan. Downgrades are not allowed.',409);
    const m=validateMember({...b,groupName:b.groupName??existing.group_name,gender:existing.gender||b.gender,dob:b.dob===undefined?existing.dob:b.dob,planId:requestedPlanId,validFrom,validTo});if(m.error)return fail(m.error,400);
    if(branch&&(b.locationId!==undefined&&Number(b.locationId)!==branch||b.locationName!==undefined&&b.locationName.trim().toLowerCase()!==u.location_name.toLowerCase()))return fail('Use your assigned location',403);
@@ -281,7 +283,7 @@ try {
   if(req.method==='GET'){const rows=u.role==='superadmin'?await sql`SELECT m.*,COALESCE((SELECT p.name FROM plans p WHERE p.id=m.plan_id),m.plan) AS plan,GREATEST(COALESCE((SELECT amount FROM plans WHERE id=m.plan_id),0),COALESCE((SELECT (amount-COALESCE(addon_amount,0))/COALESCE(duration_months,1) FROM membership_assignments WHERE member_id=m.id AND superseded_by IS NULL ORDER BY id DESC LIMIT 1),0)) AS current_plan_amount,(SELECT name FROM gym_locations WHERE id=m.location_id) AS "locationName",(SELECT COALESCE(NULLIF(gym_owner.gym_name,''),gym_owner.name) FROM users gym_owner WHERE gym_owner.id=m.admin_id) AS "gymName",to_char(m.joined,'YYYY-MM-DD') AS joined,to_char(m.valid_from,'YYYY-MM-DD') AS valid_from,to_char(m.valid_to,'YYYY-MM-DD') AS valid_to,to_char(m.dob,'YYYY-MM-DD') AS dob,EXISTS(SELECT 1 FROM member_pictures p WHERE p.member_id=m.id) AS has_picture FROM members m WHERE (m.archived_at IS NULL OR ${includeArchived}) ORDER BY m.id DESC`:await sql`SELECT m.*,COALESCE((SELECT p.name FROM plans p WHERE p.id=m.plan_id),m.plan) AS plan,GREATEST(COALESCE((SELECT amount FROM plans WHERE id=m.plan_id),0),COALESCE((SELECT (amount-COALESCE(addon_amount,0))/COALESCE(duration_months,1) FROM membership_assignments WHERE member_id=m.id AND superseded_by IS NULL ORDER BY id DESC LIMIT 1),0)) AS current_plan_amount,(SELECT name FROM gym_locations WHERE id=m.location_id) AS "locationName",(SELECT COALESCE(NULLIF(gym_owner.gym_name,''),gym_owner.name) FROM users gym_owner WHERE gym_owner.id=m.admin_id) AS "gymName",to_char(m.joined,'YYYY-MM-DD') AS joined,to_char(m.valid_from,'YYYY-MM-DD') AS valid_from,to_char(m.valid_to,'YYYY-MM-DD') AS valid_to,to_char(m.dob,'YYYY-MM-DD') AS dob,EXISTS(SELECT 1 FROM member_pictures p WHERE p.member_id=m.id) AS has_picture FROM members m WHERE (m.archived_at IS NULL OR ${includeArchived}) AND m.admin_id=${gymId} AND (${!branch} OR m.location_id=${branch}) ORDER BY m.id DESC`;return response(rows.map(({password,password_ready,...m})=>({...m,age:m.dob?ageFromDateOfBirth(m.dob):m.age,status:m.archived_at?'Inactive':m.status,userType:'ME',registrationNo:m.public_id,memberId:m.public_id,profilePictureUrl:m.has_picture?'/api/member-photo?id='+m.id:null})));}
   if(req.method==='POST'){
    if(!['admin','manager'].includes(u.role))return fail('Sign in as an admin to add members',403);
-   const b=await req.json(),m=validateMember(b);if(m.error)return fail(m.error,400);
+   const b=await req.json(),start=memberToday(),m=validateMember({...b,validFrom:start,validTo:start});if(m.error)return fail(m.error,400);
    if(m.groupName!=='Default'&&!(await sql`SELECT id FROM gym_member_groups WHERE admin_id=${gymId} AND name=${m.groupName}`).length)return fail('Select a valid group',400);
    if(!PAYMENT_MODES.includes(b.paymentMode))return fail('Select Cash or Online payment',400);
    if(typeof b.registrationToken!=='string'||!/^[a-f0-9]{64}$/.test(b.registrationToken))return fail('Reopen Add Member to generate a registration number',400);
@@ -289,6 +291,8 @@ try {
    const location=await resolveGymLocation(sql,gymId,branch?{locationId:branch}:b);
    const charge=await registrationCharge(sql,gymId,m.planId,b);
    if(charge.error)return fail(charge.error,400);
+   Object.assign(m,memberFormDates({duration_days:charge.durationDays}));
+   if(!m.validTo)return fail('Select a plan with a valid duration',400);
    const picture=await normalizeMemberPicture(b.profilePicture);
    const created=await createRegisteredMember(sql,{gymId,m,location,picture,b,token:tokenHash(b.registrationToken),...charge});
    if(!created)return fail('Plan, add-on price or registration changed. Reopen Add Member.',400);
