@@ -1,5 +1,3 @@
-Android app and prepared iPhone source: see [mobile/README.md](mobile/README.md). Build the Android APK with `npm.cmd run app:android:build`.
-
 # Form - Next.js + Neon PostgreSQL
 
 Requires Node.js 22.13+. Accounts, members, sessions and login rate limits use PostgreSQL. The old SQLite backup in `data/` is preserved locally and is not used by the app.

@@ -15,10 +15,16 @@ test-results/
 playwright-report/
 .vercel/
 
-# Generated mobile packages and signing material.
-artifacts/
-mobile/ios/*.xcodeproj/
-mobile/ios/build/
-mobile/ios/DerivedData/
+
+# Local mobile app sources, build helpers, packages and signing material.
+/mobile/
+/artifacts/
+/scripts/android.ps1
+/scripts/prepare-ios.mjs
+*.apk
+*.aab
+*.apks
+*.ipa
+*.xcarchive/
 *.jks
 *.keystore
