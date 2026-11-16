@@ -1,0 +1,21 @@
+/* Preserve desktop tables; render the same records as labeled cards on mobile. */
+@media screen and (max-width:850px){
+ :root body table.mobile-record-table{display:block;width:100%!important;min-width:0!important;max-width:100%;border:0!important;border-collapse:separate;table-layout:auto}
+ :root body table.mobile-record-table>thead{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip-path:inset(50%);white-space:nowrap}
+ :root body table.mobile-record-table>tbody,:root body table.mobile-record-table>tfoot{display:grid;width:100%;min-width:0;gap:14px;padding:12px;box-sizing:border-box}
+ :root body table.mobile-record-table>tbody>tr,:root body table.mobile-record-table>tfoot>tr{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px!important;width:100%!important;min-width:0!important;margin:0!important;padding:16px!important;border:1px solid #dfe7f1!important;border-radius:14px;background:#fff!important;box-shadow:0 3px 12px #17345806;box-sizing:border-box;position:static!important}
+ :root body table.mobile-record-table>tbody>tr>td,:root body table.mobile-record-table>tbody>tr>th,:root body table.mobile-record-table>tfoot>tr>td{display:block!important;grid-column:auto!important;grid-row:auto!important;position:static!important;width:auto!important;min-width:0!important;max-width:100%!important;padding:0!important;border:0!important;background:transparent!important;white-space:normal!important;text-align:left!important;overflow-wrap:anywhere;word-break:normal;font-size:14px!important;color:#20334d;line-height:1.5}
+ :root body table.mobile-record-table>tbody>tr>:first-child,:root body table.mobile-record-table>tbody>tr>[data-card-wide=true],:root body table.mobile-record-table>tfoot>tr>[data-card-wide=true]{grid-column:1/-1!important}
+ :root body table.mobile-record-table>tbody>tr>:first-child{padding-bottom:12px!important;border-bottom:1px solid #eef2f7!important;font-weight:600}
+ :root body table.mobile-record-table>tbody>tr>td::before,:root body table.mobile-record-table>tbody>tr>th::before,:root body table.mobile-record-table>tfoot>tr>td::before{content:attr(data-label)!important;display:block!important;margin-bottom:5px;color:#728096;font-size:11px;font-weight:600;letter-spacing:.5px;line-height:1.4;text-transform:uppercase}
+ :root body table.mobile-record-table>tbody>tr>[data-label='']::before{display:none!important}
+ :root body table.mobile-record-table :is(.row-actions,.actions){display:flex;flex-wrap:wrap;gap:8px;min-width:0}
+ :root body table.mobile-record-table :is(button,a.secondary){min-height:44px;max-width:100%;white-space:normal}
+ :root body table.mobile-record-table :is(input,select,textarea){min-width:0;max-width:100%;font-size:16px}
+ :root body table.mobile-record-table td :is(.contact-email,.contact-details){max-width:100%;white-space:normal;overflow-wrap:anywhere}
+ .tablewrap:has(>.mobile-record-table),.audit-sheet-scroll:has(>.mobile-record-table){overflow-x:visible!important;min-width:0;max-width:100%}
+}
+@media screen and (max-width:360px){
+ :root body table.mobile-record-table>tbody>tr,:root body table.mobile-record-table>tfoot>tr{grid-template-columns:minmax(0,1fr)!important;padding:14px!important;gap:12px!important}
+ :root body table.mobile-record-table>tbody,:root body table.mobile-record-table>tfoot{padding:8px;gap:10px}
+}
