@@ -34,10 +34,10 @@ function SupervisorForm({user,onClose,onSaved}){
 }
 export default function ManagerDashboard({user,onSignOut}){
  const [viewingEmployee,setViewingEmployee]=useState(null);
- useWorkspaceRefresh(true,()=>refresh());
+ useWorkspaceRefresh(true,options=>refresh(options));
  const [view,setView]=useState('dashboard'),[data,setData]=useState(null),[supervisors,setSupervisors]=useState([]),[selected,setSelected]=useState('all'),[query,setQuery]=useState(''),[error,setError]=useState(''),[notice,setNotice]=useState(''),[add,setAdd]=useState(false),[editing,setEditing]=useState(null),[busy,setBusy]=useState(false);
- async function refresh(){const [result,staff]=await Promise.all([requestApi('manager-dashboard'),requestApi('supervisors')]);setData(result);setSupervisors(staff);setError('');}
- useEffect(()=>{let active=true;const update=()=>{if(!document.hidden)refresh().catch(error=>{if(active)setError(error.message);});};update();const timer=setInterval(update,15000);window.addEventListener('focus',update);return()=>{active=false;clearInterval(timer);window.removeEventListener('focus',update);};},[user.id,user.locationId]);
+ async function refresh(options){const [result,staff]=await Promise.all([requestApi('manager-dashboard','GET',undefined,options),requestApi('supervisors','GET',undefined,options)]);setData(result);setSupervisors(staff);setError('');}
+ useEffect(()=>{let active=true;let first=true;const update=()=>{const options={silent:!first};first=false;if(!document.hidden)refresh(options).catch(error=>{if(active)setError(error.message);});};update();const timer=setInterval(update,15000);window.addEventListener('focus',update);return()=>{active=false;clearInterval(timer);window.removeEventListener('focus',update);};},[user.id,user.locationId]);
  async function remove(row){if(!await confirmMessage('Delete '+row.name+'? Their records will be kept and access disabled.'))return;setBusy(true);try{await requestApi('supervisors','DELETE',{id:row.id});await refresh();showMessage('Account deleted. All records have been retained.');}catch(error){showMessage(error.message);}finally{setBusy(false);}}
  async function invite(row){setBusy(true);setError('');try{await requestApi('credentials','POST',{id:row.id,requestKey:crypto.randomUUID()});setNotice('WhatsApp setup invitation accepted for sending.');}catch(error){setError(error.message);}finally{setBusy(false);}}
  const analytics=data?managerAnalytics(data,selected):null;

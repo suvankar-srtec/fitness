@@ -93,3 +93,16 @@ test('writes start a fresh workspace read without older completions discarding i
   releases[1](response(200,{version:'fresh'}));assert.deepEqual(await fresh,{version:'fresh'});assert.deepEqual(await shared,{version:'fresh'});
  }finally{globalThis.fetch=previousFetch;if(previousWindow===undefined)delete globalThis.window;else globalThis.window=previousWindow;}
 });
+
+test('silent refreshes do not show loading, including when they fail',async()=>{
+ const {pendingLoading}=await import('../lib/loading-state.mjs');const saved=globalThis.window,events=[];globalThis.window={dispatchEvent:event=>events.push(event.type)};
+ try{let release;const pending=requestApi('silent-test','GET',undefined,{silent:true,fetcher:()=>new Promise(resolve=>{release=resolve;})});assert.equal(pendingLoading(),0);release(response(200,{}));await pending;await assert.rejects(requestApi('silent-test','GET',undefined,{silent:true,fetcher:async()=>response(403,{error:'Denied'})}),/Denied/);assert.equal(pendingLoading(),0);assert.deepEqual(events,[]);}finally{if(saved===undefined)delete globalThis.window;else globalThis.window=saved;}
+});
+test('foreground callers joining a silent read show loading without duplicating the request',async()=>{
+ const {pendingLoading}=await import('../lib/loading-state.mjs');const saved=globalThis.window,savedFetch=globalThis.fetch;globalThis.window={dispatchEvent(){}};let release,calls=0;globalThis.fetch=()=>{calls++;return new Promise(resolve=>{release=resolve;});};
+ try{const background=requestApi('shared-silent-read','GET',undefined,{silent:true});assert.equal(pendingLoading(),0);const foreground=requestApi('shared-silent-read');assert.equal(pendingLoading(),1);assert.equal(calls,1);release(response(200,[{id:1}]));assert.deepEqual(await foreground,[{id:1}]);await background;assert.equal(pendingLoading(),0);}finally{globalThis.fetch=savedFetch;if(saved===undefined)delete globalThis.window;else globalThis.window=saved;}
+});
+test('silent authentication checks still expire invalid sessions',async()=>{
+ const saved=globalThis.window,events=[];globalThis.window={dispatchEvent:event=>events.push(event.type)};
+ try{await assert.rejects(requestApi('me','GET',undefined,{silent:true,fetcher:async()=>response(401,{error:'Please sign in'})}),e=>e.status===401);assert.deepEqual(events,['gym-session-expired']);}finally{if(saved===undefined)delete globalThis.window;else globalThis.window=saved;}
+});

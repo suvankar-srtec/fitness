@@ -5,7 +5,7 @@ import useWorkspaceRefresh from '../hooks/useWorkspaceRefresh';
 import {confirmMessage,MessageNotice} from './MessagePopup';
 export default function Announcements({user,readOnly=false}){
  const [rows,setRows]=useState([]),[loading,setLoading]=useState(true),[error,setError]=useState(''),[editing,setEditing]=useState(null),[busy,setBusy]=useState(false),[file,setFile]=useState(null),[removeAttachment,setRemoveAttachment]=useState(false),[locations,setLocations]=useState([]);
- async function load(){try{setRows(await requestApi('announcements'));setError('');}catch(e){setError(e.message);}finally{setLoading(false);}}
+ async function load(options){try{setRows(await requestApi('announcements','GET',undefined,options));setError('');}catch(e){setError(e.message);}finally{setLoading(false);}}
  useEffect(()=>{load();if(!readOnly&&user.role==='admin')requestApi('gym-locations?adminId='+user.id).then(setLocations).catch(e=>setError(e.message));},[user.id,readOnly]);
  useWorkspaceRefresh(true,load);
  function edit(row){setEditing(row);setFile(null);setRemoveAttachment(false);setError('');}

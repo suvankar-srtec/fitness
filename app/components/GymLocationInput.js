@@ -10,8 +10,8 @@ export default function GymLocationInput({id,gymAdminId,defaultValue='',onChange
  const [locations,setLocations]=useState([]),[value,setValue]=useState(()=>normalizeLocationName(defaultValue)||''),[error,setError]=useState(''),[open,setOpen]=useState(false),[showAll,setShowAll]=useState(true),[active,setActive]=useState(-1),[position,setPosition]=useState({left:0,top:0,width:0});
  const options=locations.filter(location=>showAll||location.name.toLowerCase().includes(value.trim().toLowerCase()));
  useEffect(()=>{
-  if(!gymAdminId)return;let current=true,pending=false;
-  async function load(){if(pending)return;pending=true;try{const rows=await requestApi('gym-locations?adminId='+encodeURIComponent(gymAdminId));if(current){setLocations(rows.filter(location=>normalizeLocationName(location.name)));setError('');}}catch(error){if(current)setError(error.message);}finally{pending=false;}}
+  if(!gymAdminId)return;let current=true,pending=false,firstLoad=true;
+  async function load(){if(pending)return;pending=true;const options={silent:!firstLoad};firstLoad=false;try{const rows=await requestApi('gym-locations?adminId='+encodeURIComponent(gymAdminId),'GET',undefined,options);if(current){setLocations(rows.filter(location=>normalizeLocationName(location.name)));setError('');}}catch(error){if(current)setError(error.message);}finally{pending=false;}}
   refresh.current=load;load();window.addEventListener('focus',load);
   return()=>{current=false;refresh.current=()=>{};window.removeEventListener('focus',load);};
  },[gymAdminId]);

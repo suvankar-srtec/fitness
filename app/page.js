@@ -78,7 +78,7 @@ export default function Home() {
  const [membershipSearch,setMembershipSearch]=useState('');
  const [editingMember,setEditingMember]=useState(null);
  const [shoppingMember,setShoppingMember]=useState(null),[renewingMember,setRenewingMember]=useState(null);
- useWorkspaceRefresh(!!me&&['admin','manager','superadmin'].includes(me.role),()=>load(me));
+ useWorkspaceRefresh(!!me&&['admin','manager','superadmin'].includes(me.role),options=>load(me,options));
  const [viewingEmployee,setViewingEmployee]=useState(null);
  const [editingStaff,setEditingStaff]=useState(null);
  const owner=me?.role==='superadmin';
@@ -92,11 +92,11 @@ export default function Home() {
  const staff=(owner&&tab!=='all-members')||tab==='supervisors'||tab==='managers'||tab==='employees';
  useEffect(()=>{if(['admin','manager'].includes(me?.role)&&tab==='users'){setTab('supervisors');setQuery('');}},[me?.role,tab]);
  async function openCreate(type){setSupervisorGymId('');setEditingMember(null);if(type==='add-manager'&&me.role!=='admin'||type==='admins'&&!canCreateGymAdmin(me)||type==='superadmins'||type==='supervisors'&&owner||type==='managers'&&!['admin','manager'].includes(me.role))return;setKind(type);setManagerRegistration(null);setModal(true);setFormError('');if(type==='managers'){setBusy(true);try{setManagerRegistration(await api('manager-registration','POST',{}));}catch(error){setFormError(error.message);}finally{setBusy(false);}}}
- async function load(user){
+ async function load(user,options){
   const run=++loadRun.current;
   if(['supervisor','member'].includes(user.role)){setMembers([]);setRows([]);setPlans([]);setSupervisors([]);setSuperadmins([]);setError('');return;}
   try{
-   const data=await api('workspace');
+   const data=await api('workspace','GET',undefined,options);
    if(run!==loadRun.current)return;
    setMembers(data.members);setRows(user.role==='superadmin'?data.admins:data.members);setPlans(data.plans);
    setManagers(data.managers);setSupervisors(data.supervisors);setSuperadmins(data.superadmins);setError('');

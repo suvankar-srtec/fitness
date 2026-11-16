@@ -11,7 +11,7 @@ export default function AccountActions({role,user={},onSignOut,mobile=false,inli
  const [open,setOpen]=useState(false),[detail,setDetail]=useState(null),container=useRef(null);
  const [unread,setUnread]=useState(0),[profileLogo,setProfileLogo]=useState(user.gymLogo||'');
  useEffect(()=>{setProfileLogo(user.gymLogo||'');},[user.gymLogo]);
- async function refreshQueries(){try{const result=await requestApi('member-queries?unread=1');setUnread(result.count||0);}catch{}}
+ async function refreshQueries(){try{const result=await requestApi('member-queries?unread=1','GET',undefined,{silent:true});setUnread(result.count||0);}catch{}}
  useEffect(()=>{if(role!=='admin')return;refreshQueries();const timer=setInterval(()=>{if(document.visibilityState==='visible')refreshQueries();},60000);return()=>clearInterval(timer);},[role]);
  const label=user.employeeRoleName||{superadmin:'Superadmin',admin:'Admin',manager:'Manager',supervisor:'Supervisor',member:'Member'}[role]||role;
  const name=user.name||label;

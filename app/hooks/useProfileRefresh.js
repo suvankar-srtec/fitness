@@ -9,7 +9,7 @@ export default function useProfileRefresh(userId,setProfile) {
   async function refresh(){
    if(!active||pending||document.hidden)return;
    pending=true;
-   try{const profile=await requestApi('me');if(active)setProfile(previous=>{
+   try{const profile=await requestApi('me','GET',undefined,{silent:true});if(active)setProfile(previous=>{
     if(previous?.id!==userId||profile.id!==userId)return previous;
     return ['name','gymName','gymId','requiresLocationSelection','locationId','locationName','gymLogo','phone','email','role','userId'].some(key=>previous[key]!==profile[key])?{...previous,...profile}:previous;
    });}catch(error){if(active&&(error.status===401||['MEMBERSHIP_EXPIRED','MEMBER_INACTIVE','SUBSCRIPTION_EXPIRED'].includes(error.code)))setProfile(null);}finally{pending=false;}

@@ -2,12 +2,15 @@
 .mobile-drawer .navigation-credit{padding-bottom:4px}
 .global-loading-overlay{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;background:#0f172a85;backdrop-filter:blur(2px);pointer-events:auto}
 .global-loading-card{display:flex;align-items:center;gap:16px;padding:22px 28px;border-radius:16px;background:#fff;color:#145cc2;box-shadow:0 12px 48px #0003;font-size:16px;font-weight:600}
-.global-loading-spinner{width:30px;height:30px;border:3px solid #d9e7fc;border-top-color:#145cc2;border-radius:50%;animation:membership-spin .8s linear infinite}
+.global-loading-spinner{width:30px;height:30px;border:3px solid #d9e7fc;border-top-color:#145cc2;border-radius:50%;animation:membership-spin .8s linear infinite;flex-shrink:0;will-change:transform}
 .global-loading-dots{display:inline-flex;width:24px;gap:2px}.global-loading-dots i{font-style:normal;animation:membership-dot 1s ease-in-out infinite}.global-loading-dots i:nth-child(2){animation-delay:.15s}.global-loading-dots i:nth-child(3){animation-delay:.3s}
-@keyframes membership-spin{to{transform:rotate(360deg)}}@keyframes membership-dot{0%,70%,100%{opacity:.25}35%{opacity:1}}
+@keyframes membership-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes membership-dot{0%,70%,100%{opacity:.25}35%{opacity:1}}
 .trainer-member-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:16px;margin-top:16px}
 .trainer-member-card{display:flex;flex-direction:column;align-items:flex-start;gap:10px;min-width:0;padding:18px;border:1px solid #dce6f5;border-radius:14px;background:#fff;overflow-wrap:anywhere}.trainer-member-card h3,.trainer-member-card p{margin:0}.trainer-member-card>button{margin-top:auto;min-height:44px}
 .trainer-select-field{display:grid;gap:8px;margin:14px 0;min-width:0}.trainer-select-field select{width:100%;min-width:0}.trainer-select-field small{color:#64748b}
 .trainer-pass-dialog{max-width:430px}.trainer-pass-dialog>header{display:flex;align-items:center;justify-content:space-between;gap:12px}.trainer-pass-dialog>img{display:block;width:100%;height:auto;margin:16px 0}
 .member-transfer-search{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap}.member-transfer-search label{display:grid;gap:8px;flex:1;min-width:0}.member-transfer-search input{margin:0;width:100%}
-@media(prefers-reduced-motion:reduce){.global-loading-spinner,.global-loading-dots i{animation:none}}
+
+
+.loading::before{content:"";display:block;width:28px;height:28px;margin:0 auto 12px;border:3px solid #d9e7fc;border-top-color:#145cc2;border-radius:50%;animation:membership-spin .8s linear infinite;will-change:transform}
+@media(prefers-reduced-motion:reduce){.global-loading-spinner,.loading::before{animation-duration:2.4s}.global-loading-dots i{animation:none}}

@@ -14,12 +14,12 @@ export default function GymTimeReport({user}){
  const [calendarMember,setCalendarMember]=useState(null);
  const [range,setRange]=useState(()=>({from:memberToday(),to:memberToday()})),[query,setQuery]=useState(''),[rows,setRows]=useState([]),[loading,setLoading]=useState(true),[error,setError]=useState('');
  useEffect(()=>{
-  let active=true,pending=false;
+  let active=true,pending=false,firstLoad=true;
   setLoading(true);setError('');
   async function refresh(){
    if(!active||pending||document.hidden)return;
-   pending=true;
-   try{const data=await requestApi('gym-time-report?'+new URLSearchParams(range));if(active){setRows(data);setError('');}}
+   pending=true;const options={silent:!firstLoad};firstLoad=false;
+   try{const data=await requestApi('gym-time-report?'+new URLSearchParams(range),'GET',undefined,options);if(active){setRows(data);setError('');}}
    catch(error){if(active)setError(error.message);}
    finally{pending=false;if(active)setLoading(false);}
   }

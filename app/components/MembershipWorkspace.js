@@ -21,13 +21,13 @@ export default function MembershipWorkspace({mode,members,plans,readOnly,onAssig
  const [planId,setPlanId]=useState(''),[from,setFrom]=useState(today),[to,setTo]=useState('');
  const [reportMembers,setReportMembers]=useState([]);
  const requestKey=useRef(null);
- async function refreshReport(){try{setReportMembers(await api('members?includeArchived=1'));setError('');}catch(error){setError(error.message);}finally{setLoading(false);}}
+ async function refreshReport(options){try{setReportMembers(await api('members?includeArchived=1','GET',undefined,options));setError('');}catch(error){setError(error.message);}finally{setLoading(false);}}
  useEffect(()=>{if(mode==='members')refreshReport();},[mode]);
- useWorkspaceRefresh(true,()=>mode==='members'?refreshReport():reload());
+ useWorkspaceRefresh(true,options=>mode==='members'?refreshReport(options):reload(options));
  const [assignmentsReady,setAssignmentsReady]=useState(false);
  const assignedIds=new Set(assignments.map(a=>String(a.member_id)));
  const availableMembers=assignmentsReady?members.filter(m=>!assignedIds.has(String(m.id))):[];
- async function reload(){const [a,p]=await Promise.all([api('memberships'),api('membership-payments')]);setAssignments(a);setPayments(p);setAssignmentsReady(true);setError('');}
+ async function reload(options){const [a,p]=await Promise.all([api('memberships','GET',undefined,options),api('membership-payments','GET',undefined,options)]);setAssignments(a);setPayments(p);setAssignmentsReady(true);setError('');}
  useEffect(()=>{if(mode==='members')return;let active=true;Promise.all([mode==='transactions'||mode==='members'?Promise.resolve([]):api('memberships'),mode==='members'||mode==='assign'?Promise.resolve([]):api('membership-payments')]).then(([a,p])=>{if(active){setAssignments(a);setPayments(p);setAssignmentsReady(true);}}).catch(e=>{if(active)setError(e.message);}).finally(()=>{if(active)setLoading(false);});return()=>{active=false;};},[]);
  async function assign(e){e.preventDefault();setBusy(true);setError('');requestKey.current||=crypto.randomUUID();try{await api('memberships','POST',{...Object.fromEntries(new FormData(e.currentTarget)),requestKey:requestKey.current});requestKey.current=null;await reload();await onAssigned?.();}catch(e){setError(e.message);}finally{setBusy(false);}}
  async function pay(e){e.preventDefault();setBusy(true);setError('');try{await api('membership-payments','POST',{...Object.fromEntries(new FormData(e.currentTarget)),assignmentId:selected.id,requestKey:requestKey.current});await reload();setSelected(null);}catch(e){setError(e.message);}finally{setBusy(false);}}

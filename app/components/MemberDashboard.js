@@ -11,6 +11,7 @@ import Supplements from './Supplements';
 import MemberTimeCalendar from './MemberTimeCalendar';
 import VideoLibrary from './VideoLibrary';
 import styles from './MemberDashboard.module.css';
+import {beginLoading} from '../../lib/loading-state.mjs';
 import {requestApi} from '../../lib/api-client.mjs';
 function dateLabel(value){const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(value||'');return m?`${m[3]}-${m[2]}-${m[1]}`:'-';}
 function MenuIcon({name}){if(['payment','box','orders'].includes(name))return <CommerceIcon name={name}/>;return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">{name==='overview'?<><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></>:name==='videos'?<><rect x="3" y="4" width="18" height="16" rx="3"/><path d="m10 8 6 4-6 4z"/></>:<><path d="M3 9V3h6M15 3h6v6M21 15v6h-6M9 21H3v-6"/><path d="M7 7h3v3H7zm7 0h3v3h-3zM7 14h3v3H7zm7 0h3v3h-3z"/></>}</svg>;}
@@ -19,13 +20,15 @@ export default function MemberDashboard({user,onSignOut}){
  const [paymentData,setPaymentData]=useState(null);
  const daysLeft=Math.ceil((Date.parse(String(user.validTo).slice(0,10)+'T00:00:00Z')-Date.parse(new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kolkata',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())+'T00:00:00Z'))/86400000);
  const [renewalOpen,setRenewalOpen]=useState(daysLeft>=0&&daysLeft<=7);
- useEffect(()=>{let active=true;const timer=setTimeout(()=>{requestApi('payment-info').then(value=>{if(active)setPaymentData(value);}).catch(()=>{});},600);return()=>{active=false;clearTimeout(timer);};},[user.id]);
+ useEffect(()=>{let active=true;const timer=setTimeout(()=>{requestApi('payment-info','GET',undefined,{silent:true}).then(value=>{if(active)setPaymentData(value);}).catch(()=>{});},600);return()=>{active=false;clearTimeout(timer);};},[user.id]);
  const [service,setService]=useState('overview'),[attendance,setAttendance]=useState({days:0,month:'',loading:true});
  const [passImage,setPassImage]=useState(''),[passError,setPassError]=useState(''),[passRetry,setPassRetry]=useState(0);
  useEffect(()=>{
+  if(service!=='pass')return;
   const controller=new AbortController();let active=true,objectUrl;
   setPassImage('');setPassError('');
   const timer=setTimeout(async()=>{
+   const done=beginLoading();
    try{
     const response=await fetch('/api/member-pass',{credentials:'same-origin',cache:'no-store',signal:controller.signal});
     if(!response.ok)throw new Error('Unable to load your pass. Please retry.');
@@ -33,10 +36,10 @@ export default function MemberDashboard({user,onSignOut}){
     objectUrl=URL.createObjectURL(blob);
     const image=new Image();image.src=objectUrl;await image.decode();
     if(active)setPassImage(objectUrl);
-   }catch(error){if(active&&error.name!=='AbortError')setPassError('Unable to load your pass. Please retry.');}
+   }catch(error){if(active&&error.name!=='AbortError')setPassError('Unable to load your pass. Please retry.');}finally{done();}
   },300);
   return()=>{active=false;clearTimeout(timer);controller.abort();if(objectUrl)URL.revokeObjectURL(objectUrl);};
- },[user.id,user.validFrom,user.validTo,user.plan,user.name,user.gymLogo,passRetry]);
+ },[user.id,user.validFrom,user.validTo,user.plan,user.name,user.gymLogo,passRetry,service]);
  const memberNavigation=(<nav className="sidebar-actions" aria-label="Member menu">{menus.map(([key,label])=><button type="button" className="dashboard-nav" key={key} title={label} aria-label={label} aria-current={service===key?'page':undefined} onClick={()=>setService(key)}><MenuIcon name={key}/><span>{label}</span></button>)}</nav>);
  return <div className="app management-app member-workspace"><aside className="sidebar"><MobileNavigation user={user} onSignOut={onSignOut}>{memberNavigation}</MobileNavigation><div className="sidebar-identity"><GymBrand/><NavigationLogoCard user={user}/></div><div className="management-nav-wrap">{memberNavigation}</div><div className="navigation-credit">Powered by Digigraptek</div></aside><main className={styles.dashboard+(service==='pass'?' '+styles.passDashboard:'')}>
  <header className="workspace-topbar"><h1>{menus.find(([key])=>key===service)?.[1]}</h1><AccountActions role="member" user={user} onSignOut={onSignOut}/></header>

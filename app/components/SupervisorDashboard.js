@@ -20,10 +20,10 @@ export default function SupervisorDashboard({user,onSignOut,error}){
  const [view,setView]=useState('dashboard'),[records,setRecords]=useState([]),[loading,setLoading]=useState(true),[loadError,setLoadError]=useState(''),[refreshKey,setRefreshKey]=useState(0);
  useEffect(()=>{
   if(view==='attendance')return;
-  let current=true,pending=false;
+  let current=true,pending=false,firstLoad=true;
   async function refresh(){
-   if(pending||document.hidden)return;pending=true;
-   try{const date=memberToday();const [rows,totals]=await Promise.all([requestApi(`attendance?view=sheet&from=${date}&to=${date}`),requestApi('supervisor-summary')]);if(current){setRecords(rows);setSummary(totals);setLoadError('');}}
+   if(pending||document.hidden)return;pending=true;const options={silent:!firstLoad};firstLoad=false;
+   try{const date=memberToday();const [rows,totals]=await Promise.all([requestApi(`attendance?view=sheet&from=${date}&to=${date}`,'GET',undefined,options),requestApi('supervisor-summary','GET',undefined,options)]);if(current){setRecords(rows);setSummary(totals);setLoadError('');}}
    catch(error){if(current)setLoadError(error.message);}
    finally{pending=false;if(current)setLoading(false);}
   }

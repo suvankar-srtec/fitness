@@ -9,8 +9,8 @@ import styles from './MemberTimeCalendar.module.css';
 export function CalendarIcon(){return <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 11h18m-13 4h2m4 0h2m-8 3h2"/></svg>;}
 export default function MemberTimeCalendar({memberId,name,onAttendanceChange}){
  const [month,setMonth]=useState(()=>memberToday().slice(0,7)),[data,setData]=useState(null),[error,setError]=useState(''),[selected,setSelected]=useState(''),[loading,setLoading]=useState(true);
- useEffect(()=>{let active=true,pending=false;setData(null);setLoading(true);setError('');setSelected('');
-  async function refresh(){if(!active||pending||document.hidden)return;pending=true;try{const result=await requestApi('member-time-calendar?'+new URLSearchParams({month,...(memberId?{memberId:String(memberId)}:{})}));if(active){setData(result);setError('');}}catch(error){if(active)setError(error.message);}finally{pending=false;if(active)setLoading(false);}}
+ useEffect(()=>{let active=true,pending=false,firstLoad=true;setData(null);setLoading(true);setError('');setSelected('');
+  async function refresh(){if(!active||pending||document.hidden)return;pending=true;const options={silent:!firstLoad};firstLoad=false;try{const result=await requestApi('member-time-calendar?'+new URLSearchParams({month,...(memberId?{memberId:String(memberId)}:{})}),'GET',undefined,options);if(active){setData(result);setError('');}}catch(error){if(active)setError(error.message);}finally{pending=false;if(active)setLoading(false);}}
   refresh();const timer=setInterval(refresh,30000);const channel=typeof BroadcastChannel!=='undefined'?new BroadcastChannel('gym-attendance-updates'):null;if(channel)channel.onmessage=refresh;window.addEventListener('focus',refresh);document.addEventListener('visibilitychange',refresh);
   return()=>{active=false;clearInterval(timer);channel?.close();window.removeEventListener('focus',refresh);document.removeEventListener('visibilitychange',refresh);};
  },[memberId,month]);

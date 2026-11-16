@@ -12,7 +12,7 @@ export default function AttendanceWorkspace({searchQuery=''}) {
   let current=true,pending=false;
   async function refresh(quiet=false){
    if(pending)return;pending=true;if(!quiet)setLoading(true);
-   try{const date=memberToday();const rows=await api(`attendance?view=sheet&from=${date}&to=${date}`);if(current){setRecords(rows);setError('');}}
+   try{const date=memberToday();const rows=await api(`attendance?view=sheet&from=${date}&to=${date}`,'GET',undefined,{silent:quiet});if(current){setRecords(rows);setError('');}}
    catch(error){if(current)setError(error.message);}
    finally{pending=false;if(current)setLoading(false);}
   }

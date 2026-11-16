@@ -8,8 +8,8 @@ import { paymentNotifications } from '../../lib/payment-notifications.mjs';
 export default function PaymentNotifications({onViewPayments}) {
  const [notifications,setNotifications]=useState([]),[filter,setFilter]=useState('all'),[loading,setLoading]=useState(true),[error,setError]=useState('');
  useEffect(()=>{
-  let active=true,pending=false;
-  async function refresh(){if(pending||document.hidden)return;pending=true;try{const [m,p]=await Promise.all([api('memberships'),api('membership-payments')]);if(active){setNotifications(paymentNotifications(m,p));setError('');}}catch(e){if(active)setError(e.message);}finally{pending=false;if(active)setLoading(false);}}
+  let active=true,pending=false,firstLoad=true;
+  async function refresh(){if(pending||document.hidden)return;pending=true;const options={silent:!firstLoad};firstLoad=false;try{const [m,p]=await Promise.all([api('memberships','GET',undefined,options),api('membership-payments','GET',undefined,options)]);if(active){setNotifications(paymentNotifications(m,p));setError('');}}catch(e){if(active)setError(e.message);}finally{pending=false;if(active)setLoading(false);}}
   refresh();window.addEventListener('focus',refresh);const timer=setInterval(refresh,30000);
   return()=>{active=false;clearInterval(timer);window.removeEventListener('focus',refresh);};
  },[]);
