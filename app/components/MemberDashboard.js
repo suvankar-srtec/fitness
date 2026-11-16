@@ -2,6 +2,8 @@
 import {useEffect,useState} from 'react';
 import AccountActions from './AccountActions';
 import GymBrand from './GymBrand';
+import NavigationLogoCard from './NavigationLogoCard';
+import Announcements from './Announcements';
 import MobileNavigation from './MobileNavigation';
 import CommerceIcon from './CommerceIcon';
 import PaymentInfo from './PaymentInfo';
@@ -35,16 +37,16 @@ export default function MemberDashboard({user,onSignOut}){
   },300);
   return()=>{active=false;clearTimeout(timer);controller.abort();if(objectUrl)URL.revokeObjectURL(objectUrl);};
  },[user.id,user.validFrom,user.validTo,user.plan,user.name,user.gymLogo,passRetry]);
- const memberNavigation=(<nav className={styles.menu} aria-label="Member menu">{menus.map(([key,label])=><button type="button" key={key} title={label} aria-label={label} aria-current={service===key?'page':undefined} onClick={()=>setService(key)}><MenuIcon name={key}/><span>{label}</span></button>)}</nav>);
- return <main className={styles.dashboard+(service==='pass'?' '+styles.passDashboard:'')}>
- <header className={styles.header+' member-mobile-header'}><MobileNavigation user={user} onSignOut={onSignOut}>{memberNavigation}</MobileNavigation><GymBrand name={user.gymName} logo={user.gymLogo}/><AccountActions role="member" user={user} onSignOut={onSignOut}/></header>
- {renewalOpen&&<div className="modal-overlay"><section className="modal-card renewal-notice" role="dialog" aria-modal="true" aria-labelledby="renewal-title"><h2 id="renewal-title">Membership renewal</h2><p>Your plan expires on {dateLabel(user.validTo)}. Please contact your organization to renew.</p>{user.gymPhone&&<a href={'tel:'+user.gymPhone}>Contact: {user.gymPhone}</a>}<button type="button" onClick={()=>setRenewalOpen(false)}>OK</button></section></div>}<div className={styles.workspace}>
- <div className="desktop-role-navigation">{memberNavigation}</div>
- <div className={styles.mainContent}><div className={styles.pageHeading}><h2>{menus.find(([key])=>key===service)?.[1]}</h2></div>
- {service==='overview'&&<><section className={styles.summary} aria-label="Membership summary"><article><span>Plan</span><strong>{user.plan||'No plan'}</strong></article><article><span>Validity</span><strong className={styles.validity}>{dateLabel(user.validFrom)} <span aria-hidden="true"> / </span>{dateLabel(user.validTo)}</strong></article><article><span>Days present{attendance.month?' / '+new Intl.DateTimeFormat('en-GB',{month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(attendance.month+'-01T00:00:00Z')):''}</span><strong>{attendance.loading?'...':attendance.days}</strong></article></section><MemberTimeCalendar name={user.name} onAttendanceChange={setAttendance}/><section className={styles.videos}><div className={styles.sectionHeading}><span className={styles.sectionIcon}><MenuIcon name="videos"/></span><h2>Videos</h2></div><VideoLibrary/></section></>}
+ const memberNavigation=(<nav className="sidebar-actions" aria-label="Member menu">{menus.map(([key,label])=><button type="button" className="dashboard-nav" key={key} title={label} aria-label={label} aria-current={service===key?'page':undefined} onClick={()=>setService(key)}><MenuIcon name={key}/><span>{label}</span></button>)}</nav>);
+ return <div className="app management-app member-workspace"><aside className="sidebar"><MobileNavigation user={user} onSignOut={onSignOut}>{memberNavigation}</MobileNavigation><div className="sidebar-identity"><GymBrand/><NavigationLogoCard user={user}/></div><div className="management-nav-wrap">{memberNavigation}</div></aside><main className={styles.dashboard+(service==='pass'?' '+styles.passDashboard:'')}>
+ <header className="workspace-topbar"><h1>{menus.find(([key])=>key===service)?.[1]}</h1><AccountActions role="member" user={user} onSignOut={onSignOut}/></header>
+ {renewalOpen&&<div className="modal-overlay"><section className="modal-card renewal-notice" role="dialog" aria-modal="true" aria-labelledby="renewal-title"><h2 id="renewal-title">Membership renewal</h2><p>Your plan expires on {dateLabel(user.validTo)}. Please contact your organization to renew.</p>{user.gymPhone&&<a href={'tel:'+user.gymPhone}>Contact: {user.gymPhone}</a>}<button type="button" onClick={()=>setRenewalOpen(false)}>OK</button></section></div>}<div className={styles.workspace+' member-content'}>
+
+ <div className={styles.mainContent}>
+ {service==='overview'&&<><section className={styles.summary} aria-label="Membership summary"><article><span>Plan</span><strong>{user.plan||'No plan'}</strong></article><article><span>Validity</span><strong className={styles.validity}>{dateLabel(user.validFrom)} <span aria-hidden="true"> / </span>{dateLabel(user.validTo)}</strong></article><article><span>Days present{attendance.month?' / '+new Intl.DateTimeFormat('en-GB',{month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(attendance.month+'-01T00:00:00Z')):''}</span><strong>{attendance.loading?'...':attendance.days}</strong></article></section><Announcements user={user} readOnly/><MemberTimeCalendar name={user.name} onAttendanceChange={setAttendance}/><section className={styles.videos}><div className={styles.sectionHeading}><span className={styles.sectionIcon}><MenuIcon name="videos"/></span><h2>Videos</h2></div><VideoLibrary/></section></>}
  {service==='payment'&&<PaymentInfo initialData={paymentData} onData={setPaymentData}/>}
  {(service==='box'||service==='orders')&&<Supplements key={service} view={service==='orders'?'orders':'products'}/>}
  {service==='videos'&&<section className={styles.videos}><VideoLibrary/></section>}
  {service==='pass'&&<section className={styles.passView} id="member-pass">{passImage?<img src={passImage} alt={`${user.name}'s organization pass`}/>:<div role="status">{passError?<><p>{passError}</p><button type="button" onClick={()=>setPassRetry(value=>value+1)}>Retry</button></>:'Loading your pass…'}</div>}<div className={styles.passMetadata}><strong>{user.plan}</strong><p>{dateLabel(user.validFrom)} / {dateLabel(user.validTo)}</p>{user.gymPhone&&<a href={'tel:'+user.gymPhone}>Contact organization</a>}</div></section>}
- </div></div></main>;
+ </div></div></main></div>;
 }

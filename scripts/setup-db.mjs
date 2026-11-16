@@ -1,3 +1,4 @@
+import {ensureAnnouncementsSchema} from './announcements-schema.mjs';
 import {ensureMemberWelcomeSchema} from './member-welcome-schema.mjs';
 import {ensureAccountIdSchema} from './account-id-schema.mjs';
 import {ensureEmployeeRolesSchema} from './employee-roles-schema.mjs';
@@ -104,5 +105,6 @@ await ensureMemberMeasurementSchema(sql);
 await ensureGymSubscriptionSchema(sql);
 await ensureAuditSchema(sql);
 await ensurePerformanceIndexes(sql);
+await ensureAnnouncementsSchema(sql);
 console.log('Neon schema ready. Main superadmin user ID: sp00. Existing accounts are preserved.');
 } catch { console.error('Database setup failed. Check the Neon connection string and database access.'); process.exitCode=1; }

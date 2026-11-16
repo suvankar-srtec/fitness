@@ -12,6 +12,7 @@ import './mobile-navigation.css';
 import './mobile-cards.css';
 import './mobile-typography.css';
 import './navigation-theme.css';
+import './announcements.css';
 const systemTitleFont=localFont({src:[{path:'../assets/fonts/Oswald-Variable.ttf',weight:'200 700',style:'normal'}],variable:'--font-system-title',display:'swap'});
 export const metadata = { title: 'Membership Management System', description: 'Manage your organization team and members' };
 export default function Layout({ children }) {
