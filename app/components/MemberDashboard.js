@@ -1,6 +1,7 @@
 'use client';
 import {useEffect,useState} from 'react';
 import AccountActions from './AccountActions';
+import AppFooter from './AppFooter';
 import GymBrand from './GymBrand';
 import NavigationLogoCard from './NavigationLogoCard';
 import Announcements from './Announcements';
@@ -41,7 +42,7 @@ export default function MemberDashboard({user,onSignOut}){
   return()=>{active=false;clearTimeout(timer);controller.abort();if(objectUrl)URL.revokeObjectURL(objectUrl);};
  },[user.id,user.validFrom,user.validTo,user.plan,user.name,user.gymLogo,passRetry,service]);
  const memberNavigation=(<nav className="sidebar-actions" aria-label="Member menu">{menus.map(([key,label])=><button type="button" className="dashboard-nav" key={key} title={label} aria-label={label} aria-current={service===key?'page':undefined} onClick={()=>setService(key)}><MenuIcon name={key}/><span>{label}</span></button>)}</nav>);
- return <div className="app management-app member-workspace"><aside className="sidebar"><MobileNavigation user={user} onSignOut={onSignOut}>{memberNavigation}</MobileNavigation><div className="sidebar-identity"><GymBrand/><NavigationLogoCard user={user}/></div><div className="management-nav-wrap">{memberNavigation}</div><div className="navigation-credit">Powered by Digigraptek</div></aside><main className={styles.dashboard+(service==='pass'?' '+styles.passDashboard:'')}>
+ return <div className="app management-app member-workspace"><aside className="sidebar"><MobileNavigation user={user} onSignOut={onSignOut}>{memberNavigation}</MobileNavigation><div className="sidebar-identity"><GymBrand/><NavigationLogoCard user={user}/></div><div className="management-nav-wrap">{memberNavigation}</div></aside><main className={styles.dashboard+(service==='pass'?' '+styles.passDashboard:'')}>
  <header className="workspace-topbar"><h1>{menus.find(([key])=>key===service)?.[1]}</h1><AccountActions role="member" user={user} onSignOut={onSignOut}/></header>
  {renewalOpen&&<div className="modal-overlay"><section className="modal-card renewal-notice" role="dialog" aria-modal="true" aria-labelledby="renewal-title"><h2 id="renewal-title">Membership renewal</h2><p>Your plan expires on {dateLabel(user.validTo)}. Please contact your organization to renew.</p>{user.gymPhone&&<a href={'tel:'+user.gymPhone}>Contact: {user.gymPhone}</a>}<button type="button" onClick={()=>setRenewalOpen(false)}>OK</button></section></div>}<div className={styles.workspace+' member-content'}>
 
@@ -51,5 +52,5 @@ export default function MemberDashboard({user,onSignOut}){
  {(service==='box'||service==='orders')&&<Supplements key={service} view={service==='orders'?'orders':'products'}/>}
  {service==='videos'&&<section className={styles.videos}><VideoLibrary/></section>}
  {service==='pass'&&<section className={styles.passView} id="member-pass">{passImage?<img src={passImage} alt={`${user.name}'s organization pass`}/>:<div role="status">{passError?<><p>{passError}</p><button type="button" onClick={()=>setPassRetry(value=>value+1)}>Retry</button></>:'Loading your pass…'}</div>}<div className={styles.passMetadata}><strong>{user.plan}</strong><p>{dateLabel(user.validFrom)} / {dateLabel(user.validTo)}</p>{user.gymPhone&&<a href={'tel:'+user.gymPhone}>Contact organization</a>}</div></section>}
- </div></div></main></div>;
+ </div></div><AppFooter/></main></div>;
 }

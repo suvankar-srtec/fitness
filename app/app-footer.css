@@ -1,0 +1,4 @@
+.app>main:has(>.app-footer){display:flex;flex-direction:column}
+.app>main:has(>.app-footer)>*{flex-shrink:0}
+.app-footer{margin-top:auto;padding:28px 12px 12px;text-align:center;color:#526984;font-size:13px;line-height:1.5;overflow-wrap:anywhere}
+@media(max-width:850px){.app-footer{padding:24px 8px max(8px,env(safe-area-inset-bottom));font-size:12px}}
