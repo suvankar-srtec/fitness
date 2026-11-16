@@ -20,3 +20,7 @@ legacy/
 tests/
 AGENTS.md
 README.md
+
+# Native app projects are built locally, separately from the web deployment.
+mobile/
+artifacts/
