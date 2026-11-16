@@ -1,4 +1,5 @@
 import MessagePopup from './components/MessagePopup';
+import LoadingOverlay from './components/LoadingOverlay';
 import localFont from 'next/font/local';
 import './globals.css';
 import './theme.css';
@@ -13,13 +14,14 @@ import './mobile-cards.css';
 import './mobile-typography.css';
 import './navigation-theme.css';
 import './announcements.css';
+import './trainer.css';
 const systemTitleFont=localFont({src:[{path:'../assets/fonts/Oswald-Variable.ttf',weight:'200 700',style:'normal'}],variable:'--font-system-title',display:'swap'});
 export const metadata = { title: 'Membership Management System', description: 'Manage your organization team and members' };
 export default function Layout({ children }) {
   return (
     <html lang="en" data-gym-theme="true" className={systemTitleFont.variable}>
       {/* Browser extensions can add attributes to body before hydration. */}
-      <body suppressHydrationWarning><MessagePopup/>{children}</body>
+      <body suppressHydrationWarning><MessagePopup/><LoadingOverlay/>{children}</body>
     </html>
   );
 }

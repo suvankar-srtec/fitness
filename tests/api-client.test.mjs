@@ -17,7 +17,7 @@ test('authentication errors are not retried',async()=>{
 });
 
 test('expired scan session notifies the UI once, includes cookies and never retries the write',async()=>{
- const original=globalThis.window,events=[];globalThis.window={dispatchEvent:event=>events.push(event.type)};
+ const original=globalThis.window,events=[];globalThis.window={dispatchEvent:event=>event.type!=='membership-loading'&&events.push(event.type)};
  try{let calls=0;await assert.rejects(requestApi('gate-pass-scan','POST',{qr:'sample'},{fetcher:async(_url,options)=>{calls++;assert.equal(options.credentials,'same-origin');return response(401,{error:'Please sign in'});}}),e=>e.status===401);assert.equal(calls,1);assert.deepEqual(events,['gym-session-expired']);
  events.length=0;await assert.rejects(requestApi('login','POST',{}, {fetcher:async()=>response(401,{error:'Invalid credentials'})}));assert.deepEqual(events,[]);
  }finally{if(original===undefined)delete globalThis.window;else globalThis.window=original;}
@@ -54,7 +54,7 @@ test('data reads have a timeout signal so an unresponsive server cannot hang for
 
 test('successful writes notify open dashboards, while reads and sign-in do not',async()=>{
  const savedWindow=globalThis.window,savedChannel=globalThis.BroadcastChannel,events=[],messages=[];
- globalThis.window={dispatchEvent:event=>events.push(event.type)};
+ globalThis.window={dispatchEvent:event=>event.type!=='membership-loading'&&events.push(event.type)};
  globalThis.BroadcastChannel=class{constructor(name){this.name=name;}postMessage(value){messages.push([this.name,value]);}close(){}};
  const options={fetcher:async()=>response(200,{ok:true})};
  try{

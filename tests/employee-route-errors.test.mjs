@@ -1,3 +1,4 @@
+import {isTrainer} from '../lib/trainer-access.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -16,7 +17,7 @@ function handler(sql){
  const response=(body,status=200)=>Response.json(body,{status});
  return runInNewContext(source.slice(node.start,node.end)+';handle',{
   response,fail:(error,status)=>response({error},status),database:()=>sql,sameRequestOrigin:()=>true,
-  normalizeEmail,tokenHash:()=>'',withAuditActor:sql=>sql,subscriptionError,employeesApi,employeeRolesApi,employeeDetails,
+  normalizeEmail,tokenHash:()=>'',withAuditActor:sql=>sql,isTrainer,subscriptionError,employeesApi,employeeRolesApi,employeeDetails,
   console:{error(){}},URL,SyntaxError,Error
  });
 }
@@ -58,4 +59,12 @@ test('successful employee creation returns JSON through the route and client',as
  };
  const result=await requestApi('employees','POST',body,{fetcher:()=>handler(sql)(request(body),{params:{action:'employees'}})});
  assert.equal(result.userId,'EMP-FITFUSION-DUMDUM-00099');assert.equal(result.role,'manager');
+});
+
+test('trainer accounts cannot use supervisor scanning or management endpoints',async()=>{
+ const sql=async(strings)=>strings.join('?').includes('JOIN sessions')?[{...user,role:'supervisor',employee_role_name:'Trainer'}]:(()=>{throw Error('Unexpected data access');})();
+ for(const action of ['workspace','members','gate-pass-scan','employees','supervisor-summary']){
+  const req=new Request('https://gym.test/api/'+action);req.cookies={get:()=>({value:'session'})};
+  const response=await handler(sql)(req,{params:{action}});assert.equal(response.status,403);assert.match((await response.json()).error,/assigned members and QR passes/);
+ }
 });

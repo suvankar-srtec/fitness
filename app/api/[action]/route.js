@@ -1,3 +1,6 @@
+import {isTrainer} from '../../../lib/trainer-access.mjs';
+import {trainerApi} from '../../../lib/trainer-api.js';
+import {memberTransferApi} from '../../../lib/member-transfer-api.js';
 import {announcementsApi} from '../../../lib/announcements-api.js';
 import {supportContact} from '../../../lib/support-contact.mjs';
 import {memberFormDates} from '../../../lib/member-dates.mjs';
@@ -60,7 +63,7 @@ const fail=(error,status)=>response({error},status);
 async function handle(req,context) {
 try {
  const {action}=await context.params;
- if(!['announcements','announcement-file','support','workspace','employee-roles','employees','employee-details','member-queries','product-inventory','support','gym-subscription','membership-addons','lead-followups','membership-renew','member-groups','leads','staff-pass','supplement-image','supplements','supplement-cart','supplement-orders','payment-info','admin-recent-activity','gym-logo','member-time-calendar','gym-time-report','videos','video-stream','member-login','member-pass','member-otp-request','member-otp-verify','member-otp-set-password','otp-request','otp-verify','otp-set-password','manager-registration','managers','manager-dashboard','audit','gym-locations','supervisor-summary','gate-pass','gate-pass-scan','whatsapp-gate-pass','login','logout','me','superadmins','admins','members','supervisors','credentials','plans','member-photo','member-registration','memberships','membership-payments','users','attendance'].includes(action))return fail('Not found',404);
+ if(!['trainers','trainer-access','trainer-workspace','trainer-member-pass','member-transfer','announcements','announcement-file','support','workspace','employee-roles','employees','employee-details','member-queries','product-inventory','support','gym-subscription','membership-addons','lead-followups','membership-renew','member-groups','leads','staff-pass','supplement-image','supplements','supplement-cart','supplement-orders','payment-info','admin-recent-activity','gym-logo','member-time-calendar','gym-time-report','videos','video-stream','member-login','member-pass','member-otp-request','member-otp-verify','member-otp-set-password','otp-request','otp-verify','otp-set-password','manager-registration','managers','manager-dashboard','audit','gym-locations','supervisor-summary','gate-pass','gate-pass-scan','whatsapp-gate-pass','login','logout','me','superadmins','admins','members','supervisors','credentials','plans','member-photo','member-registration','memberships','membership-payments','users','attendance'].includes(action))return fail('Not found',404);
  if(['POST','PATCH','DELETE'].includes(req.method)&&!sameRequestOrigin(req))return fail('Invalid origin',403);
  if(action==='logout')return await logoutApi(req,database);
  if(['POST','PATCH'].includes(req.method)&&!['member-registration','manager-registration'].includes(action)){const body=await req.clone().json();if(body.email!==undefined){try{normalizeEmail(body.email);}catch{return fail('Enter a valid email address',400);}}}
@@ -84,7 +87,10 @@ try {
  if(!u||!u.account_enabled||u.role==='superadmin'&&!isMainSuperadmin(publicUser(u)))return fail('Please sign in',401);
  if(u.role!=='superadmin'&&!u.password_ready)return fail('Verify your WhatsApp number and set your password.',401);
  if(u.role!=='superadmin'&&u.subscription_active===false)return response({error:'Organization subscription is not active. Contact superadmin.',code:'SUBSCRIPTION_EXPIRED'},403);
+ if(isTrainer(u)&&!['trainer-workspace','trainer-member-pass','staff-pass','support','me','logout'].includes(action))return fail('Trainer access is limited to assigned members and QR passes',403);
  sql=withAuditActor(sql,u);
+ if(['trainers','trainer-access','trainer-workspace','trainer-member-pass'].includes(action))return await trainerApi(action,req,u,sql);
+ if(action==='member-transfer')return await memberTransferApi(req,u,sql);
  const gymId=u.role==='manager'?u.created_by:u.id,branch=u.role==='manager'?u.location_id:null;
  if(u.role==='manager'&&!branch)return fail('Assigned location required',403);
  if(u.role==='manager'&&!['announcements','announcement-file','support','workspace','employee-roles','employees','employee-details','product-inventory','membership-addons','lead-followups','membership-renew','member-groups','leads','gate-pass-scan','staff-pass','supplement-cart','supplement-image','supplements','supplement-orders','payment-info','me','logout','manager-dashboard','member-time-calendar','gym-time-report','supervisors','attendance','credentials','member-photo','members','member-registration','plans','gym-locations','gym-logo','memberships','membership-payments','videos','video-stream','audit','admin-recent-activity','gate-pass','whatsapp-gate-pass','managers','manager-registration'].includes(action))return fail('Manager access is limited to your assigned location',403);
@@ -280,6 +286,8 @@ try {
    const location=await resolveGymLocation(sql,existing.admin_id,b.locationName!==undefined||b.locationId!==undefined?b:{locationId:existing.location_id});
    if(m.groupName!=='Default'&&!(await sql`SELECT id FROM gym_member_groups WHERE admin_id=${existing.admin_id} AND name=${m.groupName}`).length)return fail('Select a valid group',400);
    const picture=b.profilePicture===undefined?null:await normalizeMemberPicture(b.profilePicture);
+   if(b.trainerId!==undefined&&b.trainerId!==null&&b.trainerId!==''&&(!Number.isInteger(Number(b.trainerId))||Number(b.trainerId)<1))return fail('Select a valid trainer',400);
+   m.trainerId=b.trainerId===undefined?(Number(existing.location_id)===Number(location.id)?existing.trainer_id??null:null):(b.trainerId?Number(b.trainerId):null);
    const updated=await updateMemberWithUpgrade(sql,{user:u,gymId,branch,existing,member:m,location,picture,photoChanged:b.profilePicture!==undefined});
    return updated.length?response({memberId:updated[0].public_id}):fail('Member changed or plan upgrade is unavailable. Reload the member and try again.',409);
   }
@@ -297,6 +305,8 @@ try {
    Object.assign(m,memberFormDates({duration_days:charge.durationDays}));
    if(!m.validTo)return fail('Select a plan with a valid duration',400);
    const picture=await normalizeMemberPicture(b.profilePicture);
+   if(b.trainerId!==undefined&&b.trainerId!==null&&b.trainerId!==''&&(!Number.isInteger(Number(b.trainerId))||Number(b.trainerId)<1))return fail('Select a valid trainer',400);
+   if(/trainer/i.test(b.addonName||'')&&!b.trainerId)return fail('Select a trainer from this location',400);
    const created=await createRegisteredMember(sql,{gymId,m,location,picture,b,token:tokenHash(b.registrationToken),...charge});
    if(!created)return fail('Plan, add-on price or registration changed. Reopen Add Member.',400);
    after(async()=>{try{await sendPaymentPass(sql,u,{memberId:created.id});}catch{console.error('Automatic registration WhatsApp delivery failed');}});
@@ -304,6 +314,6 @@ try {
   }
  }
  return fail('Method not allowed',405);
-}catch(error){const limitMessage=subscriptionError(error);if(limitMessage)return fail(limitMessage,409);if(/^(Enter a valid subscription|Subscription end|Limits must)/.test(error.message))return fail(error.message,400);if(error.message==='PHONE_IN_USE'||['users_unique_phone','members_unique_phone','account_phone_registry_pkey'].includes(error.constraint))return fail('This phone number is already registered to another user',409);if(error.message==='INVALID_ACCOUNT_PHONE')return fail('Enter a valid phone number',400);if(error.code==='GYM_BRANDING_INVALID')return fail(error.message,400);if(error.message==='GYM_LOCATION_REQUIRED')return fail('Select or type a location',400);if(error.message==='INVALID_GYM_LOCATION')return fail('Select a location belonging to this organization',400);if(error.message==='INVALID_PICTURE')return fail('Choose a valid JPG, PNG or WebP picture up to 2 MB',400);if(error.code==='23505')return fail('Plan already exists',409);if(error.code==='23503')return fail('This record has linked members, memberships or payments.',409);if(error.message==='DATABASE_NOT_CONFIGURED')return fail('Service is not configured. Contact your administrator.',503);if(error instanceof SyntaxError)return fail('Invalid request',400);console.error('Database request failed:',error.code||'connection error');return fail('Unable to load data. Please retry.',503);}
+}catch(error){const limitMessage=subscriptionError(error);if(limitMessage)return fail(limitMessage,409);if(/^(Enter a valid subscription|Subscription end|Limits must)/.test(error.message))return fail(error.message,400);if(error.message==='INVALID_MEMBER_TRAINER')return fail('Select an enabled trainer from the member location',400);if(error.message==='PHONE_IN_USE'||['users_unique_phone','members_unique_phone','account_phone_registry_pkey'].includes(error.constraint))return fail('This phone number is already registered to another user',409);if(error.message==='INVALID_ACCOUNT_PHONE')return fail('Enter a valid phone number',400);if(error.code==='GYM_BRANDING_INVALID')return fail(error.message,400);if(error.message==='GYM_LOCATION_REQUIRED')return fail('Select or type a location',400);if(error.message==='INVALID_GYM_LOCATION')return fail('Select a location belonging to this organization',400);if(error.message==='INVALID_PICTURE')return fail('Choose a valid JPG, PNG or WebP picture up to 2 MB',400);if(error.code==='23505')return fail('Plan already exists',409);if(error.code==='23503')return fail('This record has linked members, memberships or payments.',409);if(error.message==='DATABASE_NOT_CONFIGURED')return fail('Service is not configured. Contact your administrator.',503);if(error instanceof SyntaxError)return fail('Invalid request',400);console.error('Database request failed:',error.code||'connection error');return fail('Unable to load data. Please retry.',503);}
 }
 export {handle as GET,handle as POST,handle as DELETE,handle as PATCH};
