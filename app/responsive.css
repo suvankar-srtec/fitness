@@ -1,0 +1,22 @@
+/* Mobile usability shared by every role, including short landscape viewports. */
+@media(max-width:850px){
+ .management-app .sidebar .management-nav-wrap{max-height:calc(100dvh - 180px - env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}
+ .profile-dropdown{max-width:calc(100vw - 24px);max-height:calc(100dvh - 100px - env(safe-area-inset-bottom));overflow-y:auto;overscroll-behavior:contain}
+ .profile-dropdown button,.account-actions .profile-trigger{min-height:44px}
+ .account-actions .profile-trigger{width:44px;height:44px}
+ .modal-overlay{max-height:100dvh;overflow-y:auto;overscroll-behavior:contain;padding:12px}
+ .modal-overlay [role=dialog]{min-width:0;max-width:100%;max-height:calc(100dvh - 24px);overflow-y:auto}
+ dialog[open]{box-sizing:border-box;max-width:calc(100vw - 24px);max-height:calc(100dvh - 24px);overflow-y:auto;overscroll-behavior:contain}
+ .modal-overlay :is(input,select,textarea):not([type=checkbox]):not([type=radio]),dialog :is(input,select,textarea):not([type=checkbox]):not([type=radio]){min-width:0;font-size:16px}
+ .modal-overlay :is(button,input,select):not([type=checkbox]):not([type=radio]):not([type=hidden]),dialog button{min-height:44px}
+ .modal-overlay :is(.actions,footer){flex-wrap:wrap}
+ .tablewrap{max-width:100%;overscroll-behavior-x:contain}
+ .management-bottom-nav{padding-bottom:calc(8px + env(safe-area-inset-bottom))}
+}
+@media(max-width:650px){
+ .management-app main,.supervisor-focus-app main{min-width:0}
+ .workspace-topbar{gap:12px;flex-wrap:wrap}
+ .workspace-topbar h1{min-width:0;overflow-wrap:anywhere}
+ .login-form :is(input,select){font-size:16px}
+ .login-footer{flex-wrap:wrap;gap:6px 12px}
+}
