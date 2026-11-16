@@ -18,3 +18,10 @@ test('manager collection reads enforce assigned gym and location, ignoring URL o
  let checked=false;const sql=async(strings,...values)=>{const text=strings.join('?');if(text.includes('GROUP BY p.paid_on')){checked=true;assert.deepEqual(values,[17,false,7]);assert.match(text,/a.admin_id=/);assert.match(text,/m.location_id=/);return [{location:'Assigned branch',method:'Cash',date:'2026-11-11',amount:'100.00'}];}return [];};
  const res=await adminRecentActivity(new Request('https://gym.test/api/admin-recent-activity?locationId=999&adminId=999'),{id:30,role:'manager',created_by:17,location_id:7},sql);assert.equal(res.status,200);assert.equal(checked,true);assert.deepEqual((await res.json()).revenue,[{location:'Assigned branch',method:'Cash',date:'2026-11-11',amount:'100.00'}]);
 });
+
+test('manager All Members includes active and expired members only within the assigned location',async()=>{
+ const members=[{id:1,name:'Current member',status:'Active',valid_to:'2099-01-01'},{id:2,name:'Expired member',status:'Active',valid_to:'2020-01-01'}];let scoped=false;
+ const sql=async(strings,...values)=>{const text=strings.join('?');if(text.includes('AS "paidAmount"')){scoped=true;assert.match(text,/m.admin_id=\?/);assert.match(text,/m.location_id=\?/);assert.match(text,/m.archived_at IS NULL/);assert.doesNotMatch(text,/m.status='Active'/);assert.deepEqual(values,[17,false,7]);return members;}return [];};
+ const response=await adminRecentActivity(new Request('https://gym.test/api/admin-recent-activity?locationId=999&adminId=999'),{id:30,role:'manager',created_by:17,location_id:7},sql);
+ assert.equal(response.status,200);assert.equal(scoped,true);assert.deepEqual((await response.json()).members,members);
+});
