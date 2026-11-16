@@ -99,3 +99,10 @@
 .profile-dropdown{position:absolute;right:0;top:calc(100% + 10px);width:230px;padding:16px;background:#fff;border:1px solid #e5e7eb;border-radius:16px;box-shadow:0 16px 48px #0002;display:flex;flex-direction:column;gap:14px;color:#111}
 .profile-dropdown[hidden]{display:none}.profile-details{display:flex;flex-direction:column;gap:5px;overflow-wrap:anywhere}.profile-details span{color:#666;font-size:14px}.profile-qr{display:flex;align-items:center;justify-content:space-between;border-top:1px solid #eee;padding-top:12px}.profile-dropdown .logout-button{width:100%;background:#c92525;color:#fff}
 .renewal-notice{width:min(440px,calc(100vw - 32px));padding:28px;display:flex;flex-direction:column;gap:16px}.renewal-notice p{line-height:1.6;margin:0}
+.navbar-branding{min-width:0;max-width:100%}
+.navbar-system-name{color:var(--gym-accent,#1662ca);font-size:13px;font-weight:700;line-height:1.4;text-align:center;letter-spacing:-.3px;margin-bottom:12px}
+.navbar-system-name>span{display:block;white-space:nowrap}
+.navbar-branding .gym-brand{display:flex;align-items:center;gap:8px;min-width:0;font-size:16px}
+.navbar-branding .gym-brand>span{display:block;overflow:visible;-webkit-line-clamp:unset;overflow-wrap:anywhere}
+.navbar-branding .gym-brand img{width:32px;height:32px;object-fit:contain;flex-shrink:0}
+@media(max-width:850px){.navbar-system-name{font-size:11px;margin-bottom:4px}.navbar-branding .gym-brand{font-size:13px}.navbar-branding .gym-brand img{width:24px;height:24px}}

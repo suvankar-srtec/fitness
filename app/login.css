@@ -29,3 +29,6 @@
 @media(max-width:600px){.login-page{padding:18px;background:linear-gradient(155deg,#edf4ff,#f8faff);align-items:center}.login-ambient{display:block}.login-panel{max-width:420px;border:1px solid #dce6f5;border-radius:20px;box-shadow:0 16px 48px #214d8810}.login-panel-header{padding:24px 22px 20px;border-radius:20px 20px 0 0}.login-panel-header h1{font-size:22px}.login-mark{width:44px;height:44px;border-radius:13px}.login-form{padding:22px}.login-methods{margin-bottom:20px}.login-form input{font-size:16px}.login-page .country-menu{max-width:calc(100vw - 70px)}}
 @media(max-height:560px){.login-page{padding:12px;align-items:flex-start;overflow:auto}.login-panel-header{padding:16px 22px}.login-mark{width:38px;height:38px}.login-form{padding:18px 22px}.login-methods{margin-bottom:16px}.login-form .login-submit{margin-top:18px}.login-links{margin-top:10px}}
 @media(prefers-reduced-motion:reduce){.login-form input{transition:none}}
+.login-page .login-panel-header .system-title{width:100%;text-align:center}
+.system-title>span{display:block}
+.system-title>span:first-child{white-space:nowrap;font-size:clamp(16px,4.8vw,23px)}

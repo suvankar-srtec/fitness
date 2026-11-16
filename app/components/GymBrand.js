@@ -1,4 +1,3 @@
 export default function GymBrand({name,logo}) {
- const label=name||'Membership Management System';
- return <div className="brand gym-brand" title={label}>{logo&&<img src={logo} alt=""/>}<span>{label}</span></div>;
+ return <div className="navbar-branding"><div className="navbar-system-name"><span>Membership Management</span><span>System</span></div>{name&&<div className="brand gym-brand" title={name}>{logo&&<img src={logo} alt=""/>}<span>{name}</span></div>}</div>;
 }

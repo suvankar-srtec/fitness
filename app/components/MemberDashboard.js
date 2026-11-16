@@ -1,6 +1,7 @@
 'use client';
 import {useEffect,useState} from 'react';
 import AccountActions from './AccountActions';
+import GymBrand from './GymBrand';
 import CommerceIcon from './CommerceIcon';
 import PaymentInfo from './PaymentInfo';
 import Supplements from './Supplements';
@@ -34,7 +35,7 @@ export default function MemberDashboard({user,onSignOut}){
   return()=>{active=false;clearTimeout(timer);controller.abort();if(objectUrl)URL.revokeObjectURL(objectUrl);};
  },[user.id,user.validFrom,user.validTo,user.plan,user.name,user.gymLogo,passRetry]);
  return <main className={styles.dashboard+(service==='pass'?' '+styles.passDashboard:'')}>
- <header className={styles.header}><div className={styles.brand}><span className={styles.brandMark} aria-hidden="true">{user.gymLogo?<img src={user.gymLogo} alt=""/>:user.gymName?.trim().charAt(0)||'G'}</span><div><h1>{user.gymName||'Membership Management System'}</h1></div></div><AccountActions role="member" user={user} onSignOut={onSignOut}/></header>
+ <header className={styles.header}><GymBrand name={user.gymName} logo={user.gymLogo}/><AccountActions role="member" user={user} onSignOut={onSignOut}/></header>
  {renewalOpen&&<div className="modal-overlay"><section className="modal-card renewal-notice" role="dialog" aria-modal="true" aria-labelledby="renewal-title"><h2 id="renewal-title">Membership renewal</h2><p>Your plan expires on {dateLabel(user.validTo)}. Please contact your organization to renew.</p>{user.gymPhone&&<a href={'tel:'+user.gymPhone}>Contact: {user.gymPhone}</a>}<button type="button" onClick={()=>setRenewalOpen(false)}>OK</button></section></div>}<div className={styles.workspace}>
  <nav className={styles.menu} aria-label="Member menu">{menus.map(([key,label])=><button type="button" key={key} title={label} aria-label={label} aria-current={service===key?'page':undefined} onClick={()=>setService(key)}><MenuIcon name={key}/><span>{label}</span></button>)}</nav>
  <div className={styles.mainContent}><div className={styles.pageHeading}><h2>{menus.find(([key])=>key===service)?.[1]}</h2></div>

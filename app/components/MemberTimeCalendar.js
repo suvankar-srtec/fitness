@@ -11,7 +11,7 @@ export default function MemberTimeCalendar({memberId,name,onAttendanceChange}){
  const [month,setMonth]=useState(()=>memberToday().slice(0,7)),[data,setData]=useState(null),[error,setError]=useState(''),[selected,setSelected]=useState(''),[loading,setLoading]=useState(true);
  useEffect(()=>{let active=true,pending=false;setData(null);setLoading(true);setError('');setSelected('');
   async function refresh(){if(!active||pending||document.hidden)return;pending=true;try{const result=await requestApi('member-time-calendar?'+new URLSearchParams({month,...(memberId?{memberId:String(memberId)}:{})}));if(active){setData(result);setError('');}}catch(error){if(active)setError(error.message);}finally{pending=false;if(active)setLoading(false);}}
-  refresh();const timer=setInterval(refresh,5000);const channel=typeof BroadcastChannel!=='undefined'?new BroadcastChannel('gym-attendance-updates'):null;if(channel)channel.onmessage=refresh;window.addEventListener('focus',refresh);document.addEventListener('visibilitychange',refresh);
+  refresh();const timer=setInterval(refresh,30000);const channel=typeof BroadcastChannel!=='undefined'?new BroadcastChannel('gym-attendance-updates'):null;if(channel)channel.onmessage=refresh;window.addEventListener('focus',refresh);document.addEventListener('visibilitychange',refresh);
   return()=>{active=false;clearInterval(timer);channel?.close();window.removeEventListener('focus',refresh);document.removeEventListener('visibilitychange',refresh);};
  },[memberId,month]);
  useEffect(()=>{onAttendanceChange?.({days:new Set((data?.days||[]).map(row=>row.date)).size,month,loading});},[data,month,loading,onAttendanceChange]);

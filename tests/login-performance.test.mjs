@@ -10,3 +10,21 @@ test('account changes during verification prevent issuing a session',async()=>{c
 test('malformed login is rejected before any database call',async()=>{const f=fixture();assert.equal((await loginApi(req({phone:'bad'}),f.sql)).status,400);assert.deepEqual(f.counts(),{lookups:0,transactions:0});});
 
 test('legacy member endpoint shares the fast limiter and cannot authenticate staff',async()=>{const f=fixture();const response=await loginApi(req(),f.sql,{memberOnly:true});assert.equal(response.status,401);assert.equal(f.counts().transactions,0);});
+
+test('expired organization blocks admin, manager, employee and member without issuing sessions',async()=>{
+ for(const role of ['admin','manager','supervisor','member']){
+  const user={...account,role,subscription_active:false,location_id:3,location_name:'Branch',admin_id:8,status:'Active',valid_from:'2020-01-01',valid_to:'2099-01-01'};
+  const f=fixture(role==='member'?{staff:null,member:user}:{staff:user});
+  const response=await loginApi(req(),f.sql);
+  assert.equal(response.status,403);assert.equal((await response.json()).code,'SUBSCRIPTION_EXPIRED');assert.equal(f.counts().transactions,0);assert.equal(response.headers.get('set-cookie'),null);
+ }
+});
+
+test('User ID login works for every organization role without a phone input',async()=>{
+ for(const role of ['admin','manager','supervisor','member']){
+  const user={...account,role,public_id:role==='member'?'ME-FIDU-01':role==='manager'?'MA-FIDU-01':'EM-FIDU-01',location_id:3,location_name:'Branch',admin_id:8,status:'Active',valid_from:'2020-01-01',valid_to:'2099-01-01'};
+  const f=fixture(role==='member'?{staff:null,member:user}:{staff:user});
+  const response=await loginApi(req({phone:undefined,userId:user.public_id.toLowerCase()}),f.sql);
+  assert.equal(response.status,200);assert.equal((await response.json()).role,role);assert.deepEqual(f.counts(),{lookups:1,transactions:1});
+ }
+});
