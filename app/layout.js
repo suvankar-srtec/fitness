@@ -9,6 +9,7 @@ import './close-buttons.css';
 import './responsive.css';
 import './mobile-navigation.css';
 import './mobile-cards.css';
+import './mobile-typography.css';
 export const metadata = { title: 'Membership Management System', description: 'Manage your organization team and members' };
 export default function Layout({ children }) {
   return (

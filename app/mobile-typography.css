@@ -1,0 +1,35 @@
+/* One readable type hierarchy for the mobile application and its dialogs. */
+@media screen and (max-width:850px){
+ :root{--mobile-body:14px;--mobile-meta:12px;--mobile-title:22px;--mobile-section:18px;--mobile-card-title:16px}
+ body{font-size:var(--mobile-body);line-height:1.5;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+ body :is(.management-app,.supervisor-focus-app,main,dialog,[role=dialog]) :is(h1,h2,h3,h4){line-height:1.35;letter-spacing:-.2px;overflow-wrap:anywhere}
+ body :is(.management-app,.supervisor-focus-app,main,dialog,[role=dialog]) h1{font-size:var(--mobile-title)!important}
+ body :is(.management-app,.supervisor-focus-app,main,dialog,[role=dialog]) h2{font-size:var(--mobile-section)!important}
+ body :is(.management-app,.supervisor-focus-app,main,dialog,[role=dialog]) h3{font-size:var(--mobile-card-title)!important}
+ body :is(.management-app,.supervisor-focus-app,main,dialog,[role=dialog]) h4{font-size:14px!important}
+ body :is(.management-app,.supervisor-focus-app,main,dialog,[role=dialog]) p{font-size:var(--mobile-body);line-height:1.55;overflow-wrap:anywhere}
+ body :is(.management-app,.supervisor-focus-app,main,dialog,[role=dialog]) :is(small,label){font-size:var(--mobile-meta)!important;line-height:1.5}
+ body :is(.management-app,.supervisor-focus-app,main,dialog,[role=dialog]) :is(button,select,input,textarea){line-height:1.4;letter-spacing:normal}
+ body :is(.management-app,.supervisor-focus-app,main,dialog,[role=dialog]) button:not([aria-label]){font-size:14px}
+ body :is(.management-app,.supervisor-focus-app,main,dialog,[role=dialog]) :is(input,select,textarea):not([type=checkbox]):not([type=radio]):not([type=hidden]){font-size:16px!important}
+ body :is(.workspace-topbar,.panelhead,.commerce-heading){gap:12px;min-width:0}
+ body :is(.panelhead,.commerce-heading){flex-wrap:wrap}
+ body .panelhead>input{flex:1 1 170px;min-width:0;max-width:100%}
+ body :is(.manager-summary-stats,.supervisor-daily-stats) strong{font-size:24px!important;line-height:1.2}
+ body :is([class*="stats"],[class*="metrics"]) article>strong{font-size:24px;line-height:1.2}
+ body [class*="metrics"] strong{font-size:24px!important;line-height:1.2}
+ body [class*="revenueTotal"] strong{font-size:22px!important;line-height:1.3}
+ body .navbar-system-name{font-size:12px;line-height:1.35}
+ body :is(.product-price,.collection-total strong){font-size:20px!important;line-height:1.3}
+ body :is(.id,.membership-profile-id){font-size:12px!important;line-height:1.5}
+ body .member-shopping-title small{overflow-wrap:anywhere}
+ body .member-shopping-dialog>header{align-items:flex-start}
+ body .member-shopping-dialog>header>button{flex-shrink:0}
+ body .member-shopping-dialog .member-shopping-title{align-items:flex-start}
+ body .commerce-workspace .supplement-product h3{display:block;min-height:0;-webkit-line-clamp:unset;overflow:visible;line-height:1.4}
+ body .commerce-workspace .supplement-product .product-description{height:auto;min-height:0;font-size:12px!important;line-height:1.5;max-height:3em}
+ body .commerce-workspace .supplement-product .commerce-actions>button{min-height:44px}
+ :root body table.mobile-record-table>tbody>tr>td::before,:root body table.mobile-record-table>tbody>tr>th::before,:root body table.mobile-record-table>tfoot>tr>td::before{font-size:12px;line-height:1.4;letter-spacing:.3px}
+ body .mobile-drawer-navigation button{font-size:14px;line-height:1.4}
+ body .mobile-drawer-support{font-size:14px;line-height:1.5}
+}
