@@ -1,0 +1,36 @@
+:root{--navigation-blue:#145cc2;--navigation-white:#fff}
+body .navbar-system-name,body .login-panel-header .system-title{font-family:var(--font-system-title),Arial,sans-serif;font-weight:700}
+body .navbar-system-name{font-size:15px;line-height:1.3;letter-spacing:0}
+:root[data-gym-theme] body :is(.management-app,.supervisor-focus-app)>.sidebar{background:var(--navigation-blue)!important;color:var(--navigation-white);border-color:#ffffff30;box-shadow:none}
+:root[data-gym-theme] body :is(.management-app,.supervisor-focus-app) .sidebar :is(.sidebar-actions>button,.plan-menu-toggle,.sidebar-inline-submenu button,.supervisor-task-nav button){color:var(--navigation-white)!important;background:transparent!important}
+:root[data-gym-theme] body :is(.management-app,.supervisor-focus-app) .sidebar :is(.sidebar-actions>button,.plan-menu-toggle,.sidebar-inline-submenu button,.supervisor-task-nav button):is(:hover,:focus-visible,[aria-current=page]),
+:root[data-gym-theme] body :is(.management-app,.supervisor-focus-app) .sidebar .has-active-page>.plan-menu-toggle{background:#ffffff20!important;color:#fff!important;box-shadow:inset 3px 0 #fff}
+:root[data-gym-theme] body .sidebar :is(.sidebar-identity,.sidebar-inline-submenu){border-color:#ffffff40!important}
+body .sidebar .navbar-system-name{color:#fff}
+body .sidebar .nav-chevron{opacity:1}
+.mobile-navigation-header{display:none}
+body .member-mobile-header{background:var(--navigation-blue);color:#fff;border-radius:12px;padding:16px}
+body .member-mobile-header .navbar-system-name{color:#fff}
+body .desktop-role-navigation nav{background:var(--navigation-blue);border-radius:12px;padding:10px}
+:root body .desktop-role-navigation nav button{color:#fff!important;background:transparent!important}
+:root body .desktop-role-navigation nav button:is(:hover,[aria-current=page]){background:#ffffff20!important;color:#fff!important;box-shadow:inset 3px 0 #fff}
+body .mobile-drawer{inset:0 0 0 auto;border-radius:18px 0 0 18px;background:var(--navigation-blue);color:#fff}
+body .mobile-drawer-navigation nav,body .mobile-drawer-navigation .sidebar-actions{background:transparent}
+body .mobile-drawer-navigation button{background:transparent;color:#fff}
+body .mobile-drawer-navigation button:is(:hover,:focus-visible,[aria-current=page]){background:#ffffff20;color:#fff}
+body .mobile-drawer-header,body .mobile-drawer-support,body .mobile-drawer-navigation .sidebar-inline-submenu{border-color:#ffffff40}
+body .mobile-drawer-header h2,body .mobile-drawer-support :is(h3,a,p){color:#fff}
+body .mobile-drawer-header button{background:#ffffff20;color:#fff}
+body .mobile-drawer .profile-dropdown{background:transparent;color:#fff}
+body .mobile-drawer .profile-details :is(strong,span,a),body .mobile-drawer .profile-dropdown button:not(.logout-button){color:#fff!important}
+body .mobile-drawer .profile-dropdown button:not(.logout-button):hover{background:#ffffff20!important}
+body .mobile-drawer .profile-qr{border-color:#ffffff40}
+@media(max-width:850px){
+ .mobile-navigation-header{display:flex;align-items:center;justify-content:space-between;gap:16px;flex:1;min-width:0;width:100%}
+ .mobile-organization-logo{display:grid;place-items:center;flex:0 0 44px;width:44px;height:44px;border-radius:50%;border:2px solid #ffffffb0;overflow:hidden;background:#fff;color:var(--navigation-blue);font-size:20px;font-weight:700}
+ .mobile-organization-logo img{display:block;width:100%;height:100%;object-fit:contain}
+ .mobile-hamburger-menu{display:grid;place-items:center;flex:0 0 44px;width:44px;height:44px;padding:0;border:1px solid #ffffff70;border-radius:10px;background:#ffffff14;color:#fff}
+ .mobile-hamburger-menu:hover,.mobile-hamburger-menu:focus-visible{background:#ffffff30;color:#fff}
+ body .sidebar .sidebar-identity,body .member-mobile-header>.navbar-branding{display:none!important}
+ body .member-mobile-header{border-radius:0;padding:12px 16px}
+}
