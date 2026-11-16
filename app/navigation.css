@@ -106,3 +106,4 @@
 .navbar-branding .gym-brand>span{display:block;overflow:visible;-webkit-line-clamp:unset;overflow-wrap:anywhere}
 .navbar-branding .gym-brand img{width:32px;height:32px;object-fit:contain;flex-shrink:0}
 @media(max-width:850px){.navbar-system-name{font-size:11px;margin-bottom:4px}.navbar-branding .gym-brand{font-size:13px}.navbar-branding .gym-brand img{width:24px;height:24px}}
+.account-actions .profile-trigger .profile-logo{display:block;width:100%;height:100%;object-fit:contain;border-radius:50%;background:#fff}
