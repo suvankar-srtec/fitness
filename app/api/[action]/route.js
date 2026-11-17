@@ -1,8 +1,9 @@
+import {accountPlanApi} from '../../../lib/account-plan-api.js';
+import {supportContact} from '../../../lib/support-contact.mjs';
 import {isTrainer} from '../../../lib/trainer-access.mjs';
 import {trainerApi} from '../../../lib/trainer-api.js';
 import {memberTransferApi} from '../../../lib/member-transfer-api.js';
 import {announcementsApi} from '../../../lib/announcements-api.js';
-import {supportContact} from '../../../lib/support-contact.mjs';
 import {memberFormDates} from '../../../lib/member-dates.mjs';
 import {workspaceApi} from '../../../lib/workspace-api';
 import {employeeRolesApi} from '../../../lib/employee-roles-api';
@@ -63,7 +64,7 @@ const fail=(error,status)=>response({error},status);
 async function handle(req,context) {
 try {
  const {action}=await context.params;
- if(!['trainers','trainer-access','trainer-workspace','trainer-member-pass','member-transfer','announcements','announcement-file','support','workspace','employee-roles','employees','employee-details','member-queries','product-inventory','support','gym-subscription','membership-addons','lead-followups','membership-renew','member-groups','leads','staff-pass','supplement-image','supplements','supplement-cart','supplement-orders','payment-info','admin-recent-activity','gym-logo','member-time-calendar','gym-time-report','videos','video-stream','member-login','member-pass','member-otp-request','member-otp-verify','member-otp-set-password','otp-request','otp-verify','otp-set-password','manager-registration','managers','manager-dashboard','audit','gym-locations','supervisor-summary','gate-pass','gate-pass-scan','whatsapp-gate-pass','login','logout','me','superadmins','admins','members','supervisors','credentials','plans','member-photo','member-registration','memberships','membership-payments','users','attendance'].includes(action))return fail('Not found',404);
+ if(!['account-plan','trainers','trainer-access','trainer-workspace','trainer-member-pass','member-transfer','announcements','announcement-file','support','workspace','employee-roles','employees','employee-details','member-queries','product-inventory','support','gym-subscription','membership-addons','lead-followups','membership-renew','member-groups','leads','staff-pass','supplement-image','supplements','supplement-cart','supplement-orders','payment-info','admin-recent-activity','gym-logo','member-time-calendar','gym-time-report','videos','video-stream','member-login','member-pass','member-otp-request','member-otp-verify','member-otp-set-password','otp-request','otp-verify','otp-set-password','manager-registration','managers','manager-dashboard','audit','gym-locations','supervisor-summary','gate-pass','gate-pass-scan','whatsapp-gate-pass','login','logout','me','superadmins','admins','members','supervisors','credentials','plans','member-photo','member-registration','memberships','membership-payments','users','attendance'].includes(action))return fail('Not found',404);
  if(['POST','PATCH','DELETE'].includes(req.method)&&!sameRequestOrigin(req))return fail('Invalid origin',403);
  if(action==='logout')return await logoutApi(req,database);
  if(['POST','PATCH'].includes(req.method)&&!['member-registration','manager-registration'].includes(action)){const body=await req.clone().json();if(body.email!==undefined){try{normalizeEmail(body.email);}catch{return fail('Enter a valid email address',400);}}}
@@ -87,9 +88,10 @@ try {
  if(!u||!u.account_enabled||u.role==='superadmin'&&!isMainSuperadmin(publicUser(u)))return fail('Please sign in',401);
  if(u.role!=='superadmin'&&!u.password_ready)return fail('Verify your WhatsApp number and set your password.',401);
  if(u.role!=='superadmin'&&u.subscription_active===false)return response({error:'Organization subscription is not active. Contact superadmin.',code:'SUBSCRIPTION_EXPIRED'},403);
- if(isTrainer(u)&&!['trainer-workspace','trainer-member-pass','staff-pass','support','me','logout'].includes(action))return fail('Trainer access is limited to assigned members and QR passes',403);
+ if(isTrainer(u)&&!['account-plan','trainer-workspace','trainer-member-pass','staff-pass','support','me','logout'].includes(action))return fail('Trainer access is limited to assigned members and QR passes',403);
  sql=withAuditActor(sql,u);
  if(['trainers','trainer-access','trainer-workspace','trainer-member-pass'].includes(action))return await trainerApi(action,req,u,sql);
+ if(action==='account-plan')return await accountPlanApi(req,u,sql);
  if(action==='member-transfer')return await memberTransferApi(req,u,sql);
  const gymId=u.role==='manager'?u.created_by:u.id,branch=u.role==='manager'?u.location_id:null;
  if(u.role==='manager'&&!branch)return fail('Assigned location required',403);
@@ -135,11 +137,7 @@ try {
  if(action==='gym-time-report')return await gymTimeReport(req,u,sql);
  if(action==='attendance')return await attendanceApi(req,u,sql);
  if(['memberships','membership-payments'].includes(action)){const result=await membershipApi(action,req,u,sql);if(action==='membership-payments'&&req.method==='POST'&&result.status===201){const payment=await result.clone().json();after(async()=>{try{await sendPaymentPass(sql,u,{paymentId:payment.id});}catch{console.error('Automatic payment WhatsApp delivery failed');}});}return result;}
- if(action==='support'&&req.method==='GET'){
-  if(u.role!=='admin')return fail('Admin access required',403);
-  const [contact]=await sql`SELECT name,phone,email FROM users WHERE role='superadmin' AND public_id='sp00' AND archived_at IS NULL`;
-  return response(contact||{});
- }
+ if(action==='support'&&req.method==='GET')return response(await supportContact(sql));
  if(action==='gym-subscription'&&req.method==='GET'){
   if(!['superadmin','admin'].includes(u.role))return fail('Admin access required',403);
   if(u.role==='admin'&&new URL(req.url).searchParams.get('overview')==='1')return fail('Superadmin access required',403);
