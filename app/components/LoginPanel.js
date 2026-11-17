@@ -8,6 +8,8 @@ import {normalizeWhatsAppPhone} from '../../lib/whatsapp.mjs';
 function Secret({name,placeholder,autoComplete='new-password'}){const [visible,setVisible]=useState(false);return <div className="password-field"><input name={name} aria-label={placeholder} placeholder={placeholder} type={visible?'text':'password'} autoComplete={autoComplete} required/><button type="button" className="password-toggle" aria-label={visible?'Hide password':'Show password'} aria-pressed={visible} onClick={()=>setVisible(!visible)}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>{visible&&<path d="m3 3 18 18"/>}</svg></button></div>;}
 export default function LoginPanel({onSignIn,error,onClearError,busy:signingIn}){
  const inFlight=useRef(false);
+ const [nativeApp,setNativeApp]=useState(false);
+ useEffect(()=>{setNativeApp(/MembershipAndroid\\/|MembershipIOS\\//.test(navigator.userAgent));},[]);
  const [channel,setChannel]=useState('whatsapp'),[mode,setMode]=useState('login'),[root,setRoot]=useState(false),[phone,setPhone]=useState(null),[challenge,setChallenge]=useState(null),[resetToken,setResetToken]=useState(null),[localError,setLocalError]=useState(''),[notice,setNotice]=useState(''),[busy,setBusy]=useState(false),[cooldown,setCooldown]=useState(0);
  useEffect(()=>{if(new URLSearchParams(window.location.search).get('setup')==='1')setMode('setup');},[]);
  useEffect(()=>{if(!cooldown)return;const timer=setTimeout(()=>setCooldown(value=>Math.max(0,value-1)),1000);return()=>clearTimeout(timer);},[cooldown]);
@@ -33,5 +35,5 @@ export default function LoginPanel({onSignIn,error,onClearError,busy:signingIn})
  {(localError||error)&&<MessageNotice>{localError||error}</MessageNotice>}{notice&&<MessageNotice>{notice}</MessageNotice>}
  <button className="login-submit" disabled={disabled}>{disabled?'Please wait...':mode==='login'?'Sign in':mode==='setup'?(channel==='email'?'Send Email OTP':'Send WhatsApp OTP'):mode==='otp'?'Verify OTP':'Save password'}</button>
  {mode==='login'?<div className="login-links"><button type="button" disabled={disabled} onClick={()=>change('setup')}>{root?'Forgot password?':'Set / reset password'}</button></div>:<div className="login-links">{mode==='otp'&&<button type="button" onClick={resend} disabled={disabled||cooldown>0}>{cooldown?'Resend OTP in '+cooldown+'s':'Resend OTP'}</button>}<button type="button" disabled={disabled} onClick={()=>change('login')}>Back to login</button></div>}
- </form></section><footer className="login-footer"><span>Version 1.0.0</span><span>Powered by Digigraptek</span></footer></div>;
+ </form></section><footer className="login-footer"><span>Version 1.0.0</span>{!nativeApp&&<span>Powered by Digigraptek</span>}</footer></div>;
 }
