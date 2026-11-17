@@ -32,3 +32,33 @@
 :root[data-gym-theme] body .login-form .login-submit:hover{background:#104b9d!important;border-color:#104b9d!important;color:#fff!important}
 :root[data-gym-theme] body .verification-tabs button[aria-pressed=true]{color:#145cc2!important;border-color:#145cc2!important;background:#EDF4FF!important}
 :root[data-gym-theme] body .verification-tabs button[aria-pressed=true] span{background:#145cc2!important;color:#fff!important}
+
+/* Desktop sidebar: white gym logo tile and a fixed, centered brand credit.
+   Navigation alone scrolls; branding stays pinned at the bottom of the sidebar. */
+@media(min-width:851px){
+ :root[data-gym-theme] body .management-app>.sidebar{
+   display:flex;flex-direction:column;height:100dvh;overflow:hidden!important;
+ }
+ :root[data-gym-theme] body .management-app>.sidebar .navigation-logo-card{
+   background:#fff!important;color:#145cc2!important;
+   border:1px solid #d5e4fb;border-radius:14px;
+   margin:0 10px;padding:16px 10px;
+   text-align:center;
+ }
+ :root[data-gym-theme] body .management-app>.sidebar .navigation-logo-card :is(strong,small,span){
+   color:#145cc2!important;
+ }
+ :root[data-gym-theme] body .management-app>.sidebar .management-nav-wrap{
+   flex:1 1 auto;min-height:0;overflow-y:auto!important;overflow-x:hidden;
+   scrollbar-width:thin;scrollbar-color:#ffffff70 transparent;
+ }
+ :root[data-gym-theme] body .management-app>.sidebar .sidebar-brand-credit{
+   display:block;flex:0 0 auto;margin-top:auto;padding:14px 8px 18px;
+   border-top:1px solid #ffffff35;background:#145cc2;
+   color:#fff;text-align:center;font-size:12px;line-height:1.5;
+ }
+ :root[data-gym-theme] body .management-app>main>.app-footer{display:none!important}
+}
+@media(max-width:850px){
+ body .management-app>.sidebar>.sidebar-brand-credit{display:none!important}
+}
