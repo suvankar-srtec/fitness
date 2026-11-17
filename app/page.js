@@ -101,7 +101,7 @@ export default function Home() {
    if(run!==loadRun.current)return;
    setMembers(data.members);setRows(user.role==='superadmin'?data.admins:data.members);setPlans(data.plans);
    setManagers(data.managers);setSupervisors(data.supervisors);setSuperadmins(data.superadmins);setError('');
-  }catch(error){if(run===loadRun.current)setError(error.message);}
+  }catch(error){if(run===loadRun.current&&!options?.silent)setError(error.message);}
   finally{if(run===loadRun.current)setDataLoading(false);}
  }
  async function retryLoad(){setBusy(true);try{await load(me);}catch(e){setError(e.message);}finally{setBusy(false);}}

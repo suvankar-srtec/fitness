@@ -79,7 +79,7 @@ test('interrupted read responses recover on a later attempt',async()=>{
 test('persistent non-JSON reads produce a readable error after bounded retries',async()=>{
  let calls=0;
  await assert.rejects(requestApi('employees','GET',undefined,{fetcher:async()=>{calls++;return new Response('<html>Error</html>',{status:500});},wait:async()=>{}}),error=>error.code==='INVALID_RESPONSE'&&/refresh/.test(error.message));
- assert.equal(calls,3);
+ assert.equal(calls,2);
 });
 
 test('writes start a fresh workspace read without older completions discarding it',async()=>{
@@ -122,4 +122,22 @@ test('background reads still get a timeout and do not retry',async()=>{
  let calls=0;
  await assert.rejects(requestApi('workspace','GET',undefined,{silent:true,fetcher:async(_url,options)=>{calls++;assert.ok(options.signal instanceof AbortSignal);return response(503,{error:'Try again'});}}),/Try again/);
  assert.equal(calls,1);
+});
+
+test('dashboard reads get an 18-second timeout and do not retry on errors',async()=>{
+ for(const path of ['workspace','manager-dashboard','admin-recent-activity']){
+  let calls=0;
+  await assert.rejects(requestApi(path,'GET',undefined,{fetcher:async(_url,options)=>{calls++;assert.ok(options.signal instanceof AbortSignal);return response(503,{error:'Temporarily unavailable'});},wait:async()=>{}}),/Temporarily unavailable/);
+  assert.equal(calls,1);
+ }
+});
+test('background dashboard reads have a single bounded attempt',async()=>{
+ let count=0;
+ await assert.rejects(requestApi('workspace','GET',undefined,{silent:true,fetcher:async(_url,options)=>{count++;assert.ok(options.signal instanceof AbortSignal);return response(503,{error:'Unavailable'});}}),/Unavailable/);
+ assert.equal(count,1);
+});
+test('network and timeout failures have distinct error codes',async()=>{
+ const makeError=name=>Object.assign(new Error(name),{name});
+ await assert.rejects(requestApi('workspace','GET',undefined,{fetcher:async()=>{throw makeError('TimeoutError');}}),error=>error.code==='REQUEST_TIMEOUT'&&/too long/i.test(error.message));
+ await assert.rejects(requestApi('workspace','GET',undefined,{fetcher:async()=>{throw makeError('TypeError');}}),error=>error.code==='NETWORK_ERROR'&&/connect/i.test(error.message));
 });
