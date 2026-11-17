@@ -9,7 +9,7 @@ function Secret({name,placeholder,autoComplete='new-password'}){const [visible,s
 export default function LoginPanel({onSignIn,error,onClearError,busy:signingIn}){
  const inFlight=useRef(false);
  const [nativeApp,setNativeApp]=useState(false);
- useEffect(()=>{setNativeApp(/MembershipAndroid\\/|MembershipIOS\\//.test(navigator.userAgent));},[]);
+ useEffect(()=>{setNativeApp(navigator.userAgent.includes('MembershipAndroid/')||navigator.userAgent.includes('MembershipIOS/'));},[]);
  const [channel,setChannel]=useState('whatsapp'),[mode,setMode]=useState('login'),[root,setRoot]=useState(false),[phone,setPhone]=useState(null),[challenge,setChallenge]=useState(null),[resetToken,setResetToken]=useState(null),[localError,setLocalError]=useState(''),[notice,setNotice]=useState(''),[busy,setBusy]=useState(false),[cooldown,setCooldown]=useState(0);
  useEffect(()=>{if(new URLSearchParams(window.location.search).get('setup')==='1')setMode('setup');},[]);
  useEffect(()=>{if(!cooldown)return;const timer=setTimeout(()=>setCooldown(value=>Math.max(0,value-1)),1000);return()=>clearTimeout(timer);},[cooldown]);
