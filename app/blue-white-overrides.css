@@ -66,3 +66,40 @@
 /* Staff QR footer: display the website without a label, as a bold link. */
 .staff-qr-dialog .staff-pass-footer .staff-pass-website{font-weight:700;color:inherit;text-decoration:none;overflow-wrap:anywhere}
 .staff-qr-dialog .staff-pass-footer .staff-pass-website:hover,.staff-qr-dialog .staff-pass-footer .staff-pass-website:focus-visible{text-decoration:underline}
+
+/* Digigraptek attribution: white fixed navigation footer, burgundy clickable text. */
+@media(min-width:851px){
+ :root[data-gym-theme] body .management-app>.sidebar .sidebar-brand-credit{
+  background:#ffffff!important;color:#990000!important;
+  border-top:1px solid #d5e4fb!important;
+  padding:0!important;
+ }
+ :root[data-gym-theme] body .management-app>.sidebar .sidebar-brand-credit a{
+  display:flex;align-items:center;justify-content:center;
+  min-height:54px;padding:12px 8px;
+  background:#ffffff!important;color:#990000!important;
+  text-decoration:none;font-weight:700;line-height:1.5;
+ }
+}
+@media(max-width:850px){
+ body .native-app-drawer .native-drawer-bottom>a.native-drawer-credit{
+  display:flex!important;align-items:center;justify-content:center;
+  width:100%;min-height:48px;box-sizing:border-box;
+  margin:8px 0 12px!important;padding:10px 12px!important;
+  background:#ffffff!important;color:#990000!important;
+  border-radius:8px;text-align:center!important;text-decoration:none;
+  font-size:13px!important;font-weight:700!important;
+ }
+}
+body .app-footer .digigraptek-footer-link{
+ display:inline-block;background:#ffffff;color:#990000;
+ font-weight:700;text-decoration:none;padding:8px 12px;border-radius:6px;
+}
+body .sidebar-brand-credit a:hover,
+body .native-drawer-credit:hover,
+body .app-footer .digigraptek-footer-link:hover{text-decoration:underline!important}
+body .sidebar-brand-credit a:focus-visible,
+body .native-drawer-credit:focus-visible,
+body .app-footer .digigraptek-footer-link:focus-visible{
+ outline:2px solid #990000;outline-offset:-3px;
+}
