@@ -56,3 +56,48 @@ body .native-drawer-bottom .mobile-drawer-support{margin-bottom:0}
 
 /* Center the single attribution within the fixed Android drawer footer. */
 @media(max-width:850px){body .native-app-drawer .native-drawer-bottom .native-drawer-credit{margin:12px 0!important;padding:0!important;text-align:center!important;color:#fff!important;font-weight:600;font-size:13px}}
+
+/* Native overflow menu: touch-friendly quick actions with consistent icons. */
+.native-account-popover{
+  width:min(300px,calc(100vw - 28px));min-width:260px;
+  padding:8px;background:#fff;border:1px solid #d5e4fb;
+  border-radius:18px;box-shadow:0 18px 48px #09295a35;
+  overflow:hidden;
+}
+.native-account-popover-heading{
+ display:flex;flex-direction:column;gap:3px;
+ padding:10px 12px 12px;margin-bottom:4px;
+ border-bottom:1px solid #e7eef9;color:#143c72;
+}
+.native-account-popover-heading span{font-weight:750;font-size:15px}
+.native-account-popover-heading small{
+ color:#71829a;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+body .native-account-popover button.native-account-option{
+ display:flex;align-items:center;gap:12px;min-height:58px;
+ margin:2px 0;padding:9px 10px;width:100%;
+ background:transparent;color:#193557;text-align:left;
+ border:0;border-radius:11px;font-size:15px;font-weight:650;
+}
+body .native-account-popover button.native-account-option:hover,
+body .native-account-popover button.native-account-option:focus-visible{
+ background:#edf4ff;color:#145cc2;outline-offset:-2px;
+}
+.native-menu-icon-wrap{
+ display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;
+ background:#edf4ff;color:#145cc2;border-radius:11px;
+}
+.native-menu-option-label{display:flex;flex-direction:column;gap:3px;min-width:0}
+.native-menu-option-label small{
+ font-size:12px;line-height:1.3;font-weight:400;color:#70829b;
+}
+body .native-account-popover button.native-account-option-qr{
+ background:#edf4ff;color:#145cc2;
+}
+body .native-account-popover button.native-account-option-qr .native-menu-icon-wrap{
+ background:#145cc2;color:#fff;
+}
+@media(max-width:850px){
+ .native-account-menu{z-index:30}
+ .native-account-popover{right:0;max-height:min(70dvh,400px);overflow-y:auto}
+}
