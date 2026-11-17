@@ -1,0 +1,34 @@
+/* Shared website and Android WebView palette. Loaded last intentionally. */
+:root[data-gym-theme] {
+  --gym-accent:#145cc2;
+  --gym-hover:#104b9d;
+  --gym-soft:#EDF4FF;
+  --gym-background:#f8fbff;
+  --gym-border:#d5e4fb;
+  --ui-surface:#ffffff;
+  accent-color:var(--gym-accent);
+}
+/* Alternate adjacent informational cards, not warning or confirmation dialogs. */
+:root[data-gym-theme] body :is(.stat,.panel,.overview-card,.admin-chart-card,.gym-user-card,.plan-tile,.member-card,.dashboard-card,.metric-card,.summary-card,.report-card,.collection-card):nth-child(odd) {
+  background-color:#EDF4FF!important;
+}
+:root[data-gym-theme] body :is(.stat,.panel,.overview-card,.admin-chart-card,.gym-user-card,.plan-tile,.member-card,.dashboard-card,.metric-card,.summary-card,.report-card,.collection-card):nth-child(even) {
+  background-color:#ffffff!important;
+}
+/* React CSS-module cards also participate in the same alternation. */
+:root[data-gym-theme] body :is([class*="Card_card__"],[class*="Cards_card__"],[class*="Dashboard_card__"]):nth-child(odd){background-color:#EDF4FF!important}
+:root[data-gym-theme] body :is([class*="Card_card__"],[class*="Cards_card__"],[class*="Dashboard_card__"]):nth-child(even){background-color:#fff!important}
+@media(max-width:850px){
+ :root[data-gym-theme] body table.mobile-record-table>tbody>tr:nth-child(odd),
+ :root[data-gym-theme] body table.mobile-record-table>tfoot>tr:nth-child(odd){background:#EDF4FF!important}
+ :root[data-gym-theme] body table.mobile-record-table>tbody>tr:nth-child(even),
+ :root[data-gym-theme] body table.mobile-record-table>tfoot>tr:nth-child(even){background:#fff!important}
+ body:has(.native-app-navigation) .app-footer{display:none!important}
+}
+/* Unify positive/primary actions into the blue-white scheme. */
+:root[data-gym-theme] body .whatsapp-button,
+:root[data-gym-theme] body .login-form .login-submit{background:#145cc2!important;border-color:#145cc2!important;color:#fff!important}
+:root[data-gym-theme] body .whatsapp-button:hover,
+:root[data-gym-theme] body .login-form .login-submit:hover{background:#104b9d!important;border-color:#104b9d!important;color:#fff!important}
+:root[data-gym-theme] body .verification-tabs button[aria-pressed=true]{color:#145cc2!important;border-color:#145cc2!important;background:#EDF4FF!important}
+:root[data-gym-theme] body .verification-tabs button[aria-pressed=true] span{background:#145cc2!important;color:#fff!important}
