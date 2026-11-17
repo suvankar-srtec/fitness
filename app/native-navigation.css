@@ -101,3 +101,36 @@ body .native-account-popover button.native-account-option-qr .native-menu-icon-w
  .native-account-menu{z-index:30}
  .native-account-popover{right:0;max-height:min(70dvh,400px);overflow-y:auto}
 }
+
+/* Native drawer: showcase the logo alone, contained within the white semicircle. */
+@media(max-width:850px){
+ .native-drawer-brand{padding-bottom:8px}
+ .native-logo-arch{
+  width:calc(100% - 24px);
+  height:162px;
+  margin:0 auto 6px;
+  overflow:hidden;
+  box-sizing:border-box;
+ }
+ .native-logo-arch img{
+  display:block;
+  width:116px!important;
+  height:116px!important;
+  max-width:calc(100% - 44px);
+  max-height:calc(100% - 32px);
+  object-fit:contain;
+  border-radius:14px;
+ }
+ .native-logo-arch>span{font-size:56px}
+ .native-drawer-title-sr-only{
+  position:absolute!important;
+  width:1px!important;height:1px!important;
+  padding:0!important;margin:-1px!important;
+  overflow:hidden!important;clip:rect(0,0,0,0)!important;
+  white-space:nowrap!important;border:0!important;
+ }
+}
+@media(max-width:850px) and (max-height:600px){
+ .native-logo-arch{height:108px;margin-bottom:4px}
+ .native-logo-arch img{width:78px!important;height:78px!important;max-height:calc(100% - 20px)}
+}
