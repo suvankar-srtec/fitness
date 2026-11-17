@@ -7,7 +7,7 @@ export default function useProfileRefresh(userId,setProfile) {
   if(!userId)return;
   let active=true,pending=false,lastRefresh=Date.now();
   async function refresh(force=false){
-   if(!active||pending||document.hidden||(!force&&Date.now()-lastRefresh<45000))return;
+   if(!active||pending||document.hidden||(force!==true&&Date.now()-lastRefresh<45000))return;
    pending=true;lastRefresh=Date.now();
    try{const profile=await requestApi('me','GET',undefined,{silent:true});if(active)setProfile(previous=>{
     if(previous?.id!==userId||profile.id!==userId)return previous;
