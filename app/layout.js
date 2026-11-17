@@ -17,6 +17,7 @@ import './announcements.css';
 import './trainer.css';
 import './app-footer.css';
 import './native-navigation.css';
+import './blue-white-overrides.css';
 const systemTitleFont=localFont({src:[{path:'../assets/fonts/Oswald-Variable.ttf',weight:'200 700',style:'normal'}],variable:'--font-system-title',display:'swap'});
 export const metadata = { title: 'Membership Management System', description: 'Manage your organization team and members' };
 export default function Layout({ children }) {

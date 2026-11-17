@@ -53,3 +53,6 @@ body .native-account-popover button:hover,body .native-account-popover button:fo
 
 body .native-drawer-bottom .native-drawer-credit{margin:8px 0 12px;padding-left:28px;color:#ffffffd9;font-size:12px;line-height:1.5;overflow-wrap:anywhere}
 body .native-drawer-bottom .mobile-drawer-support{margin-bottom:0}
+
+/* Center the single attribution within the fixed Android drawer footer. */
+@media(max-width:850px){body .native-app-drawer .native-drawer-bottom .native-drawer-credit{margin:12px 0!important;padding:0!important;text-align:center!important;color:#fff!important;font-weight:600;font-size:13px}}
