@@ -5,11 +5,12 @@ import {pendingLoading} from '../../lib/loading-state.mjs';
 export default function LoadingOverlay(){
  const [visible,setVisible]=useState(false);
  useEffect(()=>{
-  let showTimer,hideTimer;
+  let showTimer,hideTimer,active=false;
   const update=()=>{
-   clearTimeout(showTimer);clearTimeout(hideTimer);
-   setVisible(false);
-   if(pendingLoading()>0){
+   if(pendingLoading()===0){
+    active=false;clearTimeout(showTimer);clearTimeout(hideTimer);setVisible(false);
+   }else if(!active){
+    active=true;
     showTimer=setTimeout(()=>setVisible(true),350);
     hideTimer=setTimeout(()=>setVisible(false),7000);
    }
