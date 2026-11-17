@@ -106,3 +106,9 @@ test('silent authentication checks still expire invalid sessions',async()=>{
  const saved=globalThis.window,events=[];globalThis.window={dispatchEvent:event=>events.push(event.type)};
  try{await assert.rejects(requestApi('me','GET',undefined,{silent:true,fetcher:async()=>response(401,{error:'Please sign in'})}),e=>e.status===401);assert.deepEqual(events,['gym-session-expired']);}finally{if(saved===undefined)delete globalThis.window;else globalThis.window=saved;}
 });
+
+test('silent dashboard refreshes fail fast without repeated retries',async()=>{
+ let calls=0;
+ await assert.rejects(requestApi('workspace','GET',undefined,{silent:true,fetcher:async()=>{calls++;return response(503,{error:'Temporarily unavailable'});},wait:async()=>{}}),/Temporarily unavailable/);
+ assert.equal(calls,1);
+});
