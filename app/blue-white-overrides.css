@@ -62,3 +62,7 @@
 @media(max-width:850px){
  body .management-app>.sidebar>.sidebar-brand-credit{display:none!important}
 }
+
+/* Staff QR footer: display the website without a label, as a bold link. */
+.staff-qr-dialog .staff-pass-footer .staff-pass-website{font-weight:700;color:inherit;text-decoration:none;overflow-wrap:anywhere}
+.staff-qr-dialog .staff-pass-footer .staff-pass-website:hover,.staff-qr-dialog .staff-pass-footer .staff-pass-website:focus-visible{text-decoration:underline}
