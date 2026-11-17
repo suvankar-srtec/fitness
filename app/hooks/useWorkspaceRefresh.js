@@ -5,11 +5,11 @@ export default function useWorkspaceRefresh(enabled,refresh){
  useEffect(()=>{
   if(!enabled)return;
   let active=true,pending=false,lastRefresh=Date.now();
-  async function update(event){if(!active||pending||document.hidden)return;const force=event?.type==='gym-data-changed'||event?.type==='message';if(!force&&Date.now()-lastRefresh<15000)return;pending=true;lastRefresh=Date.now();try{await latest.current({silent:true});}catch{}finally{pending=false;}}
+  async function update(event){if(!active||pending||document.hidden)return;const force=event?.type==='gym-data-changed'||event?.type==='gym-connection-retry'||event?.type==='message';if(!force&&Date.now()-lastRefresh<15000)return;pending=true;lastRefresh=Date.now();try{await latest.current({silent:true});}catch{}finally{pending=false;}}
   const channel=typeof BroadcastChannel!=='undefined'?new BroadcastChannel('gym-data-updates'):null;
   if(channel)channel.onmessage=update;
   const timer=setInterval(update,60000);
-  window.addEventListener('gym-data-changed',update);window.addEventListener('focus',update);document.addEventListener('visibilitychange',update);
-  return()=>{active=false;clearInterval(timer);channel?.close();window.removeEventListener('gym-data-changed',update);window.removeEventListener('focus',update);document.removeEventListener('visibilitychange',update);};
+  window.addEventListener('gym-data-changed',update);window.addEventListener('gym-connection-retry',update);window.addEventListener('focus',update);document.addEventListener('visibilitychange',update);
+  return()=>{active=false;clearInterval(timer);channel?.close();window.removeEventListener('gym-data-changed',update);window.removeEventListener('gym-connection-retry',update);window.removeEventListener('focus',update);document.removeEventListener('visibilitychange',update);};
  },[enabled]);
 }
