@@ -10,7 +10,7 @@ test('writes are not retried, preventing duplicate records',async()=>{
  let calls=0;await assert.rejects(requestApi('plans','POST',{name:'Plan'},{fetcher:async()=>{calls++;return response(503,{error:'Unavailable'});},wait:async()=>{}}),/Unavailable/);assert.equal(calls,1);
 });
 test('persistent failure is reported after bounded retries',async()=>{
- let calls=0;await assert.rejects(requestApi('plans','GET',undefined,{fetcher:async()=>{calls++;return response(503,{error:'Please retry'});},wait:async()=>{}}),/Please retry/);assert.equal(calls,3);
+ let calls=0;await assert.rejects(requestApi('plans','GET',undefined,{fetcher:async()=>{calls++;return response(503,{error:'Please retry'});},wait:async()=>{}}),/Please retry/);assert.equal(calls,2);
 });
 test('authentication errors are not retried',async()=>{
  let calls=0;await assert.rejects(requestApi('me','GET',undefined,{fetcher:async()=>{calls++;return response(401,{error:'Please sign in'});},wait:async()=>{}}),e=>e.status===401);assert.equal(calls,1);
@@ -110,5 +110,16 @@ test('silent authentication checks still expire invalid sessions',async()=>{
 test('silent dashboard refreshes fail fast without repeated retries',async()=>{
  let calls=0;
  await assert.rejects(requestApi('workspace','GET',undefined,{silent:true,fetcher:async()=>{calls++;return response(503,{error:'Temporarily unavailable'});},wait:async()=>{}}),/Temporarily unavailable/);
+ assert.equal(calls,1);
+});
+
+test('foreground data reads use a bounded 10-second per-attempt timeout',async()=>{
+ let calls=0;
+ await assert.rejects(requestApi('reports','GET',undefined,{fetcher:async(_url,options)=>{calls++;assert.ok(options.signal instanceof AbortSignal);assert.equal(options.signal.reason,undefined);return response(503,{error:'Temporarily unavailable'});},wait:async()=>{}}),/Temporarily unavailable/);
+ assert.equal(calls,2);
+});
+test('background reads still get a timeout and do not retry',async()=>{
+ let calls=0;
+ await assert.rejects(requestApi('workspace','GET',undefined,{silent:true,fetcher:async(_url,options)=>{calls++;assert.ok(options.signal instanceof AbortSignal);return response(503,{error:'Try again'});}}),/Try again/);
  assert.equal(calls,1);
 });
