@@ -1,58 +1,63 @@
 'use client';
-import {useEffect,useState} from 'react';
+import {useEffect} from 'react';
 import {requestApi} from '../../lib/api-client.mjs';
 
-// Keep current dashboard data mounted; only the user can choose to reload.
+// Silently probe a safe GET before refreshing the mounted dashboard.
+// Never reload the page or automatically repeat a payment or other write.
 export default function ConnectionRecovery(){
- const [problem,setProblem]=useState(null);
- const [retrying,setRetrying]=useState(false);
  useEffect(()=>{
-  const onIssue=event=>setProblem(previous=>previous||{reason:event.detail?.reason||'NETWORK_ERROR'});
-  const offline=()=>setProblem({reason:'OFFLINE'});
-  const online=()=>setProblem(previous=>previous?{reason:'RECONNECTED'}:null);
-  window.addEventListener('gym-connection-issue',onIssue);
+  let active=true,timer=null,pending=false,inFlight=false,attempts=0;
+  const delays=[3000,8000,20000,45000,60000];
+  const stopTimer=()=>{if(timer!==null){clearTimeout(timer);timer=null;}};
+  const schedule=delay=>{
+   if(!active||timer!==null||inFlight||!navigator.onLine||document.hidden)return;
+   timer=setTimeout(check,delay);
+  };
+  async function check(){
+   timer=null;
+   if(!active||!pending||inFlight||!navigator.onLine||document.hidden)return;
+   inFlight=true;
+   try{
+    await requestApi('me','GET',undefined,{silent:true});
+    if(!active)return;
+    attempts=0;pending=false;
+    window.dispatchEvent(new Event('gym-connection-retry'));
+   }catch(error){
+    if(!active)return;
+    if(error?.status===401||error?.status===403){
+     pending=false;attempts=0;
+    }else{
+     pending=true;
+     attempts=Math.min(attempts+1,delays.length-1);
+    }
+   }finally{
+    inFlight=false;
+    if(active&&pending)schedule(delays[attempts]);
+   }
+  }
+  const interrupted=()=>{
+   pending=true;
+   if(!inFlight)schedule(delays[attempts]);
+  };
+  const offline=()=>{pending=true;stopTimer();};
+  const resume=()=>{
+   if(!pending||!navigator.onLine||document.hidden)return;
+   stopTimer();schedule(250);
+  };
+  window.addEventListener('gym-connection-issue',interrupted);
   window.addEventListener('offline',offline);
-  window.addEventListener('online',online);
+  window.addEventListener('online',resume);
+  window.addEventListener('focus',resume);
+  document.addEventListener('visibilitychange',resume);
   if(!navigator.onLine)offline();
   return()=>{
-   window.removeEventListener('gym-connection-issue',onIssue);
+   active=false;stopTimer();
+   window.removeEventListener('gym-connection-issue',interrupted);
    window.removeEventListener('offline',offline);
-   window.removeEventListener('online',online);
+   window.removeEventListener('online',resume);
+   window.removeEventListener('focus',resume);
+   document.removeEventListener('visibilitychange',resume);
   };
  },[]);
- async function retry(){
-  if(retrying)return;
-  setRetrying(true);
-  try{
-   // Check the server first. A failed GET does not submit or repeat any mutations.
-   await requestApi('me','GET',undefined,{silent:true});
-   setProblem(null);
-   window.dispatchEvent(new Event('gym-connection-retry'));
-  }catch(error){
-   if(error.status===401){
-    // Session handling is owned by the existing authentication flow.
-    setProblem(null);
-   }else{
-    setProblem({reason:error.code||'NETWORK_ERROR'});
-   }
-  }finally{setRetrying(false);}
- }
- function safeReload(){
-  // Do not discard in-progress forms without explicit approval.
-  if(window.confirm('Reload the app? Unsaved form entries will be lost.'))window.location.reload();
- }
- if(!problem)return null;
- const offline=problem.reason==='OFFLINE'||!navigator.onLine;
- return <aside className="gym-connection-recovery" role="status" aria-live="polite">
-  <span className="gym-connection-symbol" aria-hidden="true">!</span>
-  <div className="gym-connection-copy">
-   <strong>{offline?'You are offline':'Connection interrupted'}</strong>
-   <p>{offline?'Check your internet connection.':'Some information could not be refreshed.'} Previously loaded data remains on screen.</p>
-   <div className="gym-connection-actions">
-    <button type="button" onClick={retry} disabled={retrying||offline}>{retrying?'Checking…':'Retry'}</button>
-    <button type="button" className="gym-reload-action" onClick={safeReload}>Reload</button>
-    <button type="button" className="gym-dismiss-action" onClick={()=>setProblem(null)} aria-label="Dismiss connection message">Dismiss</button>
-   </div>
-  </div>
- </aside>;
+ return null;
 }
