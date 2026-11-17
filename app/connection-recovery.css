@@ -1,0 +1,40 @@
+/* Recovery is never modal: users can navigate and keep already loaded data. */
+.global-loading-nonblocking{
+ position:fixed;right:16px;bottom:16px;z-index:35;
+ display:flex;align-items:center;gap:9px;
+ padding:10px 14px;background:#fff;color:#145cc2;
+ border:1px solid #d5e4fb;border-radius:12px;
+ box-shadow:0 5px 24px #09295a18;
+ font-size:13px;font-weight:650;pointer-events:none;
+}
+.global-loading-nonblocking .global-loading-spinner{width:17px;height:17px;flex:0 0 17px}
+.gym-connection-recovery{
+ position:fixed;right:16px;bottom:16px;z-index:38;
+ display:flex;align-items:flex-start;gap:12px;
+ width:min(410px,calc(100vw - 32px));padding:16px;
+ background:#fff;color:#173654;border:1px solid #c5dafa;
+ border-radius:16px;box-shadow:0 12px 36px #132a4d35;
+}
+.gym-connection-symbol{
+ display:grid;place-items:center;flex:0 0 28px;width:28px;height:28px;
+ color:#145cc2;background:#edf4ff;border-radius:50%;
+ font-weight:800;
+}
+.gym-connection-copy{min-width:0;flex:1}
+.gym-connection-copy strong{font-size:15px}
+.gym-connection-copy p{font-size:13px;line-height:1.5;color:#61738b;margin:5px 0 12px}
+.gym-connection-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+body .gym-connection-actions button{width:auto;min-height:40px;margin:0;padding:9px 13px;border-radius:9px;font-size:13px;background:#145cc2;color:#fff}
+body .gym-connection-actions button:disabled{opacity:.55;cursor:not-allowed}
+body .gym-connection-actions .gym-reload-action{background:#edf4ff;color:#145cc2}
+body .gym-connection-actions .gym-dismiss-action{background:transparent;color:#5b6f87}
+.workspace-inline-recovery{
+ display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+ padding:12px;color:#546982;background:#edf4ff;border-radius:10px;
+ font-size:13px;
+}
+.workspace-inline-recovery button{width:auto;padding:8px 12px}
+@media(max-width:600px){
+ .gym-connection-recovery{left:12px;right:12px;bottom:calc(18px + env(safe-area-inset-bottom,0px));width:auto}
+ .global-loading-nonblocking{right:12px;bottom:calc(18px + env(safe-area-inset-bottom,0px))}
+}
