@@ -2,3 +2,29 @@
 @media(min-width:1600px){.gymList{grid-template-columns:repeat(2,minmax(0,1fr))}.tools input{width:280px}}
 @media(max-width:1100px){.layout{grid-template-columns:1fr}.side{grid-template-columns:1fr 1fr}.tools{flex-wrap:wrap}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.dashboard{gap:16px}.intro{padding:18px;align-items:flex-start;flex-direction:column}.intro h2{font-size:23px}.intro p{line-height:1.5}.metrics{gap:10px}.metrics article{padding:14px;gap:10px;align-items:flex-start;flex-direction:column}.metrics strong{font-size:26px}.metricIcon{width:34px;height:34px;border-radius:9px}.side{grid-template-columns:1fr}.panelHead{padding:16px;flex-wrap:wrap}.tools{padding:14px 16px}.tools input{width:100%}.gymList{padding:0 12px 14px}.gym{padding:14px}.gymIdentity{gap:8px;flex-wrap:wrap}.gymIdentity h4{font-size:16px}.status{font-size:12px}.validity{flex-direction:column;margin:14px 0}.capacity{gap:14px}.capacity>div>span{flex-direction:column;gap:3px}.activity{padding:0 16px}.activity article{flex-wrap:wrap;gap:10px}.activity article>div{flex:1;min-width:0}.activity time{margin-left:46px;width:100%;text-align:left}.panelHead h3{font-size:16px}}
+
+/* Two organization cards per row at desktop/tablet widths, with the side
+   summaries placed underneath so cards have adequate reading width. */
+.layout{grid-template-columns:minmax(0,1fr)}
+.gymList{grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:16px}
+.gym{min-width:0;background:#fff;padding:18px;display:flex;flex-direction:column;gap:4px}
+.gym:nth-child(even){background:#edf4ff}
+.gymIdentity{min-width:0}
+.gymIdentity .status{flex-shrink:0}
+.validity{flex-wrap:wrap;align-items:baseline}
+.capacity{grid-template-columns:1fr;gap:10px;margin-top:auto}
+.capacityItem{min-width:0;animation:gymCapacityReveal .35s ease both;animation-delay:calc(var(--sequence) * 220ms)}
+.capacityItem>span{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.track{height:7px;margin-top:7px;overflow:hidden}
+.track i{width:100%;transform:scaleX(0);transform-origin:left;animation:gymCapacityFill .55s cubic-bezier(.2,.75,.2,1) forwards;animation-delay:calc(150ms + var(--sequence) * 220ms)}
+.side{grid-template-columns:repeat(2,minmax(0,1fr))}
+@keyframes gymCapacityReveal{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes gymCapacityFill{to{transform:scaleX(1)}}
+@media(max-width:900px){
+ .gymList{grid-template-columns:1fr}
+ .side{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:600px){.side{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){
+ .capacityItem,.track i{animation:none!important;opacity:1;transform:none}
+}
