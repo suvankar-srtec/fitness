@@ -134,3 +134,23 @@ body .native-account-popover button.native-account-option-qr .native-menu-icon-w
  .native-logo-arch{height:108px;margin-bottom:4px}
  .native-logo-arch img{width:78px!important;height:78px!important;max-height:calc(100% - 20px)}
 }
+
+/* Shared navbar logout: always accessible for every signed-in role. */
+body .navbar-logout-button{
+ display:inline-flex;align-items:center;justify-content:center;gap:7px;
+ width:auto;min-height:38px;margin:0 10px 0 auto;padding:8px 12px;
+ background:#fff;color:#990000;border:1px solid #f0c9c9;border-radius:10px;
+ font-size:13px;font-weight:700;white-space:nowrap;
+}
+body .navbar-logout-button:hover{background:#fff3f3;color:#7d0000}
+body .mobile-navbar-logout{
+ display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;
+ margin:0;padding:9px;border:1px solid #ffffff55;background:#ffffff18;
+ color:#fff;border-radius:10px;
+}
+body .mobile-navbar-logout:hover{background:#ffffff30}
+@media(max-width:850px){
+ body .profile-account .navbar-logout-button{display:none!important}
+ body .mobile-navigation-header .mobile-navbar-logout{margin-left:auto}
+}
+@media(min-width:851px){body .mobile-navbar-logout{display:none!important}}
