@@ -141,3 +141,22 @@ test('network and timeout failures have distinct error codes',async()=>{
  await assert.rejects(requestApi('workspace','GET',undefined,{fetcher:async()=>{throw makeError('TimeoutError');}}),error=>error.code==='REQUEST_TIMEOUT'&&/too long/i.test(error.message));
  await assert.rejects(requestApi('workspace','GET',undefined,{fetcher:async()=>{throw makeError('TypeError');}}),error=>error.code==='NETWORK_ERROR'&&/connect/i.test(error.message));
 });
+
+
+test('failed dashboard GET dispatches a non-blocking connection issue',async()=>{
+ const prior=globalThis.window,events=[];
+ globalThis.window={dispatchEvent:event=>{if(event.type==='gym-connection-issue')events.push(event.detail?.reason);}};
+ try{
+  await assert.rejects(requestApi('workspace','GET',undefined,{silent:true,fetcher:async()=>{throw Object.assign(new Error('offline'),{name:'TypeError'});}}),error=>error.code==='NETWORK_ERROR');
+  assert.deepEqual(events,['NETWORK_ERROR']);
+ }finally{if(prior===undefined)delete globalThis.window;else globalThis.window=prior;}
+});
+test('failed write never triggers connection retry notification or an automatic resubmission',async()=>{
+ const prior=globalThis.window,events=[];
+ globalThis.window={dispatchEvent:event=>{if(event.type==='gym-connection-issue')events.push(event.type);}};
+ let calls=0;
+ try{
+  await assert.rejects(requestApi('members','POST',{name:'Test'},{fetcher:async()=>{calls++;throw new Error('offline');}}),error=>error.code==='NETWORK_ERROR');
+  assert.equal(calls,1);assert.deepEqual(events,[]);
+ }finally{if(prior===undefined)delete globalThis.window;else globalThis.window=prior;}
+});
