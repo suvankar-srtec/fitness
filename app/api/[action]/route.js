@@ -314,4 +314,27 @@ try {
  return fail('Method not allowed',405);
 }catch(error){const limitMessage=subscriptionError(error);if(limitMessage)return fail(limitMessage,409);if(/^(Enter a valid subscription|Subscription end|Limits must)/.test(error.message))return fail(error.message,400);if(error.message==='INVALID_MEMBER_TRAINER')return fail('Select an enabled trainer from the member location',400);if(error.message==='PHONE_IN_USE'||['users_unique_phone','members_unique_phone','account_phone_registry_pkey'].includes(error.constraint))return fail('This phone number is already registered to another user',409);if(error.message==='INVALID_ACCOUNT_PHONE')return fail('Enter a valid phone number',400);if(error.code==='GYM_BRANDING_INVALID')return fail(error.message,400);if(error.message==='GYM_LOCATION_REQUIRED')return fail('Select or type a location',400);if(error.message==='INVALID_GYM_LOCATION')return fail('Select a location belonging to this organization',400);if(error.message==='INVALID_PICTURE')return fail('Choose a valid JPG, PNG or WebP picture up to 2 MB',400);if(error.code==='23505')return fail('Plan already exists',409);if(error.code==='23503')return fail('This record has linked members, memberships or payments.',409);if(error.message==='DATABASE_NOT_CONFIGURED')return fail('Service is not configured. Contact your administrator.',503);if(error instanceof SyntaxError)return fail('Invalid request',400);console.error('Database request failed:',error.code||'connection error');return fail('Unable to load data. Please retry.',503);}
 }
-export {handle as GET,handle as POST,handle as DELETE,handle as PATCH};
+// Record wall-clock API handler latency without logging credentials, cookies,
+// request bodies, query strings, user IDs, or personal information.
+// These timings cover server execution, not device-to-server network travel.
+const measuredActions=new Set(['me','login','member-login','workspace','manager-dashboard',
+ 'admin-recent-activity','members','gym-subscription','attendance','gym-time-report',
+ 'member-time-calendar','trainer-workspace','supervisor-summary','audit']);
+async function measuredHandle(request,context){
+ const started=performance.now();
+ let action='unknown',status=500;
+ try{
+  const params=await context.params;
+  action=typeof params?.action==='string'?params.action:'unknown';
+  const result=await handle(request,context);
+  status=result.status;
+  return result;
+ }finally{
+  if(measuredActions.has(action)){
+   const durationMs=Math.round(performance.now()-started);
+   console.info('FITNESS_API_LATENCY '+JSON.stringify({action,method:request.method,
+    status,durationMs}));
+  }
+ }
+}
+export {measuredHandle as GET,measuredHandle as POST,measuredHandle as DELETE,measuredHandle as PATCH};
