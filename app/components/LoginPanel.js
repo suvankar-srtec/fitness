@@ -35,5 +35,5 @@ export default function LoginPanel({onSignIn,error,onClearError,busy:signingIn})
  {(localError||error)&&<MessageNotice>{localError||error}</MessageNotice>}{notice&&<MessageNotice>{notice}</MessageNotice>}
  <button className="login-submit" disabled={disabled}>{disabled?'Please wait...':mode==='login'?'Sign in':mode==='setup'?(channel==='email'?'Send Email OTP':'Send WhatsApp OTP'):mode==='otp'?'Verify OTP':'Save password'}</button>
  {mode==='login'?<div className="login-links"><button type="button" disabled={disabled} onClick={()=>change('setup')}>{root?'Forgot password?':'Set / reset password'}</button></div>:<div className="login-links">{mode==='otp'&&<button type="button" onClick={resend} disabled={disabled||cooldown>0}>{cooldown?'Resend OTP in '+cooldown+'s':'Resend OTP'}</button>}<button type="button" disabled={disabled} onClick={()=>change('login')}>Back to login</button></div>}
- </form></section><footer className="login-footer"><span>Version 1.0.0</span>{!nativeApp&&<span>Powered by Digigraptek</span>}</footer></div>;
+ </form></section><footer className="login-footer"><span>Version 1.0.0</span><span>Powered by Digigraptek</span></footer></div>;
 }
