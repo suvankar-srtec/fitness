@@ -130,3 +130,49 @@
   padding:10px!important;gap:8px!important;
  }
 }
+
+/* Structural density pass: remove inherited tall grid tracks and oversize chart shells.
+   Charts remain tall enough to read; touch targets stay comfortable on phones. */
+:root[data-gym-theme] body :is(.overview-grid,.stats,.admin-dashboard-charts,.manager-charts,.gym-user-grid,.commerce-grid){
+ align-items:start;
+}
+:root[data-gym-theme] body :is(.overview-grid,.stats,.admin-dashboard-charts,.manager-charts,.gym-user-grid,.commerce-grid)>*{
+ min-width:0;
+ align-self:start;
+}
+:root[data-gym-theme] body :is(.overview-card,.admin-chart-card,.membership-row,.plan-tile,.gym-user-card,.supervisor-member,.commerce-workspace .supplement-product){
+ height:auto;
+ min-height:0;
+}
+:root[data-gym-theme] body .overview-empty{min-height:56px!important}
+:root[data-gym-theme] body .overview-section{margin-top:10px}
+:root[data-gym-theme] body .overview-grid{gap:9px!important}
+:root[data-gym-theme] body .membership-overview{gap:8px!important}
+:root[data-gym-theme] body .membership-row{padding:9px 12px!important}
+:root[data-gym-theme] body .admin-chart-card{padding:12px!important}
+:root[data-gym-theme] body .admin-growth-chart{max-height:165px;margin-top:10px}
+:root[data-gym-theme] body .admin-ring-layout svg{width:125px}
+:root[data-gym-theme] body .admin-plan-bars{gap:10px;margin-top:10px}
+:root[data-gym-theme] body .admin-ring-legend{gap:8px}
+:root[data-gym-theme] body .admin-gym-branding{margin-bottom:10px}
+:root[data-gym-theme] body .commerce-workspace .commerce-grid{gap:10px!important}
+:root[data-gym-theme] body .commerce-workspace .supplement-product .supplement-product-image{
+ height:125px;
+ padding:8px;
+}
+:root[data-gym-theme] body .commerce-workspace .supplement-product h3{margin:8px 10px 4px}
+:root[data-gym-theme] body .commerce-workspace .supplement-product>.product-icon{margin:10px}
+:root[data-gym-theme] body .lead-dashboard .lead-row-actions{gap:4px!important}
+:root[data-gym-theme] body .lead-dashboard .lead-description-cell{max-width:230px}
+:root[data-gym-theme] body .lead-dashboard .lead-description-cell>div{overflow-wrap:anywhere}
+@media(max-width:850px){
+ :root[data-gym-theme] body .admin-chart-card{padding:10px!important}
+ :root[data-gym-theme] body .admin-ring-layout svg{width:110px}
+ :root[data-gym-theme] body .commerce-workspace .supplement-product .supplement-product-image{height:110px}
+ :root[data-gym-theme] body table.mobile-record-table>tbody,
+ :root[data-gym-theme] body table.mobile-record-table>tfoot{gap:7px!important;padding:6px!important}
+ :root[data-gym-theme] body table.mobile-record-table>tbody>tr,
+ :root[data-gym-theme] body table.mobile-record-table>tfoot>tr{gap:7px!important;padding:10px!important}
+ :root[data-gym-theme] body .lead-dashboard .lead-row-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px!important}
+ :root[data-gym-theme] body .lead-dashboard .lead-row-actions button{white-space:normal;min-width:0}
+}
