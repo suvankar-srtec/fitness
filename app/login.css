@@ -32,3 +32,29 @@
 .login-page .login-panel-header .system-title{width:100%;text-align:center}
 .system-title>span{display:block}
 .system-title>span:first-child{white-space:nowrap;font-size:clamp(16px,4.8vw,23px)}
+
+/* Legible login heading on Android-sized screens: bigger, balanced and untruncated. */
+@media(max-width:600px){
+ .login-page .login-panel-header .system-title{
+   width:100%;
+   max-width:100%;
+   margin:0 auto;
+   color:#16345b;
+   font-size:clamp(25px,5.2vw,30px)!important;
+   font-weight:750;
+   letter-spacing:-.45px;
+   line-height:1.22;
+   text-align:center;
+   text-wrap:balance;
+   overflow-wrap:normal;
+ }
+ .login-page .system-title>span{
+   display:block;
+   font-size:inherit!important;
+   line-height:inherit;
+ }
+ .login-page .system-title>span:first-child{
+   white-space:normal!important;
+ }
+ .login-page .login-panel-header{padding-top:26px;padding-bottom:24px;}
+}
