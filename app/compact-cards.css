@@ -679,3 +679,30 @@
  }
  :root[data-gym-theme] body .module-report>div{padding:9px!important}
 }
+
+
+/* APK-only darker, crisp card outlines. The native header identifies WebView UI,
+   so desktop/mobile browser card colors remain unchanged. */
+@media (max-width:850px) {
+ :root[data-gym-theme] body:has(.native-app-navigation) {
+  --card-edge:#71839c;
+ }
+ :root[data-gym-theme] body:has(.native-app-navigation) :is(
+  .panel,.overview-card,.stat,.summary-card,.metric-card,.dashboard-card,
+  .report-card,.admin-chart-card,.admin-activity-panel,.gym-user-card,
+  .plan-tile,.membership-profile-card,.membership-row,.member-card,
+  .video-card,.supplement-product
+ ) {
+  border:1px solid #71839c!important;
+  box-shadow:0 1px 3px rgba(18,42,76,.08)!important;
+ }
+ :root[data-gym-theme] body:has(.native-app-navigation) table.mobile-record-table>tbody>tr,
+ :root[data-gym-theme] body:has(.native-app-navigation) table.mobile-record-table>tfoot>tr {
+  border:1px solid #647893!important;
+  box-shadow:0 1px 3px rgba(18,42,76,.08)!important;
+ }
+ :root[data-gym-theme] body:has(.native-app-navigation) .directory-panel .member-shopping-button,
+ :root[data-gym-theme] body:has(.native-app-navigation) .directory-panel .row-actions>button.secondary {
+  border:1px solid #647893!important;
+ }
+}
