@@ -706,3 +706,82 @@
   border:1px solid #647893!important;
  }
 }
+
+
+/* Field-specific information hierarchy (mobile website + APK).
+   Pair short identity fields, give variable-length details their own rows,
+   and always place actions after the record information. */
+@media screen and (max-width:850px){
+ :root[data-gym-theme] body .directory-panel table.member-directory-table>tbody>tr,
+ :root[data-gym-theme] body .directory-panel table.staff-directory-table>tbody>tr{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+  grid-auto-rows:min-content!important;
+  align-items:start!important;
+  align-content:start!important;
+  column-gap:12px!important;
+  row-gap:7px!important;
+  padding:11px 12px!important;
+  min-height:0!important;
+ }
+ :root[data-gym-theme] body .directory-panel table.member-directory-table>tbody>tr>td,
+ :root[data-gym-theme] body .directory-panel table.staff-directory-table>tbody>tr>td{
+  display:block!important;
+  grid-row:auto!important;
+  grid-column:auto!important;
+  min-width:0!important;
+  align-self:start!important;
+  margin:0!important;
+  padding:0!important;
+  line-height:1.35!important;
+ }
+ /* Members: ID / Name, full-width contact, Location / Plan,
+    full-width membership validity, full-width actions. */
+ :root[data-gym-theme] body .directory-panel table.member-directory-table>tbody>tr>td:nth-child(1){grid-area:1 / 1 / 2 / 2!important}
+ :root[data-gym-theme] body .directory-panel table.member-directory-table>tbody>tr>td:nth-child(2){grid-area:1 / 2 / 2 / 3!important;padding-right:42px!important}
+ :root[data-gym-theme] body .directory-panel table.member-directory-table>tbody>tr>td:nth-child(3){grid-area:2 / 1 / 3 / 3!important}
+ :root[data-gym-theme] body .directory-panel table.member-directory-table>tbody>tr>td:nth-child(4){grid-area:3 / 1 / 4 / 2!important}
+ :root[data-gym-theme] body .directory-panel table.member-directory-table>tbody>tr>td:nth-child(5){grid-area:3 / 2 / 4 / 3!important}
+ :root[data-gym-theme] body .directory-panel table.member-directory-table>tbody>tr>td:nth-child(6){grid-area:4 / 1 / 5 / 3!important}
+ :root[data-gym-theme] body .directory-panel table.member-directory-table>tbody>tr>td:nth-child(7){grid-area:5 / 1 / 6 / 3!important;margin-top:3px!important}
+ /* Staff: ID / Name, full-width role + phone, access status,
+    full-width actions. Handles both manager and employee records. */
+ :root[data-gym-theme] body .directory-panel table.staff-directory-table>tbody>tr>td:nth-child(1){grid-area:1 / 1 / 2 / 2!important}
+ :root[data-gym-theme] body .directory-panel table.staff-directory-table>tbody>tr>td:nth-child(2){grid-area:1 / 2 / 2 / 3!important}
+ :root[data-gym-theme] body .directory-panel table.staff-directory-table>tbody>tr>td:nth-child(3){grid-area:2 / 1 / 3 / 3!important}
+ :root[data-gym-theme] body .directory-panel table.staff-directory-table>tbody>tr>td:nth-child(4){grid-area:3 / 1 / 4 / 3!important}
+ :root[data-gym-theme] body .directory-panel table.staff-directory-table>tbody>tr>td:nth-child(5){grid-area:4 / 1 / 5 / 3!important;margin-top:3px!important}
+ /* Keep contact and validity details aligned within their own row. */
+ :root[data-gym-theme] body .directory-panel .contact-details{
+  display:inline-flex!important;
+  align-items:baseline!important;
+  flex-wrap:wrap!important;
+  gap:3px 9px!important;
+  vertical-align:baseline;
+ }
+ :root[data-gym-theme] body .directory-panel .contact-details>a{
+  max-width:100%;
+  overflow-wrap:anywhere;
+ }
+ :root[data-gym-theme] body .directory-panel table.member-directory-table .membership-validity{
+  display:inline-flex!important;
+  align-items:baseline!important;
+  flex-wrap:wrap!important;
+  gap:4px 10px!important;
+  max-width:100%;
+ }
+ :root[data-gym-theme] body .directory-panel table.member-directory-table .membership-validity>span{
+  white-space:normal!important;
+ }
+ :root[data-gym-theme] body .directory-panel table.member-directory-table .member-shopping-button{
+  position:absolute!important;
+  top:9px!important;
+  right:9px!important;
+ }
+ :root[data-gym-theme] body .directory-panel table.mobile-record-table .row-actions{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  gap:7px!important;
+  align-items:center!important;
+ }
+}
