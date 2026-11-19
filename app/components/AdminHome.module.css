@@ -27,3 +27,15 @@
  .membersPanel .filters{gap:6px}.membersPanel .filterButton{min-height:44px}
  .membersPanel .memberHeader input{height:44px;min-height:44px;font-size:16px}
 }
+
+.locationPicker{display:flex;align-items:center;gap:10px;margin-top:13px;flex-wrap:wrap}
+.locationPicker label{font-size:14px;font-weight:650;color:#345477}
+.locationPicker select{min-height:40px;min-width:170px;max-width:100%;background:#fff;border:1px solid #bfd3f2;border-radius:8px;padding:7px 12px;color:#145cc2;font:inherit}
+.locationBreakdown{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin-top:15px}
+.dashboard .locationRow{display:grid;grid-template-columns:1fr auto;align-items:center;gap:4px 10px;width:100%;min-height:58px;padding:9px 11px;text-align:left;background:#edf4ff;color:#143c72;border:1px solid #d5e4fb;border-radius:9px}
+.locationRow span{font-size:13px;font-weight:650;overflow-wrap:anywhere}
+.locationRow strong{font-size:15px;color:#145cc2;text-align:right}
+.locationRow small{grid-column:1/-1;font-size:11px;color:#586f8d!important}
+.dashboard .locationRow:hover,.dashboard .locationRow:focus-visible{background:#dceafe;outline:2px solid #145cc2;outline-offset:1px}
+@media(max-width:650px){.locationPicker{align-items:stretch}.locationPicker select{flex:1;min-width:0}.locationBreakdown{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:380px){.locationBreakdown{grid-template-columns:1fr}}
