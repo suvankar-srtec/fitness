@@ -418,3 +418,99 @@ body .supervisor-focus-app>.sidebar>.nav-brand-credit+.sidebar-logout{margin-top
   height:88px!important;
  }
 }
+
+
+/* APK-only final navigation contrast: white logo semicircle with blue menu/submenu.
+   Keep white Quick Action-style icon tiles and the existing blue footer. */
+@media screen and (max-width:850px) {
+ :root[data-gym-theme] body dialog.native-app-drawer[open] .native-drawer-brand {
+  background:#103b7b!important;
+  padding:0 12px 12px!important;
+  border-bottom:0!important;
+ }
+ :root[data-gym-theme] body dialog.native-app-drawer[open] .native-logo-arch {
+  box-sizing:border-box!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100%!important;
+  height:158px!important;
+  margin:0 auto!important;
+  padding:7px 0 13px!important;
+  border:0!important;
+  border-radius:0 0 50% 50% / 0 0 100% 100%!important;
+  background:#fff!important;
+  box-shadow:none!important;
+  overflow:hidden!important;
+ }
+ :root[data-gym-theme] body dialog.native-app-drawer[open] .native-logo-arch img {
+  box-sizing:border-box!important;
+  width:118px!important;
+  height:118px!important;
+  max-width:calc(100% - 20px)!important;
+  max-height:calc(100% - 12px)!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:50%!important;
+  clip-path:circle(50%);
+  background:#fff!important;
+  box-shadow:none!important;
+  object-fit:contain!important;
+ }
+ /* White drawer canvas, dark-blue buttons for every role and submenu. */
+ :root[data-gym-theme] body dialog.native-app-drawer[open] .mobile-drawer-scroll,
+ :root[data-gym-theme] body dialog.native-app-drawer[open] .mobile-drawer-navigation,
+ :root[data-gym-theme] body dialog.native-app-drawer[open] .mobile-drawer-navigation nav,
+ :root[data-gym-theme] body dialog.native-app-drawer[open] .mobile-drawer-navigation .sidebar-actions,
+ :root[data-gym-theme] body dialog.native-app-drawer[open] .mobile-drawer-navigation .sidebar-inline-submenu {
+  background:#fff!important;
+ }
+ :root[data-gym-theme] body dialog.native-app-drawer[open] .mobile-drawer-navigation button,
+ :root[data-gym-theme] body dialog.native-app-drawer[open] .mobile-drawer-navigation .sidebar-inline-submenu button {
+  background:#103b7b!important;
+  color:#fff!important;
+  border:1px solid #103b7b!important;
+  border-radius:11px!important;
+  box-shadow:none!important;
+ }
+ :root[data-gym-theme] body dialog.native-app-drawer[open] .mobile-drawer-navigation button:hover,
+ :root[data-gym-theme] body dialog.native-app-drawer[open] .mobile-drawer-navigation button:focus-visible,
+ :root[data-gym-theme] body dialog.native-app-drawer[open] .mobile-drawer-navigation button[aria-current="page"],
+ :root[data-gym-theme] body dialog.native-app-drawer[open] .mobile-drawer-navigation button[aria-expanded="true"] {
+  background:#155cc2!important;
+  border-color:#155cc2!important;
+  color:#fff!important;
+ }
+ /* The icon tiles remain white; only the actual glyph is blue. */
+ :root[data-gym-theme] body dialog.native-app-drawer[open] .mobile-drawer-navigation .dashboard-nav>svg,
+ :root[data-gym-theme] body dialog.native-app-drawer[open] .mobile-drawer-navigation .nav-menu-label>svg {
+  background:#fff!important;
+  color:#103b7b!important;
+  stroke:currentColor!important;
+  border:1px solid #d3e0f1!important;
+  border-radius:9px!important;
+ }
+ :root[data-gym-theme] body dialog.native-app-drawer[open] .mobile-drawer-navigation .nav-chevron {
+  background:transparent!important;
+  color:#fff!important;
+  stroke:currentColor!important;
+ }
+ :root[data-gym-theme] body dialog.native-app-drawer[open] .mobile-drawer-navigation .sidebar-inline-submenu button::before {
+  background:#fff!important;
+  color:#103b7b!important;
+  border:1px solid #d3e0f1!important;
+ }
+ :root[data-gym-theme] body dialog.native-app-drawer[open] .native-drawer-bottom {
+  background:#103b7b!important;
+  color:#fff!important;
+ }
+}
+@media screen and (max-width:850px) and (max-height:680px) {
+ :root[data-gym-theme] body dialog.native-app-drawer[open] .native-logo-arch {
+  height:118px!important;
+ }
+ :root[data-gym-theme] body dialog.native-app-drawer[open] .native-logo-arch img {
+  width:88px!important;
+  height:88px!important;
+ }
+}
