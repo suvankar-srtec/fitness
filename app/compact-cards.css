@@ -462,3 +462,220 @@
   background:#155fc4!important;color:#fff!important;border:1px solid #155fc4!important;
  }
 }
+
+/* Unified professional card language: all account roles, web and native WebView.
+   These rules intentionally exclude modal dialogs and the QR pass dimensions. */
+:root[data-gym-theme]{
+ --card-edge:#c9d8ed;
+ --card-surface:#ffffff;
+ --card-surface-soft:#f4f8fe;
+ --card-label:#536c8c;
+ --card-text:#183553;
+ --card-brand:#155fc4;
+ --card-focus:#0e4a9b;
+ --card-radius:12px;
+}
+:root[data-gym-theme] body :is(
+ .panel,.overview-card,.stat,.admin-chart-card,.admin-activity-panel,
+ .gym-user-card,.plan-tile,.membership-profile-card,.membership-row,
+ .revenue-card,.summary-card,.dashboard-card,.report-card,.metric-card,
+ .member-card,.admin-gym-branding,.video-card,.supplement-product,
+ .admin-recent-activity-card,.manager-overview-card
+){
+ background:var(--card-surface);
+ border:1px solid var(--card-edge)!important;
+ border-radius:var(--card-radius)!important;
+ box-shadow:0 1px 3px rgba(29,63,112,.045)!important;
+ min-width:0;
+}
+:root[data-gym-theme] body :is(.overview-card,.stat,.summary-card,.metric-card){
+ display:flex;
+ align-items:center;
+ gap:9px;
+ padding:11px 13px!important;
+}
+:root[data-gym-theme] body .overview-card{
+ min-height:0!important;
+ height:auto!important;
+}
+:root[data-gym-theme] body .overview-card :is(strong,span){line-height:1.35}
+:root[data-gym-theme] body :is(.panel,.plan-tile,.membership-profile-card,.gym-user-card,.admin-chart-card) :is(h2,h3){
+ line-height:1.3;
+ overflow-wrap:anywhere;
+}
+:root[data-gym-theme] body :is(.panelhead,.panel-header,.card-header,.overview-section-title){
+ gap:10px;
+}
+:root[data-gym-theme] body .panelhead{
+ padding:11px 14px!important;
+ border-bottom:1px solid #e5edf8;
+}
+:root[data-gym-theme] body .panelhead input{
+ min-width:0;
+}
+:root[data-gym-theme] body :is(.module-report>div,.revenueTotal,.selected-period,.membership-profile-balances>div){
+ border:1px solid #d6e3f3;
+ background:var(--card-surface-soft);
+ border-radius:9px;
+}
+:root[data-gym-theme] body .module-report{
+ padding:10px 13px!important;
+ gap:9px!important;
+}
+:root[data-gym-theme] body .module-report>div{
+ padding:10px!important;
+ gap:4px!important;
+}
+:root[data-gym-theme] body :is(.admin-chart-card,.admin-activity-panel){
+ overflow:hidden;
+}
+:root[data-gym-theme] body .admin-chart-card{
+ padding:13px!important;
+}
+:root[data-gym-theme] body .admin-overview .admin-chart-card{
+ padding:14px!important;
+}
+:root[data-gym-theme] body .admin-overview .admin-ring-layout{
+ gap:16px!important;
+ padding:3px 0!important;
+}
+:root[data-gym-theme] body .admin-overview .admin-ring-layout svg{
+ width:min(175px,45%)!important;
+}
+:root[data-gym-theme] body .admin-overview .admin-growth-chart{
+ max-height:190px!important;
+ min-height:0!important;
+ margin-top:10px!important;
+}
+:root[data-gym-theme] body .admin-overview .admin-dashboard-charts{
+ gap:11px!important;
+ margin-top:12px!important;
+}
+:root[data-gym-theme] body .admin-recent-activity{
+ gap:11px!important;
+}
+:root[data-gym-theme] body .admin-activity-panel>header{
+ padding:11px 13px!important;
+ gap:8px!important;
+}
+:root[data-gym-theme] body :is(.plan-grid,.plans-grid,.gym-user-grid,.membership-overview,.overview-grid,.admin-dashboard-charts){
+ align-items:start;
+ gap:10px!important;
+}
+:root[data-gym-theme] body :is(.plan-tile,.gym-user-card,.membership-profile-card,.membership-row){
+ align-self:start;
+ height:auto;
+}
+:root[data-gym-theme] body .membership-profile-card{
+ overflow:hidden;
+}
+:root[data-gym-theme] body .membership-profile-validity{
+ margin-top:8px;
+ margin-bottom:8px;
+}
+:root[data-gym-theme] body .membership-profile-balances{
+ gap:8px;
+}
+:root[data-gym-theme] body .membership-profile-actions{
+ gap:7px;
+}
+:root[data-gym-theme] body .membership-profile-actions button{
+ min-height:38px;
+}
+:root[data-gym-theme] body .directory-panel table.mobile-record-table .row-actions>button.secondary,
+:root[data-gym-theme] body table.mobile-record-table :is(.row-actions,.actions)>button.secondary{
+ background:#fff!important;
+ color:var(--card-brand)!important;
+ border:1px solid #9cbce7!important;
+}
+:root[data-gym-theme] body table.mobile-record-table :is(.row-actions,.actions)>button:not(.secondary):not(.delete-button){
+ background:var(--card-brand)!important;
+ color:#fff!important;
+ border:1px solid var(--card-brand)!important;
+}
+:root[data-gym-theme] body table.mobile-record-table :is(.row-actions,.actions)>button.delete-button{
+ background:#b4232b!important;
+ color:#fff!important;
+ border:1px solid #b4232b!important;
+}
+:root[data-gym-theme] body :is(.plan-tile,.membership-profile-card,.gym-user-card) :is(button,a):focus-visible{
+ outline:2px solid var(--card-focus);
+ outline-offset:2px;
+}
+@media(max-width:850px){
+ :root[data-gym-theme] body :is(
+ .panel,.admin-chart-card,.gym-user-card,.plan-tile,.membership-profile-card,
+ .membership-row,.overview-card,.admin-activity-panel
+ ){
+  border-radius:11px!important;
+ }
+ :root[data-gym-theme] body :is(.overview-card,.stat,.metric-card,.summary-card){
+  padding:10px 11px!important;
+  gap:7px!important;
+ }
+ :root[data-gym-theme] body .admin-overview .admin-dashboard-charts{
+  gap:8px!important;
+ }
+ :root[data-gym-theme] body .admin-overview .admin-ring-layout svg{
+  width:125px!important;
+ }
+ :root[data-gym-theme] body .admin-overview .admin-growth-chart{
+  max-height:160px!important;
+ }
+ :root[data-gym-theme] body .directory-panel table.mobile-record-table>tbody{
+  padding:8px!important;
+  gap:8px!important;
+ }
+ :root[data-gym-theme] body .directory-panel table.mobile-record-table>tbody>tr{
+  border:1px solid var(--card-edge)!important;
+  border-radius:11px!important;
+  padding:10px 12px!important;
+  gap:5px!important;
+  box-shadow:0 1px 2px rgba(29,63,112,.035)!important;
+ }
+ :root[data-gym-theme] body .directory-panel table.mobile-record-table>tbody>tr:nth-child(odd){
+  background:var(--card-surface-soft)!important;
+ }
+ :root[data-gym-theme] body .directory-panel table.mobile-record-table>tbody>tr:nth-child(even){
+  background:var(--card-surface)!important;
+ }
+ :root[data-gym-theme] body .directory-panel table.mobile-record-table>tbody>tr>td{
+  color:var(--card-text);
+  overflow-wrap:anywhere;
+ }
+ :root[data-gym-theme] body .directory-panel table.mobile-record-table>tbody>tr>td::before{
+  color:var(--card-label)!important;
+  font-weight:700!important;
+ }
+ :root[data-gym-theme] body table.mobile-record-table:not(.member-directory-table):not(.staff-directory-table)>tbody>tr{
+  border:1px solid var(--card-edge)!important;
+  border-radius:11px!important;
+  background:#fff!important;
+  padding:11px!important;
+  gap:7px!important;
+  box-shadow:0 1px 2px rgba(29,63,112,.035)!important;
+ }
+ :root[data-gym-theme] body table.mobile-record-table:not(.member-directory-table):not(.staff-directory-table)>tbody>tr:nth-child(odd){
+  background:var(--card-surface-soft)!important;
+ }
+ :root[data-gym-theme] body table.mobile-record-table:not(.member-directory-table):not(.staff-directory-table)>tbody>tr>td{
+  line-height:1.4!important;
+ }
+ :root[data-gym-theme] body table.mobile-record-table:not(.member-directory-table):not(.staff-directory-table)>tbody>tr>td::before{
+  color:var(--card-label)!important;
+ }
+ :root[data-gym-theme] body :is(.directory-panel,.panel) .row-actions{
+  align-items:center;
+  gap:6px!important;
+ }
+ :root[data-gym-theme] body :is(.directory-panel,.panel) .row-actions>button{
+  min-height:40px!important;
+  border-radius:8px!important;
+  font-weight:650;
+ }
+ :root[data-gym-theme] body .module-report{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  padding:9px!important;
+ }
+ :root[data-gym-theme] body .module-report>div{padding:9px!important}
+}
