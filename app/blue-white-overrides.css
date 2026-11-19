@@ -350,3 +350,71 @@ body .supervisor-focus-app>.sidebar>.nav-brand-credit+.sidebar-logout{margin-top
   min-height:40px!important;
  }
 }
+
+/* APK drawer: deep-blue header and footer, white navigation section.
+   White circular logo surround replaces the large blue semicircle.
+   Styles apply only to native WebView, not browser navigation. */
+@media screen and (max-width:850px){
+ :root[data-gym-theme] body .native-app-drawer .native-drawer-brand{
+  background:#103b7b!important;
+  padding:10px 12px 12px!important;
+  border-bottom:1px solid #0b3067!important;
+ }
+ :root[data-gym-theme] body .native-app-drawer .native-logo-arch{
+  display:grid!important;
+  place-items:center!important;
+  width:116px!important;
+  height:116px!important;
+  margin:0 auto!important;
+  overflow:hidden!important;
+  border:3px solid #fff!important;
+  border-radius:50%!important;
+  background:#fff!important;
+  color:#103b7b!important;
+  box-shadow:0 3px 12px rgba(0,0,0,.13)!important;
+ }
+ :root[data-gym-theme] body .native-app-drawer .native-logo-arch img{
+  width:100%!important;
+  height:100%!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  border:0!important;
+  border-radius:50%!important;
+  object-fit:contain!important;
+  clip-path:circle(50%);
+  box-shadow:none!important;
+ }
+ :root[data-gym-theme] body .native-app-drawer .native-logo-arch>span{
+  font-size:48px!important;
+ }
+ :root[data-gym-theme] body .native-app-drawer .mobile-drawer-scroll,
+ :root[data-gym-theme] body .native-app-drawer .mobile-drawer-navigation,
+ :root[data-gym-theme] body .native-app-drawer .mobile-drawer-navigation nav,
+ :root[data-gym-theme] body .native-app-drawer .mobile-drawer-navigation .sidebar-actions,
+ :root[data-gym-theme] body .native-app-drawer .mobile-drawer-navigation .sidebar-inline-submenu{
+  background:#fff!important;
+ }
+ :root[data-gym-theme] body .native-app-drawer .mobile-drawer-navigation button,
+ :root[data-gym-theme] body .native-app-drawer .mobile-drawer-navigation .sidebar-inline-submenu button{
+  background:#fff!important;
+  color:#1b3b65!important;
+  border:1px solid #d5e2f5!important;
+ }
+ :root[data-gym-theme] body .native-app-drawer .mobile-drawer-navigation button:hover,
+ :root[data-gym-theme] body .native-app-drawer .mobile-drawer-navigation button:focus-visible,
+ :root[data-gym-theme] body .native-app-drawer .mobile-drawer-navigation button[aria-current="page"],
+ :root[data-gym-theme] body .native-app-drawer .mobile-drawer-navigation button[aria-expanded="true"]{
+  background:#edf4ff!important;
+  color:#145cc2!important;
+  border-color:#a5c5ed!important;
+ }
+ :root[data-gym-theme] body .native-app-drawer .native-drawer-bottom{
+  background:#103b7b!important;
+ }
+}
+@media screen and (max-width:850px) and (max-height:680px){
+ :root[data-gym-theme] body .native-app-drawer .native-logo-arch{
+  width:88px!important;
+  height:88px!important;
+ }
+}
