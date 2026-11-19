@@ -171,3 +171,22 @@ body .supervisor-focus-app>.sidebar>.nav-brand-credit+.sidebar-logout{margin-top
  body .native-app-drawer .native-logo-arch img{width:86px!important;height:86px!important}
  body .native-app-drawer .mobile-drawer-navigation button{min-height:38px!important;font-size:14px!important}
 }
+
+/* Desktop sidebar credit: centered white text directly on the blue navigation. */
+@media(min-width:851px){
+ :root[data-gym-theme] body .management-app>.sidebar>.nav-brand-credit,
+ :root[data-gym-theme] body .supervisor-focus-app>.sidebar>.nav-brand-credit{
+   display:block!important;
+   align-self:stretch;
+   background:transparent!important;
+   color:#fff!important;
+   border:0!important;
+   box-shadow:none!important;
+   padding:10px 5px 6px!important;
+   margin-top:auto;
+   text-align:center!important;
+   font-size:12px;
+   font-weight:600;
+   line-height:1.35;
+ }
+}
