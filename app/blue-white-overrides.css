@@ -121,3 +121,20 @@ body .sidebar-logout svg{flex:0 0 19px}
  body .mobile-drawer-scroll>.sidebar-logout{width:calc(100% - 12px);margin:10px 6px}
  body .native-app-drawer .native-drawer-bottom>.sidebar-logout{display:flex!important;width:100%;margin:10px 0 0;min-height:48px}
 }
+
+/* Compact shared menus and consistent white/red Logout on web and native. */
+:root[data-gym-theme] body .sidebar-logout,
+body .native-app-drawer .native-drawer-bottom>.sidebar-logout,
+body .mobile-drawer-scroll>.sidebar-logout{
+ background:#fff!important;color:#990000!important;border:1px solid #efcaca!important;
+}
+:root[data-gym-theme] body .sidebar-logout:hover,
+body .native-app-drawer .native-drawer-bottom>.sidebar-logout:hover,
+body .mobile-drawer-scroll>.sidebar-logout:hover{background:#fff3f3!important;color:#790000!important}
+body .sidebar-brand-credit,body .native-drawer-credit,body .app-footer .digigraptek-footer-link{display:none!important}
+@media(max-width:850px){
+ body .mobile-drawer-navigation nav,
+ body .mobile-drawer-navigation .sidebar-actions{gap:3px!important}
+ body .mobile-drawer-navigation .sidebar-inline-submenu{margin-top:2px!important;margin-bottom:4px!important}
+ body .mobile-drawer-navigation .nav-menu-label{gap:9px}
+}
