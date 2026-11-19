@@ -1,0 +1,132 @@
+/* Shared compact cards across desktop and APK WebView.
+   Keep dialogs, large charts, login and interactive forms at their own sizes. */
+:root[data-gym-theme]{
+ --compact-card-gap:12px;
+ --compact-card-padding:12px;
+ --compact-card-border:#d5e4fb;
+}
+:root[data-gym-theme] body :is(
+ .stat,.overview-card,.admin-chart-card,.plan-tile,.member-card,
+ .dashboard-card,.metric-card,.summary-card,.report-card,.collection-card,
+ .gym-user-card,.membership-row,.supervisor-member,.admin-gym-branding
+){
+ min-width:0;
+ padding:var(--compact-card-padding)!important;
+ border-radius:11px!important;
+ border-color:var(--compact-card-border)!important;
+ box-shadow:0 2px 8px rgba(20,92,194,.035);
+}
+:root[data-gym-theme] body :is(.stats,.overview-grid,.admin-dashboard-charts,.manager-charts,.membership-overview,.latest-members,.commerce-grid,.gym-user-grid){
+ gap:var(--compact-card-gap)!important;
+}
+:root[data-gym-theme] body .panelhead{padding:12px 14px!important;gap:10px!important}
+:root[data-gym-theme] body .panelhead :is(h2,h3){margin:0;line-height:1.3}
+:root[data-gym-theme] body .panel:has(> .tablewrap) > .tablewrap :is(th,td),
+:root[data-gym-theme] body .panel:has(> .tablewrap) > .tablewrap table :is(th,td){
+ padding:10px 12px;
+ line-height:1.35;
+ vertical-align:middle;
+}
+:root[data-gym-theme] body .lead-dashboard .lead-toolbar{
+ gap:8px!important;
+ margin-bottom:10px;
+}
+:root[data-gym-theme] body .lead-dashboard .panel.tablewrap{
+ border-radius:11px;
+ overflow-x:auto;
+}
+:root[data-gym-theme] body .lead-dashboard table{
+ width:100%;
+}
+:root[data-gym-theme] body .lead-dashboard :is(th,td){
+ padding:10px 11px!important;
+ line-height:1.35!important;
+ vertical-align:middle!important;
+}
+:root[data-gym-theme] body .lead-dashboard th{font-size:12px;letter-spacing:.035em}
+:root[data-gym-theme] body .lead-dashboard .lead-row-actions{
+ display:flex!important;flex-direction:row!important;
+ align-items:center;flex-wrap:wrap;gap:5px!important;
+}
+:root[data-gym-theme] body .lead-dashboard .lead-row-actions button{
+ min-height:34px!important;padding:6px 9px!important;
+ border-radius:7px!important;font-size:12px!important;
+ white-space:nowrap;line-height:1.2;
+}
+:root[data-gym-theme] body .lead-dashboard .lead-phone{gap:5px}
+:root[data-gym-theme] body .lead-dashboard .lead-location-cell select{
+ width:100%;max-width:145px;min-height:35px;padding:6px 9px;
+}
+:root[data-gym-theme] body [class*="AdminHome_dashboard__"]{gap:13px}
+:root[data-gym-theme] body [class*="AdminHome_stats__"]{gap:10px}
+:root[data-gym-theme] body [class*="AdminHome_stats__"] article{
+ gap:5px;padding:12px!important;border-radius:10px;
+}
+:root[data-gym-theme] body [class*="AdminHome_panel__"]{
+ padding:14px!important;border-radius:11px;
+}
+:root[data-gym-theme] body [class*="AdminHome_sidePanels__"]{gap:10px}
+:root[data-gym-theme] body [class*="AdminHome_attendance__"]{margin-top:10px}
+:root[data-gym-theme] body [class*="SuperadminDashboard_dashboard__"]{gap:13px}
+:root[data-gym-theme] body [class*="SuperadminDashboard_metrics__"]{gap:10px}
+:root[data-gym-theme] body [class*="SuperadminDashboard_metrics__"] article{
+ padding:12px!important;gap:6px;
+}
+:root[data-gym-theme] body [class*="SuperadminDashboard_gymList__"]{
+ gap:10px;padding:0 12px 12px;
+}
+:root[data-gym-theme] body [class*="SuperadminDashboard_gym__"]{
+ padding:12px!important;gap:6px;
+}
+:root[data-gym-theme] body [class*="SuperadminDashboard_panelHead__"]{
+ padding:12px 14px;
+}
+:root[data-gym-theme] body [class*="MemberDashboard_summary__"]{
+ gap:10px!important;margin-bottom:14px!important;
+}
+:root[data-gym-theme] body [class*="MemberDashboard_summary__"] article{
+ padding:12px!important;border-radius:11px;
+}
+:root[data-gym-theme] body [class*="MemberDashboard_summary__"] article>span{margin-bottom:4px}
+:root[data-gym-theme] body [class*="MemberDashboard_videos__"],
+:root[data-gym-theme] body [class*="MemberDashboard_passPanel__"]{
+ padding:14px!important;border-radius:11px;
+}
+@media(max-width:850px){
+ :root[data-gym-theme]{--compact-card-gap:9px;--compact-card-padding:10px}
+ :root[data-gym-theme] body table.mobile-record-table>tbody,
+ :root[data-gym-theme] body table.mobile-record-table>tfoot{
+  gap:9px!important;padding:8px!important;
+ }
+ :root[data-gym-theme] body table.mobile-record-table>tbody>tr,
+ :root[data-gym-theme] body table.mobile-record-table>tfoot>tr{
+  padding:12px!important;gap:9px!important;
+  border-radius:11px!important;
+ }
+ :root[data-gym-theme] body table.mobile-record-table>tbody>tr>:first-child{
+  padding-bottom:7px!important;
+ }
+ :root[data-gym-theme] body table.mobile-record-table>tbody>tr>td::before,
+ :root[data-gym-theme] body table.mobile-record-table>tbody>tr>th::before{
+  margin-bottom:3px!important;
+ }
+ :root[data-gym-theme] body .lead-dashboard .lead-row-actions button,
+ :root[data-gym-theme] body table.mobile-record-table .lead-row-actions button{
+  min-height:42px!important;padding:7px 10px!important;
+  font-size:13px!important;
+ }
+ :root[data-gym-theme] body .lead-dashboard .lead-toolbar{
+  margin-bottom:8px;
+ }
+ :root[data-gym-theme] body [class*="AdminHome_panel__"],
+ :root[data-gym-theme] body [class*="MemberDashboard_videos__"],
+ :root[data-gym-theme] body [class*="MemberDashboard_passPanel__"]{
+  padding:11px!important;
+ }
+}
+@media(max-width:360px){
+ :root[data-gym-theme] body table.mobile-record-table>tbody>tr,
+ :root[data-gym-theme] body table.mobile-record-table>tfoot>tr{
+  padding:10px!important;gap:8px!important;
+ }
+}
