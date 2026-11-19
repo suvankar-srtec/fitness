@@ -155,7 +155,7 @@ body .supervisor-focus-app>.sidebar>.nav-brand-credit+.sidebar-logout{margin-top
 @media(max-width:850px){
  body dialog.native-app-drawer[open]{display:flex!important;flex-direction:column!important;height:100dvh!important;max-height:100dvh!important}
  body .native-app-drawer .native-drawer-brand{flex:0 0 auto!important;padding:0 0 3px!important}
- body .native-app-drawer .native-logo-arch{width:calc(100% - 24px)!important;height:160px!important;margin:0 auto 6px!important;border-radius:0 0 50% 50% / 0 0 100% 100%!important;background:linear-gradient(180deg,#ffffff 0%,#edf4ff 35%,#a9cdf6 70%,#145cc2 100%)!important;overflow:hidden!important}
+ body .native-app-drawer .native-logo-arch{width:calc(100% - 24px)!important;height:160px!important;margin:0 auto 6px!important;border-radius:0 0 50% 50% / 0 0 100% 100%!important;background:linear-gradient(180deg,#eaf3ff 0%,#c9dff8 26%,#86b5ed 57%,#367fd2 83%,#145cc2 100%)!important;overflow:hidden!important}
  body .native-app-drawer .native-logo-arch img{width:112px!important;height:112px!important;max-width:calc(100% - 30px)!important;max-height:calc(100% - 18px)!important;border-radius:50%!important;clip-path:circle(50%);object-fit:contain!important}
  body .native-app-drawer .mobile-drawer-scroll{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;display:flex;flex-direction:column;padding:3px 12px!important}
  body .native-app-drawer .mobile-drawer-navigation{flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
