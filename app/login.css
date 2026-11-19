@@ -58,3 +58,25 @@
  }
  .login-page .login-panel-header{padding-top:26px;padding-bottom:24px;}
 }
+
+/* Android/iOS WebView login: enlarge the title while keeping it centered and readable. */
+@media(max-width:600px){
+ .login-page.native-login-page .login-panel-header{
+   padding:27px 14px 25px!important;
+ }
+ .login-page.native-login-page .login-panel-header .system-title{
+   width:100%;
+   max-width:100%;
+   font-size:clamp(30px,7.8vw,36px)!important;
+   font-weight:800!important;
+   letter-spacing:-0.5px;
+   line-height:1.18!important;
+   text-align:center;
+   overflow-wrap:normal;
+ }
+ .login-page.native-login-page .login-panel-header .system-title>span{
+   font-size:inherit!important;
+   line-height:inherit!important;
+   white-space:normal!important;
+ }
+}
