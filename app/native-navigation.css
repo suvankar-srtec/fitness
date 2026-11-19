@@ -1,152 +1,207 @@
-/* Shared website and Android WebView palette. Loaded last intentionally. */
-:root[data-gym-theme] {
-  --gym-accent:#145cc2;
-  --gym-hover:#104b9d;
-  --gym-soft:#EDF4FF;
-  --gym-background:#f8fbff;
-  --gym-border:#d5e4fb;
-  --ui-surface:#ffffff;
-  accent-color:var(--gym-accent);
-}
-/* Alternate adjacent informational cards, not warning or confirmation dialogs. */
-:root[data-gym-theme] body :is(.stat,.panel,.overview-card,.admin-chart-card,.gym-user-card,.plan-tile,.member-card,.dashboard-card,.metric-card,.summary-card,.report-card,.collection-card):nth-child(odd) {
-  background-color:#EDF4FF!important;
-}
-:root[data-gym-theme] body :is(.stat,.panel,.overview-card,.admin-chart-card,.gym-user-card,.plan-tile,.member-card,.dashboard-card,.metric-card,.summary-card,.report-card,.collection-card):nth-child(even) {
-  background-color:#ffffff!important;
-}
-/* React CSS-module cards also participate in the same alternation. */
-:root[data-gym-theme] body :is([class*="Card_card__"],[class*="Cards_card__"],[class*="Dashboard_card__"]):nth-child(odd){background-color:#EDF4FF!important}
-:root[data-gym-theme] body :is([class*="Card_card__"],[class*="Cards_card__"],[class*="Dashboard_card__"]):nth-child(even){background-color:#fff!important}
+/* Native APK navigation: browser navigation keeps its existing layout. */
+body .account-actions .logout-button,body .mobile-drawer .logout-button{background:#fff!important;color:#c62828!important;border:1px solid #f4c5c5!important}
+body .account-actions .logout-button:hover,body .mobile-drawer .logout-button:hover{background:#fff7f7!important;color:#a61b1b!important}
+.native-support-links{display:grid;gap:8px;min-width:0}
+.native-support-links a{display:flex!important;align-items:center;gap:10px;min-width:0;text-decoration:none;line-height:1.5}
+.native-support-links a svg{width:18px;height:18px;flex:0 0 18px}
+.native-support-links a span{min-width:0;overflow-wrap:anywhere}
+.native-account-menu{position:relative;flex:0 0 44px;min-width:44px}
+body .native-account-menu .native-more-trigger{display:grid;place-items:center;width:44px!important;height:44px;min-height:44px;margin:0;padding:10px;background:transparent;color:#fff;border:0;border-radius:10px}
+.native-more-trigger svg{width:24px;height:24px}
+.native-account-popover{position:absolute;top:calc(100% + 8px);right:0;z-index:20;display:grid;min-width:190px;padding:6px;background:#fff;border:1px solid #dce6f5;border-radius:14px;box-shadow:0 12px 40px #102c4d30}
+body .native-account-popover button{margin:0;width:100%;min-height:46px;padding:12px 14px;color:#1d3658;background:#fff;text-align:left;font-size:16px;border-radius:8px}
+body .native-account-popover button:hover,body .native-account-popover button:focus-visible{background:#edf4ff}
+.native-account-dialog{position:fixed;inset:0;margin:auto;width:min(460px,calc(100vw - 24px));max-height:calc(100dvh - 24px);padding:22px;border:1px solid #dce6f5;border-radius:18px;background:#fff;color:#243852;overflow:auto}
+.native-account-dialog::backdrop{background:#132c4b70}
+.native-account-dialog>header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px}
+.native-account-dialog h2{margin:0;color:#145cc2}
+.native-account-dialog dl{display:grid;gap:14px}.native-account-dialog dl>div{display:grid;grid-template-columns:90px minmax(0,1fr);gap:12px}.native-account-dialog dt{color:#61738b}.native-account-dialog dd{margin:0;overflow-wrap:anywhere}
+.native-account-dialog .native-support-links a,.native-help-link{color:#145cc2;min-height:44px}
+.native-help-link{display:inline-flex;align-items:center;margin-top:16px;font-weight:600}
 @media(max-width:850px){
- :root[data-gym-theme] body table.mobile-record-table>tbody>tr:nth-child(odd),
- :root[data-gym-theme] body table.mobile-record-table>tfoot>tr:nth-child(odd){background:#EDF4FF!important}
- :root[data-gym-theme] body table.mobile-record-table>tbody>tr:nth-child(even),
- :root[data-gym-theme] body table.mobile-record-table>tfoot>tr:nth-child(even){background:#fff!important}
- body:has(.native-app-navigation) .app-footer{display:none!important}
+ body .mobile-navigation-header.native-app-navigation{justify-content:flex-start;gap:10px}
+ body .native-app-navigation .mobile-hamburger-menu{flex:0 0 44px;width:44px;margin:0;padding:8px;background:transparent;border:0;color:#fff}
+ .native-organization-name{flex:1;min-width:0;font-size:17px;line-height:1.35;font-weight:650;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+ body dialog.mobile-drawer.native-app-drawer{inset:0 auto 0 0;width:min(360px,92vw);max-width:92vw;border-radius:0 20px 20px 0}
+ .native-drawer-brand{position:relative;flex-shrink:0;padding:0 0 16px;text-align:center}
+ body .native-drawer-back-target[hidden]{display:none!important}
+ .native-logo-arch{display:grid;place-items:center;width:calc(100% - 24px);height:144px;margin:0 auto 14px;border-radius:0 0 50% 50% / 0 0 100% 100%;background:#fff;color:#145cc2}
+ .native-logo-arch img{width:84px;height:84px;object-fit:contain;border-radius:14px}
+ .native-logo-arch>span{font-size:42px;font-weight:700}
+ body .native-drawer-brand h2{margin:0;padding:0 16px;color:#fff!important;font-size:19px!important;line-height:1.4;overflow-wrap:anywhere}
+ body .native-app-drawer .mobile-drawer-scroll{padding:4px 14px 12px}
+ body .native-app-drawer .mobile-drawer-navigation button{min-height:48px;font-size:17px!important;font-weight:600;padding:12px;line-height:1.45}
+ body .native-app-drawer .mobile-drawer-navigation .sidebar-inline-submenu button{font-size:16px!important;font-weight:500;min-height:46px}
+ .native-drawer-tools{display:grid;gap:6px;margin-top:8px}
+ body .native-drawer-tools>button{width:100%;min-height:46px;margin:0;padding:12px;background:transparent;color:#fff;text-align:left;font-size:16px}
+ .native-drawer-bottom{flex-shrink:0;padding:12px 16px max(16px,env(safe-area-inset-bottom));border-top:1px solid #ffffff35;background:#145cc2}
+ body .native-drawer-bottom .mobile-drawer-support{margin:0 0 12px;padding:0;border:0;gap:6px;font-size:14px;line-height:1.5}
+ body .native-drawer-bottom .mobile-drawer-support h3{font-size:15px!important}
+ body .native-drawer-bottom .mobile-drawer-support p{margin:0;color:#fff;font-size:13px}
+ body .native-drawer-bottom .native-support-links a{color:#fff;min-height:30px;font-size:14px}
+ body .native-drawer-bottom .mobile-drawer-support>button{justify-self:start;background:#ffffff20;color:#fff;padding:8px 12px;min-height:40px}
+ body .native-drawer-bottom .logout-button{width:100%;min-height:46px;margin:0;padding:12px;font-size:16px}
 }
-/* Unify positive/primary actions into the blue-white scheme. */
-:root[data-gym-theme] body .whatsapp-button,
-:root[data-gym-theme] body .login-form .login-submit{background:#145cc2!important;border-color:#145cc2!important;color:#fff!important}
-:root[data-gym-theme] body .whatsapp-button:hover,
-:root[data-gym-theme] body .login-form .login-submit:hover{background:#104b9d!important;border-color:#104b9d!important;color:#fff!important}
-:root[data-gym-theme] body .verification-tabs button[aria-pressed=true]{color:#145cc2!important;border-color:#145cc2!important;background:#EDF4FF!important}
-:root[data-gym-theme] body .verification-tabs button[aria-pressed=true] span{background:#145cc2!important;color:#fff!important}
-
-/* Desktop sidebar: white gym logo tile and a fixed, centered brand credit.
-   Navigation alone scrolls; branding stays pinned at the bottom of the sidebar. */
-@media(min-width:851px){
- :root[data-gym-theme] body .management-app>.sidebar{
-   display:flex;flex-direction:column;height:100dvh;overflow:hidden!important;
- }
- :root[data-gym-theme] body .management-app>.sidebar .navigation-logo-card{
-   background:#fff!important;color:#145cc2!important;
-   border:1px solid #d5e4fb;border-radius:14px;
-   margin:0 10px;padding:16px 10px;
-   text-align:center;
- }
- :root[data-gym-theme] body .management-app>.sidebar .navigation-logo-card :is(strong,small,span){
-   color:#145cc2!important;
- }
- :root[data-gym-theme] body .management-app>.sidebar .management-nav-wrap{
-   flex:1 1 auto;min-height:0;overflow-y:auto!important;overflow-x:hidden;
-   scrollbar-width:thin;scrollbar-color:#ffffff70 transparent;
- }
- :root[data-gym-theme] body .management-app>.sidebar .sidebar-brand-credit{
-   display:block;flex:0 0 auto;margin-top:auto;padding:14px 8px 18px;
-   border-top:1px solid #ffffff35;background:#145cc2;
-   color:#fff;text-align:center;font-size:12px;line-height:1.5;
- }
- :root[data-gym-theme] body .management-app>main>.app-footer{display:none!important}
-}
-@media(max-width:850px){
- body .management-app>.sidebar>.sidebar-brand-credit{display:none!important}
+@media(max-width:850px) and (max-height:600px){
+ .native-logo-arch{height:88px;margin-bottom:8px}.native-logo-arch img{width:58px;height:58px}.native-drawer-brand{padding-bottom:8px}.native-drawer-bottom{padding-top:10px;padding-bottom:10px}
+ body .native-drawer-bottom .mobile-drawer-support{margin-bottom:8px}
 }
 
-/* Staff QR footer: display the website without a label, as a bold link. */
-.staff-qr-dialog .staff-pass-footer .staff-pass-website{font-weight:700;color:inherit;text-decoration:none;overflow-wrap:anywhere}
-.staff-qr-dialog .staff-pass-footer .staff-pass-website:hover,.staff-qr-dialog .staff-pass-footer .staff-pass-website:focus-visible{text-decoration:underline}
+.staff-qr-dialog-actions{display:flex;justify-content:flex-end;margin-bottom:8px}
 
-/* Digigraptek attribution: white fixed navigation footer, burgundy clickable text. */
-@media(min-width:851px){
- :root[data-gym-theme] body .management-app>.sidebar .sidebar-brand-credit{
-  background:#ffffff!important;color:#990000!important;
-  border-top:1px solid #d5e4fb!important;
-  padding:0!important;
+@media(max-width:850px){body .app>.sidebar:has(.native-app-navigation){overflow:visible!important}}
+
+body .native-drawer-bottom .native-drawer-credit{margin:8px 0 12px;padding-left:28px;color:#ffffffd9;font-size:12px;line-height:1.5;overflow-wrap:anywhere}
+body .native-drawer-bottom .mobile-drawer-support{margin-bottom:0}
+
+/* Center the single attribution within the fixed Android drawer footer. */
+@media(max-width:850px){body .native-app-drawer .native-drawer-bottom .native-drawer-credit{margin:12px 0!important;padding:0!important;text-align:center!important;color:#fff!important;font-weight:600;font-size:13px}}
+
+/* Native overflow menu: touch-friendly quick actions with consistent icons. */
+.native-account-popover{
+  width:min(300px,calc(100vw - 28px));min-width:260px;
+  padding:8px;background:#fff;border:1px solid #d5e4fb;
+  border-radius:18px;box-shadow:0 18px 48px #09295a35;
+  overflow:hidden;
+}
+.native-account-popover-heading{
+ display:flex;flex-direction:column;gap:3px;
+ padding:10px 12px 12px;margin-bottom:4px;
+ border-bottom:1px solid #e7eef9;color:#143c72;
+}
+.native-account-popover-heading span{font-weight:750;font-size:15px}
+.native-account-popover-heading small{
+ color:#71829a;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+body .native-account-popover button.native-account-option{
+ display:flex;align-items:center;gap:12px;min-height:58px;
+ margin:2px 0;padding:9px 10px;width:100%;
+ background:transparent;color:#193557;text-align:left;
+ border:0;border-radius:11px;font-size:15px;font-weight:650;
+}
+body .native-account-popover button.native-account-option:hover,
+body .native-account-popover button.native-account-option:focus-visible{
+ background:#edf4ff;color:#145cc2;outline-offset:-2px;
+}
+.native-menu-icon-wrap{
+ display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;
+ background:#edf4ff;color:#145cc2;border-radius:11px;
+}
+.native-menu-option-label{display:flex;flex-direction:column;gap:3px;min-width:0}
+.native-menu-option-label small{
+ font-size:12px;line-height:1.3;font-weight:400;color:#70829b;
+}
+body .native-account-popover button.native-account-option-qr{
+ background:#edf4ff;color:#145cc2;
+}
+body .native-account-popover button.native-account-option-qr .native-menu-icon-wrap{
+ background:#145cc2;color:#fff;
+}
+@media(max-width:850px){
+ .native-account-menu{z-index:30}
+ .native-account-popover{right:0;max-height:min(70dvh,400px);overflow-y:auto}
+}
+
+/* Native drawer: showcase the logo alone, contained within the white semicircle. */
+@media(max-width:850px){
+ .native-drawer-brand{padding-bottom:8px}
+ .native-logo-arch{
+  width:calc(100% - 24px);
+  height:162px;
+  margin:0 auto 6px;
+  overflow:hidden;
+  box-sizing:border-box;
  }
- :root[data-gym-theme] body .management-app>.sidebar .sidebar-brand-credit a{
-  display:flex;align-items:center;justify-content:center;
-  min-height:54px;padding:12px 8px;
-  background:#ffffff!important;color:#990000!important;
-  text-decoration:none;font-weight:700;line-height:1.5;
+ .native-logo-arch img{
+  display:block;
+  width:116px!important;
+  height:116px!important;
+  max-width:calc(100% - 44px);
+  max-height:calc(100% - 32px);
+  object-fit:contain;
+  border-radius:14px;
+ }
+ .native-logo-arch>span{font-size:56px}
+ .native-drawer-title-sr-only{
+  position:absolute!important;
+  width:1px!important;height:1px!important;
+  padding:0!important;margin:-1px!important;
+  overflow:hidden!important;clip:rect(0,0,0,0)!important;
+  white-space:nowrap!important;border:0!important;
  }
 }
+@media(max-width:850px) and (max-height:600px){
+ .native-logo-arch{height:108px;margin-bottom:4px}
+ .native-logo-arch img{width:78px!important;height:78px!important;max-height:calc(100% - 20px)}
+}
+
+/* Shared navbar logout: always accessible for every signed-in role. */
+body .navbar-logout-button{
+ display:inline-flex;align-items:center;justify-content:center;gap:7px;
+ width:auto;min-height:38px;margin:0 10px 0 auto;padding:8px 12px;
+ background:#fff;color:#990000;border:1px solid #f0c9c9;border-radius:10px;
+ font-size:13px;font-weight:700;white-space:nowrap;
+}
+body .navbar-logout-button:hover{background:#fff3f3;color:#7d0000}
+body .mobile-navbar-logout{
+ display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;
+ margin:0;padding:9px;border:1px solid #ffffff55;background:#ffffff18;
+ color:#fff;border-radius:10px;
+}
+body .mobile-navbar-logout:hover{background:#ffffff30}
 @media(max-width:850px){
- body .native-app-drawer .native-drawer-bottom>a.native-drawer-credit{
-  display:flex!important;align-items:center;justify-content:center;
-  width:100%;min-height:48px;box-sizing:border-box;
-  margin:8px 0 12px!important;padding:10px 12px!important;
-  background:#ffffff!important;color:#990000!important;
-  border-radius:8px;text-align:center!important;text-decoration:none;
-  font-size:13px!important;font-weight:700!important;
+ body .profile-account .navbar-logout-button{display:none!important}
+ body .mobile-navigation-header .mobile-navbar-logout{margin-left:auto}
+}
+@media(min-width:851px){body .mobile-navbar-logout{display:none!important}}
+
+/* APK: compact Quick Actions-inspired cards for drawer and overflow menu. */
+@media(max-width:850px){
+ body .native-app-drawer .mobile-drawer-scroll{padding:4px 14px 8px!important}
+ body .native-app-drawer .mobile-drawer-navigation nav,
+ body .native-app-drawer .mobile-drawer-navigation .sidebar-actions{gap:4px!important;background:transparent!important}
+ body .native-app-drawer .mobile-drawer-navigation button{
+   min-height:46px!important;margin:1px 0!important;padding:8px 12px!important;
+   border:1px solid #ffffff30!important;border-radius:12px!important;
+   background:#ffffff13!important;color:#fff!important;font-size:16px!important;
+   line-height:1.3!important;
  }
-}
-body .app-footer .digigraptek-footer-link{
- display:inline-block;background:#ffffff;color:#990000;
- font-weight:700;text-decoration:none;padding:8px 12px;border-radius:6px;
-}
-body .sidebar-brand-credit a:hover,
-body .native-drawer-credit:hover,
-body .app-footer .digigraptek-footer-link:hover{text-decoration:underline!important}
-body .sidebar-brand-credit a:focus-visible,
-body .native-drawer-credit:focus-visible,
-body .app-footer .digigraptek-footer-link:focus-visible{
- outline:2px solid #990000;outline-offset:-3px;
-}
-
-/* Shared logout belongs in the side navigation, never the top navbar. */
-body .sidebar-logout{display:flex;align-items:center;justify-content:center;gap:10px;
- min-height:46px;padding:11px 14px;margin:8px 12px 12px;width:calc(100% - 24px);
- border:1px solid #f3caca;border-radius:10px;background:#fff;color:#990000;
- font-size:14px;font-weight:700;cursor:pointer;box-shadow:none;flex:0 0 auto}
-body .sidebar-logout:hover,body .sidebar-logout:focus-visible{background:#fff4f4;color:#780000}
-body .sidebar-logout svg{flex:0 0 19px}
-@media(min-width:851px){
- body .management-app>.sidebar,body .supervisor-focus-app>.sidebar{display:flex;flex-direction:column;min-height:0}
- body .management-app>.sidebar>.sidebar-logout,body .supervisor-focus-app>.sidebar>.sidebar-logout{margin-top:auto}
- body .supervisor-focus-app>.sidebar>.desktop-role-navigation,body .manager-focus-app>.sidebar>.supervisor-task-nav{min-height:0;overflow-y:auto;flex:1 1 auto}
-}
-@media(max-width:850px){
- body .app>.sidebar>.sidebar-logout{display:none!important}
- body .mobile-drawer-scroll>.sidebar-logout{width:calc(100% - 12px);margin:10px 6px}
- body .native-app-drawer .native-drawer-bottom>.sidebar-logout{display:flex!important;width:100%;margin:10px 0 0;min-height:48px}
+ body .native-app-drawer .mobile-drawer-navigation button[aria-current=page],
+ body .native-app-drawer .mobile-drawer-navigation button[aria-expanded=true]{
+   background:#edf4ff!important;color:#145cc2!important;border-color:#d5e4fb!important
+ }
+ body .native-app-drawer .mobile-drawer-navigation .sidebar-inline-submenu{margin:2px 0 4px 12px!important;padding-left:8px!important}
+ body .native-app-drawer .mobile-drawer-navigation .sidebar-inline-submenu button{
+   min-height:42px!important;font-size:15px!important;padding:7px 10px!important
+ }
+ body .native-app-drawer .native-logo-arch img{
+   border-radius:50%!important;clip-path:circle(50%);object-fit:contain!important;
+ }
+ .native-account-popover{width:min(282px,calc(100vw - 28px));padding:7px;row-gap:3px}
+ .native-account-popover-heading{padding:8px 11px 9px;margin-bottom:2px}
+ body .native-account-popover button.native-account-option{
+   min-height:48px;margin:0;padding:6px 9px;gap:10px;border-radius:10px
+ }
+ .native-menu-icon-wrap{width:34px;height:34px;flex-basis:34px;border-radius:9px}
+ .native-account-popover .native-menu-icon{width:19px;height:19px}
 }
 
-/* Compact shared menus and consistent white/red Logout on web and native. */
-:root[data-gym-theme] body .sidebar-logout,
-body .native-app-drawer .native-drawer-bottom>.sidebar-logout,
-body .mobile-drawer-scroll>.sidebar-logout{
- background:#fff!important;color:#990000!important;border:1px solid #efcaca!important;
-}
-:root[data-gym-theme] body .sidebar-logout:hover,
-body .native-app-drawer .native-drawer-bottom>.sidebar-logout:hover,
-body .mobile-drawer-scroll>.sidebar-logout:hover{background:#fff3f3!important;color:#790000!important}
-body .sidebar-brand-credit,body .native-drawer-credit,body .app-footer .digigraptek-footer-link{display:none!important}
+/* Compact APK navigation and display phone/email on one horizontal row. */
 @media(max-width:850px){
- body .mobile-drawer-navigation nav,
- body .mobile-drawer-navigation .sidebar-actions{gap:3px!important}
- body .mobile-drawer-navigation .sidebar-inline-submenu{margin-top:2px!important;margin-bottom:4px!important}
- body .mobile-drawer-navigation .nav-menu-label{gap:9px}
-}
-
-/* Centered non-clickable attribution inside desktop and mobile navigation. */
-body .nav-brand-credit{display:block;flex:0 0 auto;text-align:center;font-size:12px;font-weight:650;line-height:1.3;color:#990000;background:#fff;padding:7px 6px;border-top:1px solid #d5e4fb;overflow-wrap:anywhere}
-body .management-app>.sidebar>.nav-brand-credit,
-body .supervisor-focus-app>.sidebar>.nav-brand-credit{margin-top:auto}
-body .management-app>.sidebar>.nav-brand-credit+.sidebar-logout,
-body .supervisor-focus-app>.sidebar>.nav-brand-credit+.sidebar-logout{margin-top:4px!important}
-@media(max-width:850px){
- body .app>.sidebar>.nav-brand-credit{display:none!important}
- body .mobile-drawer-scroll>.nav-brand-credit{margin-top:8px;padding:9px 5px}
- body .native-app-drawer .native-drawer-bottom>.nav-brand-credit{border:0;border-radius:7px;padding:6px;margin-top:5px;font-size:12px}
+ body .native-app-drawer .native-drawer-brand{padding-bottom:2px!important}
+ body .native-app-drawer .native-logo-arch{height:105px!important;margin-bottom:2px!important}
+ body .native-app-drawer .native-logo-arch img{height:82px!important;width:82px!important}
+ body .native-app-drawer .mobile-drawer-navigation nav,
+ body .native-app-drawer .mobile-drawer-navigation .sidebar-actions{gap:1px!important}
+ body .native-app-drawer .mobile-drawer-navigation button{min-height:39px!important;padding:5px 10px!important;margin:0!important;border-radius:9px!important;font-size:15px!important;line-height:1.2!important}
+ body .native-app-drawer .mobile-drawer-navigation .sidebar-inline-submenu button{min-height:37px!important;padding:5px 9px!important;font-size:14px!important}
+ body .native-app-drawer .mobile-drawer-scroll{padding:2px 12px 3px!important}
+ body .native-app-drawer .native-drawer-bottom{padding:5px 12px max(8px,env(safe-area-inset-bottom))!important}
+ body .native-app-drawer .mobile-drawer-support{margin:0!important;padding:0!important}
+ body .native-app-drawer .mobile-drawer-support h3{font-size:13px!important;margin-bottom:2px}
+ body .native-app-drawer .native-support-links{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px!important}
+ body .native-app-drawer .native-support-links a{display:flex!important;align-items:center;gap:4px!important;min-width:0;font-size:11px!important;line-height:1.2!important;overflow-wrap:anywhere}
+ body .native-app-drawer .native-support-links a svg{width:14px;height:14px;flex-basis:14px}
+ body .native-app-drawer .native-support-links a span{overflow-wrap:anywhere}
+ body .native-app-drawer .native-drawer-bottom>.sidebar-logout{min-height:40px!important;margin:4px 0 0!important;padding:7px!important}
 }
