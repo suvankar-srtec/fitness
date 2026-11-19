@@ -176,3 +176,120 @@
  :root[data-gym-theme] body .lead-dashboard .lead-row-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px!important}
  :root[data-gym-theme] body .lead-dashboard .lead-row-actions button{white-space:normal;min-width:0}
 }
+
+/* Mobile directories: place related values side by side instead of tall stacked rows.
+   Scope to the directory only; other responsive tables keep their own layouts. */
+@media screen and (max-width:850px){
+ :root[data-gym-theme] body .directory-panel .panelhead{
+  display:grid!important;grid-template-columns:1fr!important;gap:8px!important;
+  padding:11px 12px!important;align-items:start!important;
+ }
+ :root[data-gym-theme] body .directory-panel .panelhead input{
+  width:100%!important;max-width:none!important;min-height:40px!important;
+  padding:8px 11px!important;margin:0!important;
+ }
+ :root[data-gym-theme] body .directory-panel .panelhead h3{margin:0!important;font-size:17px!important}
+ :root[data-gym-theme] body .directory-panel .tablewrap{padding:0!important;margin:0!important}
+ :root[data-gym-theme] body .directory-panel table.mobile-record-table>tbody{
+  display:grid!important;gap:7px!important;padding:7px!important;
+ }
+ :root[data-gym-theme] body .directory-panel table.mobile-record-table>tbody>tr{
+  display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+  grid-auto-flow:row!important;align-items:start!important;align-content:start!important;
+  column-gap:11px!important;row-gap:7px!important;
+  padding:11px!important;min-height:0!important;height:auto!important;
+  border-radius:10px!important;box-shadow:none!important;
+ }
+ :root[data-gym-theme] body .directory-panel table.mobile-record-table>tbody>tr:nth-child(odd){
+  background:#edf4ff!important;
+ }
+ :root[data-gym-theme] body .directory-panel table.mobile-record-table>tbody>tr:nth-child(even){
+  background:#fff!important;
+ }
+ :root[data-gym-theme] body .directory-panel table.mobile-record-table>tbody>tr>td{
+  min-height:0!important;height:auto!important;align-self:start!important;
+  padding:0!important;border:0!important;line-height:1.33!important;font-size:13px!important;
+ }
+ :root[data-gym-theme] body .directory-panel table.mobile-record-table>tbody>tr>td::before{
+  margin:0 0 3px!important;line-height:1.2!important;letter-spacing:.03em!important;
+  font-size:10px!important;color:#6a7b92!important;
+ }
+ :root[data-gym-theme] body .directory-panel table.mobile-record-table>tbody>tr>td:first-child{
+  border:0!important;padding:0!important;font-weight:500;
+ }
+ :root[data-gym-theme] body .directory-panel table.mobile-record-table td .muted,
+ :root[data-gym-theme] body .directory-panel table.mobile-record-table td small{
+  font-size:12px!important;line-height:1.3!important;
+ }
+ :root[data-gym-theme] body .directory-panel table.mobile-record-table .member-directory-person{
+  display:flex;align-items:center;justify-content:flex-start;gap:6px;
+ }
+ :root[data-gym-theme] body .directory-panel table.mobile-record-table .row-actions{
+  display:flex!important;flex-direction:row!important;flex-wrap:wrap!important;
+  gap:6px!important;align-items:center!important;
+ }
+ :root[data-gym-theme] body .directory-panel table.mobile-record-table .row-actions button{
+  width:auto!important;max-width:none!important;min-width:66px!important;
+  min-height:40px!important;margin:0!important;padding:8px 10px!important;
+  font-size:13px!important;line-height:1.2!important;border-radius:7px!important;
+ }
+ /* Staff: ID / Name, Role / Access, then compact inline actions. */
+ :root[data-gym-theme] body .directory-panel table.staff-directory-table>tbody>tr>td:nth-child(1){
+  grid-column:1!important;grid-row:1!important;
+ }
+ :root[data-gym-theme] body .directory-panel table.staff-directory-table>tbody>tr>td:nth-child(2){
+  grid-column:2!important;grid-row:1!important;
+ }
+ :root[data-gym-theme] body .directory-panel table.staff-directory-table>tbody>tr>td:nth-child(3){
+  grid-column:1!important;grid-row:2!important;
+ }
+ :root[data-gym-theme] body .directory-panel table.staff-directory-table>tbody>tr>td:nth-child(4){
+  grid-column:2!important;grid-row:2!important;
+ }
+ :root[data-gym-theme] body .directory-panel table.staff-directory-table>tbody>tr>td:nth-child(5){
+  grid-column:1/-1!important;grid-row:3!important;
+ }
+ /* Members: ID / Name, Contact / Location, Plan / Validity, then actions. */
+ :root[data-gym-theme] body .directory-panel table.member-directory-table>tbody>tr>td:nth-child(1){
+  grid-column:1!important;grid-row:1!important;
+ }
+ :root[data-gym-theme] body .directory-panel table.member-directory-table>tbody>tr>td:nth-child(2){
+  grid-column:2!important;grid-row:1!important;
+ }
+ :root[data-gym-theme] body .directory-panel table.member-directory-table>tbody>tr>td:nth-child(3){
+  grid-column:1!important;grid-row:2!important;
+ }
+ :root[data-gym-theme] body .directory-panel table.member-directory-table>tbody>tr>td:nth-child(4){
+  grid-column:2!important;grid-row:2!important;
+ }
+ :root[data-gym-theme] body .directory-panel table.member-directory-table>tbody>tr>td:nth-child(5){
+  grid-column:1!important;grid-row:3!important;
+ }
+ :root[data-gym-theme] body .directory-panel table.member-directory-table>tbody>tr>td:nth-child(6){
+  grid-column:2!important;grid-row:3!important;
+ }
+ :root[data-gym-theme] body .directory-panel table.member-directory-table>tbody>tr>td:nth-child(7){
+  grid-column:1/-1!important;grid-row:4!important;
+ }
+ :root[data-gym-theme] body .directory-panel table.member-directory-table .row-actions{
+  display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ }
+ :root[data-gym-theme] body .directory-panel table.member-directory-table .row-actions button{
+  width:100%!important;min-width:0!important;
+ }
+ :root[data-gym-theme] body .directory-panel table.member-directory-table .membership-validity{
+  margin:0!important;gap:3px!important;
+ }
+ :root[data-gym-theme] body .directory-panel .member-status-filters{
+  padding:7px 10px!important;gap:6px!important;
+ }
+}
+@media(max-width:360px){
+ :root[data-gym-theme] body .directory-panel table.mobile-record-table>tbody>tr{
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+  padding:9px!important;gap:6px 9px!important;
+ }
+ :root[data-gym-theme] body .directory-panel table.mobile-record-table .row-actions button{
+  min-width:58px!important;padding:7px 8px!important;
+ }
+}
