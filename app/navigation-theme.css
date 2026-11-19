@@ -34,3 +34,128 @@ body .mobile-drawer .profile-qr{border-color:#ffffff40}
  body .sidebar .sidebar-identity,body .member-mobile-header>.navbar-branding{display:none!important}
  body .member-mobile-header{border-radius:0;padding:12px 16px}
 }
+
+
+/* Website sidebar menu refresh for every role.
+   Keep the existing blue navigation shell, identity/header, footer and APK untouched. */
+@media (min-width:851px) {
+  :root[data-gym-theme] body :is(.management-app,.supervisor-focus-app)>.sidebar :is(.sidebar-actions,.supervisor-task-nav,.desktop-role-navigation nav) {
+    gap:6px;
+  }
+  :root[data-gym-theme] body :is(.management-app,.supervisor-focus-app)>.sidebar :is(.sidebar-actions>button,.plan-menu-toggle,.supervisor-task-nav button,.desktop-role-navigation nav>button) {
+    box-sizing:border-box;
+    width:100%;
+    min-height:44px;
+    padding:10px 13px;
+    border:1px solid transparent!important;
+    border-radius:12px!important;
+    display:flex;
+    align-items:center;
+    gap:11px;
+    text-align:left;
+    font-weight:550;
+    line-height:1.35;
+    background:transparent!important;
+    color:#fff!important;
+    box-shadow:none!important;
+    transition:background-color .16s ease,border-color .16s ease,transform .16s ease;
+  }
+  :root[data-gym-theme] body :is(.management-app,.supervisor-focus-app)>.sidebar :is(.sidebar-actions>button,.plan-menu-toggle,.supervisor-task-nav button,.desktop-role-navigation nav>button):is(:hover,:focus-visible) {
+    background:#ffffff1c!important;
+    border-color:#ffffff30!important;
+    color:#fff!important;
+  }
+  :root[data-gym-theme] body :is(.management-app,.supervisor-focus-app)>.sidebar :is(.sidebar-actions>button,.supervisor-task-nav button,.desktop-role-navigation nav>button)[aria-current="page"],
+  :root[data-gym-theme] body :is(.management-app,.supervisor-focus-app)>.sidebar .has-active-page>.plan-menu-toggle {
+    background:#ffffff2b!important;
+    border-color:#ffffff55!important;
+    color:#fff!important;
+    box-shadow:inset 3px 0 #fff!important;
+    font-weight:700;
+  }
+  :root[data-gym-theme] body .management-app>.sidebar .plan-menu-toggle[aria-expanded="true"] {
+    background:#ffffff18!important;
+    border-color:#ffffff35!important;
+  }
+  :root[data-gym-theme] body .management-app>.sidebar .has-active-page>.plan-menu-toggle[aria-expanded="true"] {
+    background:#ffffff2b!important;
+  }
+  :root[data-gym-theme] body .management-app>.sidebar .sidebar-inline-submenu {
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    margin:5px 0 9px 17px;
+    padding:3px 0 3px 13px;
+    border-left:1px solid #ffffff60!important;
+  }
+  :root[data-gym-theme] body .management-app>.sidebar .sidebar-inline-submenu[hidden] {display:none!important}
+  :root[data-gym-theme] body .management-app>.sidebar .sidebar-inline-submenu button {
+    box-sizing:border-box;
+    width:100%;
+    min-height:37px;
+    padding:8px 11px;
+    border:1px solid transparent!important;
+    border-radius:9px!important;
+    text-align:left;
+    background:transparent!important;
+    color:#fff!important;
+    box-shadow:none!important;
+    font-weight:500;
+  }
+  :root[data-gym-theme] body .management-app>.sidebar .sidebar-inline-submenu button:is(:hover,:focus-visible,[aria-current="page"]) {
+    background:#ffffff20!important;
+    color:#fff!important;
+    border-color:#ffffff35!important;
+  }
+  :root[data-gym-theme] body .management-app>.sidebar .sidebar-inline-submenu button[aria-current="page"] {font-weight:700}
+  :root[data-gym-theme] body :is(.management-app,.supervisor-focus-app)>.sidebar :is(.dashboard-nav>svg,.nav-menu-label>svg) {
+    width:19px;
+    height:19px;
+    flex-shrink:0;
+    stroke-width:1.9;
+  }
+  :root[data-gym-theme] body :is(.management-app,.supervisor-focus-app)>.sidebar .nav-chevron {
+    margin-left:auto;
+    transition:transform .16s ease;
+  }
+}
+/* Website mobile drawer uses the same clean item treatment; native APK stays separate. */
+@media (max-width:850px) {
+  :root[data-gym-theme] body .mobile-drawer:not(.native-app-drawer) .mobile-drawer-navigation :is(nav,.sidebar-actions) {gap:5px}
+  :root[data-gym-theme] body .mobile-drawer:not(.native-app-drawer) .mobile-drawer-navigation :is(nav>button,.sidebar-actions>button,.plan-menu-toggle,.supervisor-task-nav button) {
+    width:100%;
+    min-height:44px;
+    padding:10px 13px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    border:1px solid transparent!important;
+    border-radius:11px!important;
+    color:#fff!important;
+    background:transparent!important;
+    text-align:left;
+    box-shadow:none!important;
+  }
+  :root[data-gym-theme] body .mobile-drawer:not(.native-app-drawer) .mobile-drawer-navigation :is(nav>button,.sidebar-actions>button,.plan-menu-toggle,.supervisor-task-nav button):is(:hover,:focus-visible,[aria-current="page"]),
+  :root[data-gym-theme] body .mobile-drawer:not(.native-app-drawer) .mobile-drawer-navigation .has-active-page>.plan-menu-toggle {
+    background:#ffffff24!important;
+    color:#fff!important;
+    border-color:#ffffff40!important;
+  }
+  :root[data-gym-theme] body .mobile-drawer:not(.native-app-drawer) .sidebar-inline-submenu {
+    margin:4px 0 8px 18px;
+    padding-left:12px;
+    border-left:1px solid #ffffff55!important;
+  }
+  :root[data-gym-theme] body .mobile-drawer:not(.native-app-drawer) .sidebar-inline-submenu button {
+    border-radius:9px!important;
+    min-height:38px;
+    padding:8px 10px;
+    color:#fff!important;
+    background:transparent!important;
+  }
+  :root[data-gym-theme] body .mobile-drawer:not(.native-app-drawer) .sidebar-inline-submenu button:is(:hover,:focus-visible,[aria-current="page"]) {
+    background:#ffffff24!important;
+    color:#fff!important;
+  }
+}
