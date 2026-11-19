@@ -435,3 +435,30 @@
   margin:0!important;
  }
 }
+
+/* Apply the same legible inline-label treatment to mobile record cards in every role. */
+@media(max-width:850px){
+ :root[data-gym-theme] body table.mobile-record-table:not(.member-directory-table):not(.staff-directory-table)>tbody>tr>td,
+ :root[data-gym-theme] body table.mobile-record-table:not(.member-directory-table):not(.staff-directory-table)>tfoot>tr>td{
+  line-height:1.4!important;
+ }
+ :root[data-gym-theme] body table.mobile-record-table:not(.member-directory-table):not(.staff-directory-table)>tbody>tr>td::before,
+ :root[data-gym-theme] body table.mobile-record-table:not(.member-directory-table):not(.staff-directory-table)>tfoot>tr>td::before{
+  display:inline!important;
+  margin:0 7px 0 0!important;
+  font-size:11px!important;
+  letter-spacing:0!important;
+  text-transform:none!important;
+  font-weight:700!important;
+ }
+ :root[data-gym-theme] body table.mobile-record-table :is(.row-actions,.actions)>button.secondary{
+  background:#fff!important;color:#1455af!important;
+  border:1px solid #a8c6f0!important;
+ }
+ :root[data-gym-theme] body table.mobile-record-table :is(.row-actions,.actions)>button.delete-button{
+  background:#b91c1c!important;color:#fff!important;border:1px solid #b91c1c!important;
+ }
+ :root[data-gym-theme] body table.mobile-record-table :is(.row-actions,.actions)>button:not(.secondary):not(.delete-button){
+  background:#155fc4!important;color:#fff!important;border:1px solid #155fc4!important;
+ }
+}
