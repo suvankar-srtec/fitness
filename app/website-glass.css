@@ -169,3 +169,53 @@
 @media (prefers-reduced-transparency:reduce) {
  :root[data-gym-theme] body:not(:has(.native-app-navigation)) .app main [data-card-surface] {background:#fff!important;-webkit-backdrop-filter:none;backdrop-filter:none}
 }
+
+/* Distinct role backdrops; admin retains the architectural rings above.
+   Static CSS textures repeat down every workspace page without extra assets. */
+@media screen {
+ :root[data-gym-theme] body:not(:has(.native-app-navigation)) .app[data-workspace-role="superadmin"] {
+  background-color:#edf0fc!important;
+  background-image:
+   linear-gradient(45deg,transparent 46%,rgba(95,112,188,.12) 46.2% 46.5%,transparent 46.7%),
+   linear-gradient(-45deg,transparent 46%,rgba(95,112,188,.12) 46.2% 46.5%,transparent 46.7%),
+   radial-gradient(ellipse at 84% 18%,rgba(114,142,233,.40),transparent 62%),
+   radial-gradient(ellipse at 12% 80%,rgba(144,157,221,.25),transparent 56%)!important;
+  background-size:220px 220px,220px 220px,1300px 1000px,1100px 900px!important;
+ }
+ :root[data-gym-theme] body:not(:has(.native-app-navigation)) .app[data-workspace-role="manager"] {
+  background-color:#eaf3fb!important;
+  background-image:
+   linear-gradient(125deg,transparent 44%,rgba(40,136,186,.12) 44.2% 48%,transparent 48.2% 57%,rgba(65,122,202,.08) 57.2% 59%,transparent 59.2%),
+   radial-gradient(circle,rgba(48,105,168,.16) 1.2px,transparent 1.6px),
+   radial-gradient(ellipse at 90% 10%,rgba(67,158,223,.38),transparent 60%),
+   radial-gradient(ellipse at 10% 80%,rgba(96,189,198,.26),transparent 55%)!important;
+  background-size:780px 700px,28px 28px,1300px 1100px,1100px 900px!important;
+ }
+ :root[data-gym-theme] body:not(:has(.native-app-navigation)) .app[data-workspace-role="member"] {
+  background-color:#eef5fd!important;
+  background-image:
+   radial-gradient(ellipse at 95% 12%,transparent 0 155px,rgba(77,136,207,.18) 156px 158px,transparent 159px 210px,rgba(77,136,207,.11) 211px 213px,transparent 214px),
+   radial-gradient(ellipse at 0% 90%,transparent 0 120px,rgba(58,155,184,.14) 121px 123px,transparent 124px 172px,rgba(58,155,184,.09) 173px 175px,transparent 176px),
+   radial-gradient(ellipse at 90% 12%,rgba(124,174,240,.40),transparent 62%),
+   radial-gradient(ellipse at 10% 82%,rgba(116,205,213,.28),transparent 56%)!important;
+  background-size:960px 780px,1120px 960px,1400px 1100px,1200px 1000px!important;
+ }
+ :root[data-gym-theme] body:not(:has(.native-app-navigation)) .app[data-workspace-role="employee"] {
+  background-color:#edf6f9!important;
+  background-image:
+   radial-gradient(circle,rgba(42,119,151,.19) 1.4px,transparent 1.8px),
+   linear-gradient(90deg,transparent 48%,rgba(67,143,167,.07) 48.2% 50%,transparent 50.2%),
+   radial-gradient(ellipse at 86% 18%,rgba(97,179,202,.33),transparent 60%),
+   radial-gradient(ellipse at 10% 80%,rgba(118,167,227,.28),transparent 56%)!important;
+  background-size:32px 32px,560px 780px,1300px 1000px,1100px 900px!important;
+ }
+ :root[data-gym-theme] body:not(:has(.native-app-navigation)) .app[data-workspace-role="trainer"] {
+  background-color:#eef2fc!important;
+  background-image:
+   linear-gradient(135deg,transparent 40%,rgba(93,116,195,.12) 40.2% 40.5%,transparent 40.7% 50%,rgba(93,116,195,.09) 50.2% 55%,transparent 55.2%),
+   linear-gradient(45deg,transparent 70%,rgba(106,139,210,.10) 70.2% 70.5%,transparent 70.7%),
+   radial-gradient(ellipse at 90% 10%,rgba(132,147,224,.35),transparent 60%),
+   radial-gradient(ellipse at 10% 82%,rgba(106,182,222,.28),transparent 56%)!important;
+  background-size:640px 640px,840px 840px,1300px 1000px,1100px 900px!important;
+ }
+}
