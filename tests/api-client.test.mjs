@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {requestApi} from '../lib/api-client.mjs';
+import {requestApi,clearApiReadCache} from '../lib/api-client.mjs';
 const response=(status,data)=>({status,ok:status>=200&&status<300,json:async()=>data});
 test('temporary read errors recover without surfacing a stale failure',async()=>{
  let calls=0;const result=await requestApi('plans','GET',undefined,{fetcher:async()=>++calls===1?response(503,{error:'Unavailable'}):response(200,[{id:1}]),wait:async()=>{}});
@@ -159,4 +159,58 @@ test('failed write never triggers connection retry notification or an automatic 
   await assert.rejects(requestApi('members','POST',{name:'Test'},{fetcher:async()=>{calls++;throw new Error('offline');}}),error=>error.code==='NETWORK_ERROR');
   assert.equal(calls,1);assert.deepEqual(events,[]);
  }finally{if(prior===undefined)delete globalThis.window;else globalThis.window=prior;}
+});
+
+test('recent workspace results are reused briefly without another API call',async()=>{
+ const originalWindow=globalThis.window,originalFetch=globalThis.fetch;
+ let calls=0;
+ globalThis.window={dispatchEvent(){}};
+ globalThis.fetch=async()=>response(200,{members:[],plans:[],request:++calls});
+ clearApiReadCache();
+ try{
+  const first=await requestApi('workspace');
+  const second=await requestApi('workspace');
+  assert.equal(calls,1);
+  assert.deepEqual(second,first);
+ }finally{
+  clearApiReadCache();globalThis.fetch=originalFetch;
+  if(originalWindow===undefined)delete globalThis.window;else globalThis.window=originalWindow;
+ }
+});
+
+test('successful mutations invalidate cached workspaces and avoid cross-account reuse',async()=>{
+ const originalWindow=globalThis.window,originalFetch=globalThis.fetch;
+ let reads=0;
+ globalThis.window={dispatchEvent(){}};
+ globalThis.fetch=async(_url,options)=>options.method==='GET'?response(200,{version:++reads}):response(200,{ok:true});
+ clearApiReadCache();
+ try{
+  assert.equal((await requestApi('workspace')).version,1);
+  await requestApi('members','PATCH',{id:2});
+  assert.equal((await requestApi('workspace')).version,2);
+  await requestApi('logout','POST',{});
+  assert.equal((await requestApi('workspace')).version,3);
+ }finally{
+  clearApiReadCache();globalThis.fetch=originalFetch;
+  if(originalWindow===undefined)delete globalThis.window;else globalThis.window=originalWindow;
+ }
+});
+
+test('background refresh bypasses cached data and updates the next screen read',async()=>{
+ const originalWindow=globalThis.window,originalFetch=globalThis.fetch;
+ let calls=0;
+ globalThis.window={dispatchEvent(){}};
+ globalThis.fetch=async()=>response(200,{version:++calls});
+ clearApiReadCache();
+ try{
+  await requestApi('manager-dashboard');
+  const background=await requestApi('manager-dashboard','GET',undefined,{silent:true});
+  const screen=await requestApi('manager-dashboard');
+  assert.equal(background.version,2);
+  assert.equal(screen.version,2);
+  assert.equal(calls,2);
+ }finally{
+  clearApiReadCache();globalThis.fetch=originalFetch;
+  if(originalWindow===undefined)delete globalThis.window;else globalThis.window=originalWindow;
+ }
 });
