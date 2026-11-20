@@ -159,3 +159,10 @@ body .mobile-drawer .profile-qr{border-color:#ffffff40}
     color:#fff!important;
   }
 }
+
+/* Expanded headings must retain white text on the blue navigation surface.
+   The legacy expanded-state accent color otherwise wins on specificity. */
+:root[data-gym-theme] body :is(.management-app,.supervisor-focus-app)>.sidebar .plan-menu>.plan-menu-toggle[aria-expanded="true"],
+:root[data-gym-theme] body .mobile-drawer:not(.native-app-drawer) .mobile-drawer-navigation .plan-menu>.plan-menu-toggle[aria-expanded="true"] {
+ color:#fff!important;
+}
