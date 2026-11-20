@@ -17,12 +17,12 @@ import { useEffect, useRef, useState } from 'react';
 import {isMainSuperadmin,canCreateGymAdmin} from '../lib/user-permissions.mjs';
 import dynamic from 'next/dynamic';
 const SupervisorDashboard=dynamic(()=>import('./components/SupervisorDashboard'),{ssr:false,loading:()=> <div className="loading">Loading dashboard...</div>});
-import GymLocationInput from './components/GymLocationInput';
-import PhoneInput from './components/PhoneInput';
-import LoginPanel from './components/LoginPanel';
+const GymLocationInput=dynamic(()=>import('./components/GymLocationInput'));
+const PhoneInput=dynamic(()=>import('./components/PhoneInput'));
+const LoginPanel=dynamic(()=>import('./components/LoginPanel'));
 const AdminCreationForm=dynamic(()=>import('./components/AdminCreationForm'));
 import AppFooter from './components/AppFooter';
-import GymBrandingFields from './components/GymBrandingFields';
+const GymBrandingFields=dynamic(()=>import('./components/GymBrandingFields'));
 const MemberForm=dynamic(()=>import('./components/MemberForm'));
 import MemberShopping,{MemberShoppingButton} from './components/MemberShopping';
 const MemberRenewal=dynamic(()=>import('./components/MemberRenewal'));
@@ -107,12 +107,12 @@ export default function Home() {
   finally{if(run===loadRun.current)setDataLoading(false);}
  }
  async function retryLoad(){setBusy(true);try{await load(me);}catch(e){setError(e.message);}finally{setBusy(false);}}
- useEffect(()=>{let active=true;api('me').then(async u=>{if(!active)return;setMe(u);setLoading(false);setDataLoading(true);try{await load(u);}finally{setDataLoading(false);}}).catch(e=>{if(active&&e.status!==401)setError(e.message);}).finally(()=>{if(active)setLoading(false);});return()=>{active=false;};},[]);
+ useEffect(()=>{let active=true;api('me').then(async u=>{if(!active)return;if(u.role==='admin')void import('./components/AdminHome');setMe(u);setLoading(false);setDataLoading(true);try{await load(u);}finally{setDataLoading(false);}}).catch(e=>{if(active&&e.status!==401)setError(e.message);}).finally(()=>{if(active)setLoading(false);});return()=>{active=false;};},[]);
  // Retry can recover a failed initial session read without reloading or losing dashboard state.
  useEffect(()=>{if(me)return;let active=true;const retry=()=>{api('me','GET',undefined,{silent:true}).then(async user=>{if(!active)return;setMe(user);setError('');setDataLoading(true);await load(user,{silent:true});}).catch(error=>{if(active&&error.status!==401)setError(error.message);}).finally(()=>{if(active)setDataLoading(false);});};window.addEventListener('gym-connection-retry',retry);return()=>{active=false;window.removeEventListener('gym-connection-retry',retry);};},[me]);
  useEffect(()=>{if((!modal&&!planOpen)||(modal&&kind==='members'))return;const handler=e=>{if(e.key==='Escape'&&!busy){setModal(false);setPlanOpen(false);}};document.addEventListener('keydown',handler);return()=>document.removeEventListener('keydown',handler);},[modal,planOpen,busy,kind]);
  useEffect(()=>{const refresh=()=>{if(me)load(me).catch(e=>setError(e.message));};window.addEventListener('gym-members-changed',refresh);return()=>window.removeEventListener('gym-members-changed',refresh);},[me]);
- async function signIn(data){setBusy(true);setError('');try{const u=await api('login','POST',data);setMe(u);setDataLoading(true);void load(u).catch(e=>setError(e.message)).finally(()=>setDataLoading(false));}catch(e){if(!['MEMBERSHIP_EXPIRED','MEMBER_INACTIVE','SUBSCRIPTION_EXPIRED'].includes(e.code))setError(e.message);throw e;}finally{setBusy(false);}}
+ async function signIn(data){setBusy(true);setError('');try{const u=await api('login','POST',data);if(u.role==='admin')void import('./components/AdminHome');setMe(u);setDataLoading(true);void load(u).catch(e=>setError(e.message)).finally(()=>setDataLoading(false));}catch(e){if(!['MEMBERSHIP_EXPIRED','MEMBER_INACTIVE','SUBSCRIPTION_EXPIRED'].includes(e.code))setError(e.message);throw e;}finally{setBusy(false);}}
  async function saveMember(data){setBusy(true);try{await api('members',editingMember?'PATCH':'POST',{...data,...(editingMember?{id:editingMember.id}:{})});if(!editingMember){memberReservation.current=null;setTab('primary');}setEditingMember(null);setQuery('');setModal(false);void load(me);}finally{setBusy(false);}}
  async function create(e){e.preventDefault();setBusy(true);setFormError('');const form=e.currentTarget;const data=Object.fromEntries(new FormData(form));try{const result=await api(kind,'POST',data);setTab(kind==='managers'?'employees':kind==='supervisors'?'supervisors':'primary');setQuery('');form.reset();setModal(false);void load(me);}catch(e){setFormError(e.message);}finally{setBusy(false);}}
  async function createPlan(e){e.preventDefault();setBusy(true);setPlanError('');try{const saved=await api('plans',editingPlan?'PATCH':'POST',{...Object.fromEntries(new FormData(e.currentTarget)),...(editingPlan?{id:editingPlan.id}:{})});setPlans(previous=>[saved,...previous.filter(plan=>plan.id!==saved.id)]);setPlanOpen(false);setTab('plans');setQuery('');setPlanMenuOpen(true);}catch(e){setPlanError(e.message);}finally{setBusy(false);}}

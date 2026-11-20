@@ -1,3 +1,4 @@
+import {staffSessionRecord,staffSessionError} from '../../../lib/session-records.mjs';
 import {accountPlanApi} from '../../../lib/account-plan-api.js';
 import {supportContact} from '../../../lib/support-contact.mjs';
 import {isTrainer} from '../../../lib/trainer-access.mjs';
@@ -84,10 +85,9 @@ try {
  if(action==='login'&&req.method==='POST')return await loginApi(req,sql);
  const token=req.cookies.get('session')?.value;if(!token)return fail('Please sign in',401);
  if(token.startsWith('m.')){const memberResponse=await memberSession(action,req,sql,token);return memberResponse||fail('Please sign in',401);}
- const [u]=await sql`SELECT u.*,(SELECT name FROM employee_roles er WHERE er.id=u.employee_role_id AND er.admin_id=u.created_by) AS employee_role_name,g.contact_phone AS owner_gym_phone,g.gym_website AS owner_gym_website,g.email AS gym_email,CASE WHEN u.role IN ('manager','supervisor') THEN g.gym_logo ELSE u.gym_logo END AS gym_logo,gym_account_enabled(u.id) AS account_enabled,gym_subscription_active(CASE WHEN u.role='admin' THEN u.id ELSE u.created_by END) AS subscription_active,l.name AS location_name,CASE WHEN u.role IN ('manager','supervisor') THEN COALESCE(NULLIF(g.gym_name,''),g.name) ELSE u.gym_name END AS gym_name FROM users u JOIN sessions s ON u.id=s.user_id LEFT JOIN (SELECT *,COALESCE(NULLIF(gym_phone,''),phone) AS contact_phone FROM users WHERE role='admin') g ON g.id=u.created_by LEFT JOIN gym_locations l ON l.id=u.location_id WHERE s.token_hash=${tokenHash(token)} AND s.expires_at>NOW()`;
- if(!u||!u.account_enabled||u.role==='superadmin'&&!isMainSuperadmin(publicUser(u)))return fail('Please sign in',401);
- if(u.role!=='superadmin'&&!u.password_ready)return fail('Verify your WhatsApp number and set your password.',401);
- if(u.role!=='superadmin'&&u.subscription_active===false)return response({error:'Organization subscription is not active. Contact superadmin.',code:'SUBSCRIPTION_EXPIRED'},403);
+ const u=await staffSessionRecord(sql,token);
+ const sessionError=staffSessionError(u);
+ if(sessionError){const {status,...body}=sessionError;return response(body,status);}
  if(isTrainer(u)&&!['account-plan','trainer-workspace','trainer-member-pass','staff-pass','support','me','logout'].includes(action))return fail('Trainer access is limited to assigned members and QR passes',403);
  sql=withAuditActor(sql,u);
  if(['trainers','trainer-access','trainer-workspace','trainer-member-pass'].includes(action))return await trainerApi(action,req,u,sql);

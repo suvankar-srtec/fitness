@@ -1,7 +1,7 @@
  'use client';
 import {useEffect,useRef,useState} from 'react';
 import StaffQrButton from './StaffQrButton';
-import AdminAccountDetails from './AdminAccountDetails';
+const AdminAccountDetails=dynamic(()=>import('./AdminAccountDetails'));
 import dynamic from 'next/dynamic';
 import {requestApi} from '../../lib/api-client.mjs';
 const MemberQueries=dynamic(()=>import('./MemberQueries'));

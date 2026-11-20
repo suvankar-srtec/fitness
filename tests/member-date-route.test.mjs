@@ -1,9 +1,10 @@
+import {staffSessionRecord,staffSessionError} from '../lib/session-records.mjs';
 import {isTrainer} from '../lib/trainer-access.mjs';
 ﻿import test from 'node:test';import assert from 'node:assert/strict';import {readFileSync} from 'node:fs';import {createRequire} from 'node:module';import {runInNewContext} from 'node:vm';
 import {validateMember,memberToday} from '../lib/members.mjs';import {memberFormDates} from '../lib/member-dates.mjs';import {normalizeEmail} from '../lib/email-otp.mjs';import {PAYMENT_MODES} from '../lib/payments.mjs';import {subscriptionError} from '../lib/gym-subscription.mjs';
 const require=createRequire(import.meta.url),source=readFileSync(new URL('../app/api/[action]/route.js',import.meta.url),'utf8'),ast=require('next/dist/compiled/babel/parser').parse(source,{sourceType:'module'}),fn=ast.program.body.find(node=>node.type==='FunctionDeclaration'&&node.id.name==='handle');
 const user={id:8,role:'admin',account_enabled:true,password_ready:true,subscription_active:true};
-function handler(sql,extra={}){const response=(body,status=200)=>Response.json(body,{status});return runInNewContext(source.slice(fn.start,fn.end)+';handle',{response,fail:(error,status)=>response({error},status),database:()=>sql,sameRequestOrigin:()=>true,normalizeEmail,tokenHash:()=>'',withAuditActor:sql=>sql,isTrainer,subscriptionError,validateMember,memberToday,memberFormDates,PAYMENT_MODES,console:{error(){}},URL,SyntaxError,Error,...extra});}
+function handler(sql,extra={}){const response=(body,status=200)=>Response.json(body,{status});return runInNewContext(source.slice(fn.start,fn.end)+';handle',{response,fail:(error,status)=>response({error},status),database:()=>sql,staffSessionRecord,staffSessionError,sameRequestOrigin:()=>true,normalizeEmail,tokenHash:()=>'',withAuditActor:sql=>sql,isTrainer,subscriptionError,validateMember,memberToday,memberFormDates,PAYMENT_MODES,console:{error(){}},URL,SyntaxError,Error,...extra});}
 function request(method,body){const req=new Request('https://app.test/api/members',{method,body:JSON.stringify(body)});req.cookies={get:()=>({value:'session'})};return req;}
 test('registration ignores forged validity and derives dates from the saved plan',async()=>{
  let saved;const sql=async(strings)=>{if(strings.join('?').includes('JOIN sessions'))return [user];throw Error('Unexpected query');};

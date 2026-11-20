@@ -1,3 +1,4 @@
+import {staffSessionRecord,staffSessionError} from '../lib/session-records.mjs';
 import {isTrainer} from '../lib/trainer-access.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -16,7 +17,7 @@ const ast=parser.parse(source,{sourceType:'module'}),node=ast.program.body.find(
 function handler(sql){
  const response=(body,status=200)=>Response.json(body,{status});
  return runInNewContext(source.slice(node.start,node.end)+';handle',{
-  response,fail:(error,status)=>response({error},status),database:()=>sql,sameRequestOrigin:()=>true,
+  response,fail:(error,status)=>response({error},status),database:()=>sql,staffSessionRecord,staffSessionError,sameRequestOrigin:()=>true,
   normalizeEmail,tokenHash:()=>'',withAuditActor:sql=>sql,isTrainer,subscriptionError,employeesApi,employeeRolesApi,employeeDetails,
   console:{error(){}},URL,SyntaxError,Error
  });

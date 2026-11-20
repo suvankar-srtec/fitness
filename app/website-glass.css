@@ -6,13 +6,13 @@
   --glass-blue:#145cc2;
   --glass-edge:rgba(115,165,231,.43);
   --glass-shadow:0 8px 26px rgba(30,82,153,.09),inset 0 1px 0 rgba(255,255,255,.88);
-  --glass-surface:rgba(255,255,255,.79);
-  --glass-soft:rgba(235,245,255,.78);
+  --glass-surface:rgba(255,255,255,.60);
+  --glass-soft:rgba(224,239,255,.60);
  }
  :root[data-gym-theme] body:not(:has(.native-app-navigation)) .app {
   background:
-   radial-gradient(ellipse 62% 42% at 92% 2%,rgba(141,193,255,.28),transparent 73%),
-   radial-gradient(ellipse 50% 40% at 20% 90%,rgba(168,211,255,.22),transparent 74%),
+   radial-gradient(ellipse 62% 42% at 92% 2%,rgba(110,171,250,.48),transparent 73%),
+   radial-gradient(ellipse 50% 40% at 20% 90%,rgba(133,195,255,.38),transparent 74%),
    linear-gradient(135deg,#f5faff 0%,#eaf4ff 55%,#f8fcff 100%)!important;
   min-height:100dvh;
  }
@@ -134,4 +134,28 @@
   -webkit-backdrop-filter:none!important;
   backdrop-filter:none!important;
  }
+}
+
+/* Markers cover CSS-module cards as well as global panels for every role.
+   Keep these after the density/palette rules so opaque module backgrounds
+   cannot hide the glass layer. Native app palette remains unchanged. */
+@media screen {
+ :root[data-gym-theme] body:not(:has(.native-app-navigation)) .app main [data-card-surface] {
+  background:var(--glass-soft)!important;
+  border:1px solid rgba(255,255,255,.82)!important;
+  border-radius:16px!important;
+  box-shadow:0 8px 24px rgba(30,82,153,.10),inset 0 1px 0 rgba(255,255,255,.92)!important;
+  -webkit-backdrop-filter:blur(14px) saturate(125%);
+  backdrop-filter:blur(14px) saturate(125%);
+ }
+ :root[data-gym-theme] body:not(:has(.native-app-navigation)) .app main [data-card-surface]:nth-child(even of [data-card-surface]) {background:var(--glass-surface)!important}
+ :root[data-gym-theme] body:not(:has(.native-app-navigation)) .app main [data-card-surface] > :is(header,[class*="panelHeader"],[class*="memberHeader"]) {background:transparent!important}
+}
+@media screen and (max-width:850px) {
+ :root[data-gym-theme] body:not(:has(.native-app-navigation)) .app main [data-card-surface] {-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px)}
+ /* Nested surfaces share the outer card blur to avoid excessive GPU layers. */
+ :root[data-gym-theme] body:not(:has(.native-app-navigation)) .app main [data-card-surface] [data-card-surface] {-webkit-backdrop-filter:none;backdrop-filter:none}
+}
+@media (prefers-reduced-transparency:reduce) {
+ :root[data-gym-theme] body:not(:has(.native-app-navigation)) .app main [data-card-surface] {background:#fff!important;-webkit-backdrop-filter:none;backdrop-filter:none}
 }
