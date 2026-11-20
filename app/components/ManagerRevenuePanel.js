@@ -11,7 +11,7 @@ export default function ManagerRevenuePanel({revenue=[],locationName='',loading=
  // The existing manager API supplies only the assigned location's payments.
  const {selected,total,modes}=dashboardRevenue(revenue,start,end,today);
  const chart=months.map(m=>({...m,amount:selected.filter(r=>r.date?.startsWith(m.key)).reduce((sum,r)=>sum+Number(r.amount||0),0)})),max=Math.max(1,...chart.map(m=>m.amount));
- return <section className={styles.panel} aria-label="Location-wise monthly revenue" style={{marginTop:16}}>
+ return <section data-card-surface="" className={styles.panel} aria-label="Location-wise monthly revenue" style={{marginTop:16}}>
   <header className={styles.panelHeader}><div><h2>Monthly revenue — {locationName||'Assigned location'}</h2><small>Payments received for your assigned location</small></div><strong>{loading?'…':money(total)}</strong></header>
   <div className={styles.periods}>{[3,6,12].map(n=><button type="button" key={n} aria-pressed={period===n&&!range} onClick={()=>{setPeriod(n);setRange(null);setFrom('');setTo('');}}>Last {n} months</button>)}</div>
   <form className={styles.range} onSubmit={e=>{e.preventDefault();if(!from||!to||from>to)return;setRange({from,to});setPeriod(Math.min(120,Math.max(1,(Number(to.slice(0,4))-Number(from.slice(0,4)))*12+Number(to.slice(5,7))-Number(from.slice(5,7))+1)));}}>

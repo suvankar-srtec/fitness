@@ -12,11 +12,11 @@ export default function ShoppingBag({products,cart,loading,busy,error,method,onM
  const total=cart.reduce((sum,item)=>sum+Number(item.price)*item.quantity,0);
  const count=cart.reduce((sum,item)=>sum+item.quantity,0);
  return <div className={styles.workspace}>
-  <section className={styles.catalog} aria-label="Available supplements">
+  <section data-card-surface="" className={styles.catalog} aria-label="Available supplements">
    <header className={styles.sectionHeading}><h3>Supplements</h3><button type="button" className={styles.cartTrigger} aria-label={"Open cart, "+count+" items"} onClick={()=>setCartOpen(true)}><CommerceIcon name="bag"/><span>{count}</span></button></header>
    <div className={styles.products}>{products.map(product=>{
     const quantity=cart.find(item=>item.product_id===product.id)?.quantity||0;
-    return <article className={styles.product} key={product.id}>
+    return <article data-card-surface="" className={styles.product} key={product.id}>
      <div className={styles.image}>{product.imageUrl?<img src={product.imageUrl} alt={product.name}/>:<CommerceIcon/>}</div>
      <div className={styles.productInfo}><h4>{product.name}</h4>{product.description&&<p title={product.description}>{product.description}</p>}<strong>{money(product.price)}</strong></div>
      <button type="button" disabled={busy||loading||product.stock===0||quantity>0} onClick={()=>onQuantity(product.id,1)}>{product.stock===0?'Out of stock':quantity?'Added':'+ Add'}</button>
@@ -27,7 +27,7 @@ export default function ShoppingBag({products,cart,loading,busy,error,method,onM
   {error&&!cartOpen&&<MessageNotice>{error}</MessageNotice>}
   {cartOpen&&<CartDialog onClose={closeCart}><aside className={styles.cart} aria-label="Member cart">
    <header className={styles.sectionHeading}><h3><CommerceIcon name="bag"/>Cart</h3><span>{count} items</span></header>
-   <div className={styles.items}>{cart.map(item=><article className={styles.item} key={item.product_id}>
+   <div className={styles.items}>{cart.map(item=><article data-card-surface="" className={styles.item} key={item.product_id}>
     <div className={styles.itemTitle}><strong>{item.name}</strong><button type="button" className="secondary" aria-label={'Remove '+item.name} disabled={busy} onClick={()=>onQuantity(item.product_id,0)}>&times;</button></div>
     <div className={styles.itemBottom}><div className={styles.quantity}><button type="button" aria-label={'Decrease '+item.name} disabled={busy} onClick={()=>onQuantity(item.product_id,item.quantity-1)}>−</button><span>{item.quantity}</span><button type="button" aria-label={'Increase '+item.name} disabled={busy||item.quantity>=99} onClick={()=>onQuantity(item.product_id,item.quantity+1)}>+</button></div><strong>{money(Number(item.price)*item.quantity)}</strong></div>
    </article>)}{!cart.length&&<div className={styles.empty}><CommerceIcon name="bag"/><span>{loading?'Loading cart…':purchased?'Purchase recorded':'Your cart is empty'}</span></div>}</div>

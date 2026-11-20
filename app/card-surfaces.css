@@ -1,0 +1,5 @@
+/* APK card coverage; website glass styling remains authoritative. */
+:root{--card-surface-blue:#EDF4FF;--card-surface-white:#ffffff}
+:root[data-gym-theme] body:has(.native-app-navigation) [data-card-surface]{background:var(--card-surface-blue)!important}
+:root[data-gym-theme] body:has(.native-app-navigation) [data-card-surface]:nth-child(even of [data-card-surface]){background:var(--card-surface-white)!important}
+:root[data-gym-theme] body:has(.native-app-navigation) [data-card-surface]>header{background:transparent!important}
