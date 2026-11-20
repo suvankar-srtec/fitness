@@ -10,10 +10,20 @@
   --glass-soft:rgba(224,239,255,.60);
  }
  :root[data-gym-theme] body:not(:has(.native-app-navigation)) .app {
-  background:
-   radial-gradient(ellipse 62% 42% at 92% 2%,rgba(110,171,250,.48),transparent 73%),
-   radial-gradient(ellipse 50% 40% at 20% 90%,rgba(133,195,255,.38),transparent 74%),
-   linear-gradient(135deg,#f5faff 0%,#eaf4ff 55%,#f8fcff 100%)!important;
+  /* Repeating rings and a fine grid reveal the glass on long pages.
+     CSS only: no image downloads or continuous animation. */
+  background-color:#e8f1fc!important;
+  background-image:
+   radial-gradient(circle at 82% 28%,transparent 0 132px,rgba(63,119,201,.22) 133px 135px,transparent 136px 173px,rgba(63,119,201,.12) 174px 176px,transparent 177px),
+   radial-gradient(circle at 8% 80%,transparent 0 98px,rgba(37,144,182,.18) 99px 101px,transparent 102px 140px,rgba(37,144,182,.09) 141px 143px,transparent 144px),
+   linear-gradient(135deg,transparent 44%,rgba(94,150,222,.10) 44.1% 48%,transparent 48.1%),
+   linear-gradient(rgba(64,115,182,.065) 1px,transparent 1px),
+   linear-gradient(90deg,rgba(64,115,182,.065) 1px,transparent 1px),
+   radial-gradient(ellipse at 92% 8%,rgba(92,158,246,.50),transparent 56%),
+   radial-gradient(ellipse at 8% 82%,rgba(80,192,212,.25),transparent 52%),
+   radial-gradient(ellipse at 60% 64%,rgba(153,142,221,.18),transparent 50%)!important;
+  background-size:880px 760px,1080px 920px,960px 820px,64px 64px,64px 64px,1400px 1100px,1200px 1000px,1600px 1200px!important;
+  background-repeat:repeat!important;
   min-height:100dvh;
  }
  :root[data-gym-theme] body:not(:has(.native-app-navigation)) .app>main {
