@@ -1119,3 +1119,19 @@
 
 body .dashboard-back-button{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;margin:14px auto 0;max-width:100%}
 body .staff-qr-dialog>.dashboard-back-button,body .trainer-pass-dialog>.dashboard-back-button{flex:0 0 auto}
+
+/* Compact member records with phone/email sharing the same value column. */
+@media screen and (max-width:850px){
+ :root[data-gym-theme] body .directory-panel table.member-directory-table>tbody>tr{padding:9px 10px!important;row-gap:5px!important}
+ :root[data-gym-theme] body .directory-panel table.member-directory-table>tbody>tr>td:nth-child(3){display:grid!important;grid-template-columns:48px minmax(0,1fr)!important;align-items:start!important;column-gap:7px!important}
+ :root[data-gym-theme] body .directory-panel table.member-directory-table>tbody>tr>td:nth-child(3)::before{grid-column:1;margin:0!important;line-height:1.5!important}
+ :root[data-gym-theme] body .directory-panel table.member-directory-table>tbody>tr>td:nth-child(3) .contact-details{grid-column:2;display:flex!important;flex-direction:column!important;align-items:flex-start!important;flex-wrap:nowrap!important;gap:1px!important;min-width:0;line-height:1.35!important}
+ :root[data-gym-theme] body .directory-panel table.member-directory-table>tbody>tr>td:nth-child(3) .contact-details>a{display:block!important;margin:0!important;max-width:100%;overflow-wrap:anywhere}
+ :root[data-gym-theme] body .directory-panel table.member-directory-table>tbody>tr>td:nth-child(6){display:grid!important;grid-template-columns:48px minmax(0,1fr)!important;column-gap:7px!important;align-items:start!important}
+ :root[data-gym-theme] body .directory-panel table.member-directory-table>tbody>tr>td:nth-child(6)::before{content:'Validity'!important;margin:0!important;line-height:1.5!important}
+ :root[data-gym-theme] body .directory-panel table.member-directory-table .membership-validity{display:flex!important;gap:2px 8px!important;line-height:1.35!important}
+ :root[data-gym-theme] body .directory-panel table.member-directory-table>tbody>tr>td:nth-child(7){margin-top:1px!important}
+ :root[data-gym-theme] body .directory-panel table.member-directory-table>tbody>tr>td:nth-child(7)::before{display:none!important}
+ :root[data-gym-theme] body .directory-panel table.member-directory-table .row-actions{gap:6px!important;margin:0!important}
+ :root[data-gym-theme] body .directory-panel table.member-directory-table .row-actions button{min-height:44px!important;margin:0!important;padding:7px 13px!important}
+}
