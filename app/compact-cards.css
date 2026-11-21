@@ -1116,3 +1116,6 @@
  :root[data-gym-theme] body .directory-panel table.member-directory-table .membership-validity>.membership-validity-status{display:none!important}
  .native-account-popover-heading .native-account-name{overflow-wrap:anywhere;white-space:normal}
 }
+
+body .dashboard-back-button{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;margin:14px auto 0;max-width:100%}
+body .staff-qr-dialog>.dashboard-back-button,body .trainer-pass-dialog>.dashboard-back-button{flex:0 0 auto}

@@ -1,4 +1,5 @@
 'use client';
+import DashboardBackButton from './DashboardBackButton';
 import useDashboardBack from '../hooks/useDashboardBack';
 import NavigationIcon from './NavigationIcon';
 import {useEffect,useState} from 'react';
@@ -55,6 +56,6 @@ export default function MemberDashboard({user,onSignOut}){
  {service==='payment'&&<PaymentInfo initialData={paymentData} onData={setPaymentData}/>}
  {(service==='box'||service==='orders')&&<Supplements key={service} view={service==='orders'?'orders':'products'}/>}
  {service==='videos'&&<section data-card-surface="" className={styles.videos}><VideoLibrary/></section>}
- {service==='pass'&&<section data-card-surface="" className={styles.passView} id="member-pass">{passImage?<img src={passImage} alt={`${user.name}'s organization pass`}/>:<div role="status">{passError?<><p>{passError}</p><button type="button" onClick={()=>setPassRetry(value=>value+1)}>Retry</button></>:'Loading your pass…'}</div>}<div className={styles.passMetadata}><strong>{user.plan}</strong><p>{dateLabel(user.validFrom)} / {dateLabel(user.validTo)}</p>{user.gymPhone&&<a href={'tel:'+user.gymPhone}>Contact organization</a>}</div></section>}
+ {service==='pass'&&<section data-card-surface="" className={styles.passView} id="member-pass">{passImage?<img src={passImage} alt={`${user.name}'s organization pass`}/>:<div role="status">{passError?<><p>{passError}</p><button type="button" onClick={()=>setPassRetry(value=>value+1)}>Retry</button></>:'Loading your pass…'}</div>}<div className={styles.passMetadata}><strong>{user.plan}</strong><p>{dateLabel(user.validFrom)} / {dateLabel(user.validTo)}</p>{user.gymPhone&&<a href={'tel:'+user.gymPhone}>Contact organization</a>}</div><DashboardBackButton/></section>}
  </div></div><AppFooter/></main></div>;
 }

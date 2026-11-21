@@ -205,3 +205,8 @@ body .mobile-navbar-logout:hover{background:#ffffff30}
  body .native-app-drawer .native-support-links a span{overflow-wrap:anywhere}
  body .native-app-drawer .native-drawer-bottom>.sidebar-logout{min-height:40px!important;margin:4px 0 0!important;padding:7px!important}
 }
+
+/* Keep the quick-info title, identity and role distinct and readable. */
+body .native-account-popover-heading .native-quick-info-title{display:block;color:#155cc2!important;font-size:12px;font-weight:750;letter-spacing:.06em}
+body .native-account-popover-heading .native-account-name{display:block;color:#143c72!important;font-size:16px;line-height:1.35;overflow-wrap:anywhere}
+body .native-account-popover-heading .native-account-role{color:#526783!important;font-size:12px;white-space:normal;overflow-wrap:anywhere}
