@@ -1102,3 +1102,17 @@
    font-size:10px!important;
  }
 }
+
+/* Mobile member cards: full-width Location, then Plan + status, then dates. */
+.member-plan-mobile-status{display:none}
+@media screen and (max-width:850px){
+ :root[data-gym-theme] body .directory-panel table.member-directory-table>tbody>tr>td:nth-child(4){grid-area:3 / 1 / 4 / 3!important}
+ :root[data-gym-theme] body .directory-panel table.member-directory-table>tbody>tr>td:nth-child(5){grid-area:4 / 1 / 5 / 3!important;display:flex!important;align-items:center!important;flex-wrap:nowrap!important;gap:8px!important}
+ :root[data-gym-theme] body .directory-panel table.member-directory-table>tbody>tr>td:nth-child(5)::before{content:'Plan';flex:0 0 auto}
+ :root[data-gym-theme] body .directory-panel table.member-directory-table>tbody>tr>td:nth-child(5)>.badge{white-space:nowrap!important;overflow:hidden;text-overflow:ellipsis;min-width:0}
+ :root[data-gym-theme] body .directory-panel table.member-directory-table .member-plan-mobile-status{display:inline-flex;margin-left:auto;flex:0 0 auto}
+ :root[data-gym-theme] body .directory-panel table.member-directory-table>tbody>tr>td:nth-child(6){grid-area:5 / 1 / 6 / 3!important}
+ :root[data-gym-theme] body .directory-panel table.member-directory-table>tbody>tr>td:nth-child(7){grid-area:6 / 1 / 7 / 3!important}
+ :root[data-gym-theme] body .directory-panel table.member-directory-table .membership-validity>.membership-validity-status{display:none!important}
+ .native-account-popover-heading .native-account-name{overflow-wrap:anywhere;white-space:normal}
+}

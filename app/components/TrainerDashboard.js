@@ -1,4 +1,5 @@
 'use client';
+import useDashboardBack from '../hooks/useDashboardBack';
 import {useEffect,useState} from 'react';import {requestApi} from '../../lib/api-client.mjs';import {beginLoading} from '../../lib/loading-state.mjs';
 import NavigationIcon from './NavigationIcon';
 import AppFooter from './AppFooter';
@@ -6,6 +7,7 @@ import GymBrand from './GymBrand';import NavigationLogoCard from './NavigationLo
 import SidebarLogout from './SidebarLogout';import SidebarMenu from './SidebarMenu';import StaffQrButton from './StaffQrButton';import ContactDetails from './ContactDetails';import MembershipValidity from './MembershipValidity';import useWorkspaceRefresh from '../hooks/useWorkspaceRefresh';import {MessageNotice} from './MessagePopup';
 export default function TrainerDashboard({user,onSignOut}){
  const [view,setView]=useState('dashboard'),[members,setMembers]=useState([]),[query,setQuery]=useState(''),[error,setError]=useState(''),[passMember,setPassMember]=useState(null),[passUrl,setPassUrl]=useState('');
+ useDashboardBack(view!=='dashboard',()=>{setView('dashboard');setPassMember(null);});
  async function load(options){try{setMembers(await requestApi('trainer-workspace','GET',undefined,options));setError('');}catch(e){setError(e.message);}}
  useEffect(()=>{load();},[user.id]);useWorkspaceRefresh(true,load);
  useEffect(()=>{if(!passMember)return;let active=true,url;const controller=new AbortController(),done=beginLoading();setPassUrl('');fetch('/api/trainer-member-pass?id='+passMember.id,{credentials:'same-origin',cache:'no-store',signal:controller.signal}).then(async response=>{if(!response.ok)throw Error('Unable to load this member QR pass.');const blob=await response.blob();if(active){url=URL.createObjectURL(blob);setPassUrl(url);}}).catch(e=>{if(active&&e.name!=='AbortError')setError(e.message);}).finally(done);return()=>{active=false;controller.abort();if(url)URL.revokeObjectURL(url);};},[passMember]);

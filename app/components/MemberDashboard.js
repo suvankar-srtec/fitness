@@ -1,4 +1,5 @@
 'use client';
+import useDashboardBack from '../hooks/useDashboardBack';
 import NavigationIcon from './NavigationIcon';
 import {useEffect,useState} from 'react';
 import AccountActions from './AccountActions';
@@ -25,6 +26,7 @@ export default function MemberDashboard({user,onSignOut}){
  const [renewalOpen,setRenewalOpen]=useState(daysLeft>=0&&daysLeft<=7);
  useEffect(()=>{let active=true;const timer=setTimeout(()=>{requestApi('payment-info','GET',undefined,{silent:true}).then(value=>{if(active)setPaymentData(value);}).catch(()=>{});},600);return()=>{active=false;clearTimeout(timer);};},[user.id]);
  const [service,setService]=useState('overview'),[attendance,setAttendance]=useState({days:0,month:'',loading:true});
+ useDashboardBack(service!=='overview',()=>{setService('overview');});
  const [passImage,setPassImage]=useState(''),[passError,setPassError]=useState(''),[passRetry,setPassRetry]=useState(0);
  useEffect(()=>{
   if(service!=='pass')return;
