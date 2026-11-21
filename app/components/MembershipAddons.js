@@ -5,9 +5,9 @@ import {useEffect,useState} from 'react';
 import {requestApi} from '../../lib/api-client.mjs';
 import styles from './MemberRenewal.module.css';
 const Pencil=()=> <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="m16 3 5 5-12 12-6 1 1-6ZM14 5l5 5"/></svg>;
-export default function MembershipAddons({disabled,onChange}){
+export default function MembershipAddons({disabled,onChange,loadEnabled=true}){
  const [enabled,setEnabled]=useState(false),[options,setOptions]=useState([]),[name,setName]=useState(''),[amount,setAmount]=useState(''),[editing,setEditing]=useState(true),[creating,setCreating]=useState(false),[custom,setCustom]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState(''),[loading,setLoading]=useState(true);
- useEffect(()=>{let active=true;requestApi('membership-addons').then(rows=>{if(active)setOptions(rows);}).catch(e=>{if(active)setError(e.message);}).finally(()=>{if(active)setLoading(false);});return()=>{active=false;};},[]);
+ useEffect(()=>{if(!loadEnabled)return;let active=true;requestApi('membership-addons','GET',undefined,{silent:true}).then(rows=>{if(active)setOptions(rows);}).catch(e=>{if(active)setError(e.message);}).finally(()=>{if(active)setLoading(false);});return()=>{active=false;};},[loadEnabled]);
  function choose(value,rows=options){const option=rows.find(row=>row.name===value);setName(value);setAmount(option?.amount??'');setEditing(!option?.amount);onChange({name:value,amount:option?.amount??null});}
  async function add(){if(!custom.trim())return;setBusy(true);setError('');try{const item=await requestApi('membership-addons','POST',{name:custom.trim()}),rows=[...options.filter(o=>o.name.toLowerCase()!==item.name.toLowerCase()),item];setOptions(rows);choose(item.name,rows);setCustom('');setCreating(false);}catch(e){setError(e.message);}finally{setBusy(false);}}
  async function savePrice(){setBusy(true);setError('');try{const item=await requestApi('membership-addons','PATCH',{name,amount});setOptions(rows=>[...rows.filter(o=>o.name!==item.name),item]);setAmount(item.amount);setEditing(false);onChange(item);}catch(e){setError(e.message);}finally{setBusy(false);}}

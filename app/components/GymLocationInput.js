@@ -5,16 +5,16 @@ import {useEffect,useId,useLayoutEffect,useRef,useState} from 'react';
 import {createPortal} from 'react-dom';
 import {requestApi} from '../../lib/api-client.mjs';
 import {normalizeLocationName} from '../../lib/gym-locations.mjs';
-export default function GymLocationInput({id,gymAdminId,defaultValue='',onChange}){
+export default function GymLocationInput({id,gymAdminId,defaultValue='',onChange,enabled=true}){
  const listId=useId(),field=useRef(null),input=useRef(null),menu=useRef(null),refresh=useRef(()=>{});
  const [locations,setLocations]=useState([]),[value,setValue]=useState(()=>normalizeLocationName(defaultValue)||''),[error,setError]=useState(''),[open,setOpen]=useState(false),[showAll,setShowAll]=useState(true),[active,setActive]=useState(-1),[position,setPosition]=useState({left:0,top:0,width:0});
  const options=locations.filter(location=>showAll||location.name.toLowerCase().includes(value.trim().toLowerCase()));
  useEffect(()=>{
-  if(!gymAdminId)return;let current=true,pending=false,firstLoad=true;
+  if(!enabled||!gymAdminId)return;let current=true,pending=false,firstLoad=true;
   async function load(){if(pending)return;pending=true;const options={silent:!firstLoad};firstLoad=false;try{const rows=await requestApi('gym-locations?adminId='+encodeURIComponent(gymAdminId),'GET',undefined,options);if(current){setLocations(rows.filter(location=>normalizeLocationName(location.name)));setError('');}}catch(error){if(current)setError(error.message);}finally{pending=false;}}
   refresh.current=load;load();window.addEventListener('focus',load);
   return()=>{current=false;refresh.current=()=>{};window.removeEventListener('focus',load);};
- },[gymAdminId]);
+ },[gymAdminId,enabled]);
  useLayoutEffect(()=>{
   if(!open)return;
   const place=()=>{const rect=field.current.getBoundingClientRect(),width=Math.min(rect.width,window.innerWidth-16);if(menu.current)menu.current.style.width=width+'px';const height=Math.min(menu.current?.offsetHeight||180,180),below=window.innerHeight-rect.bottom;setPosition({left:Math.max(8,Math.min(rect.left,window.innerWidth-width-8)),top:below<height+8&&rect.top>height?rect.top-height-5:rect.bottom+5,width});};

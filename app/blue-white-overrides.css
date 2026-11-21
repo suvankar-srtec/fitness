@@ -514,3 +514,9 @@ body .supervisor-focus-app>.sidebar>.nav-brand-credit+.sidebar-logout{margin-top
   height:88px!important;
  }
 }
+
+@media screen and (max-width:850px){
+ :root[data-gym-theme] body dialog.native-app-drawer[open] .mobile-drawer-scroll,
+ :root[data-gym-theme] body dialog.native-app-drawer[open] .mobile-drawer-navigation,
+ :root[data-gym-theme] body dialog.native-app-drawer[open] .mobile-drawer-navigation :is(nav,.sidebar-actions,.plan-menu,.sidebar-inline-submenu){background:#edf4ff!important}
+}

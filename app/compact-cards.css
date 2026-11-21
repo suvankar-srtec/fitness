@@ -1135,3 +1135,8 @@ body .staff-qr-dialog>.dashboard-back-button,body .trainer-pass-dialog>.dashboar
  :root[data-gym-theme] body .directory-panel table.member-directory-table .row-actions{gap:6px!important;margin:0!important}
  :root[data-gym-theme] body .directory-panel table.member-directory-table .row-actions button{min-height:44px!important;margin:0!important;padding:7px 13px!important}
 }
+
+.member-plan-duration{display:flex;flex-direction:column;gap:6px;padding:12px;border:1px solid #d3e2f7;border-radius:10px;background:#edf4ff;color:#173e70}
+.member-plan-duration span{font-size:13px}.member-plan-duration strong{font-size:16px}
+.member-inline-load-error{font-size:12px;color:#526783;line-height:1.4}.member-inline-load-error button{margin-left:4px}
+body .member-info-tabs{display:flex;flex-wrap:wrap;gap:6px}
