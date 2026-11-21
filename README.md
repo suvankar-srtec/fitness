@@ -148,3 +148,9 @@ Run `npm run db:setup` before deploying this version to a new database. The subs
 Superadmin can read all gyms and platform activity. Admin can read all activity in their own gym, including their own actions and those of managers, supervisors and members. Managers can read their own actions and manager, supervisor and member activity within their assigned gym location. All checks are server-side.
 
 Audit triggers cover account and session changes, verification metadata, gym subscription limits, members, measurements, groups, leads and follow-ups, plans and add-ons, memberships and payments, supplements, carts and orders, videos, passes, scans and attendance, and renewal reminders. History remains append-only. Passwords, OTP values, token hashes, QR secrets and image bytes are excluded. Newly covered existing records are labelled Existing record; past unlogged actions cannot be reconstructed.
+
+## Plan packages
+
+Plans start with Gym and Yoga packages. Use + beside Package to add categories such as Pilates or Zumba; a new category is retained when its plan is saved. Existing plans default to Gym. Each category can have its own plan name, price and duration, and appears in member creation, editing and renewal choices.
+
+For an existing database, run `node scripts/migrate-plan-categories.mjs` with the target DATABASE_URL configured before deploying the category-aware API. The migration keeps existing plans and member assignments. New database setup includes the same migration.

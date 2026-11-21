@@ -1,3 +1,4 @@
+import {ensurePlanCategorySchema} from './plan-category-schema.mjs';
 import {ensureTrainerSchema} from './trainer-schema.mjs';
 import {ensureAnnouncementsSchema} from './announcements-schema.mjs';
 import {ensureMemberWelcomeSchema} from './member-welcome-schema.mjs';
@@ -52,8 +53,7 @@ await sql`ALTER TABLE plans ADD COLUMN IF NOT EXISTS duration_days INTEGER CHECK
 await sql`ALTER TABLE plans ADD COLUMN IF NOT EXISTS amount NUMERIC(12,2) CHECK(amount>=0)`;
 await sql`ALTER TABLE plans ADD COLUMN IF NOT EXISTS description TEXT NOT NULL DEFAULT ''`;
 await sql`ALTER TABLE plans ADD COLUMN IF NOT EXISTS archived BOOLEAN NOT NULL DEFAULT FALSE`;
-await sql`DROP INDEX IF EXISTS plans_admin_name`;
-await sql`CREATE UNIQUE INDEX plans_admin_name ON plans(admin_id,lower(name)) WHERE archived=FALSE`;
+await ensurePlanCategorySchema(sql);
 await sql`ALTER TABLE members DROP CONSTRAINT IF EXISTS members_plan_check`;
 await sql`ALTER TABLE members ADD COLUMN IF NOT EXISTS plan_id INTEGER REFERENCES plans(id)`;
 await sql`INSERT INTO plans(admin_id,name) SELECT DISTINCT m.admin_id,m.plan FROM members m WHERE m.plan_id IS NULL AND NOT EXISTS(SELECT 1 FROM plans p WHERE p.admin_id=m.admin_id AND lower(p.name)=lower(m.plan)) ON CONFLICT DO NOTHING`;

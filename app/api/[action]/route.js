@@ -232,21 +232,21 @@ try {
   if(req.method==='POST')return fail('Only the assigned location manager can create supervisors',403);
  }
  if(action==='plans'){
-  if(req.method==='GET'&&u.role==='superadmin')return response(await sql`SELECT p.id,p.name,p.duration_days,p.amount,p.description,COALESCE(NULLIF(u.gym_name,''),u.name) AS admin_name FROM plans p JOIN users u ON p.admin_id=u.id WHERE p.archived=FALSE ORDER BY p.id DESC`);
+  if(req.method==='GET'&&u.role==='superadmin')return response(await sql`SELECT p.id,p.name,p.duration_days,p.amount,p.description,p.category,COALESCE(NULLIF(u.gym_name,''),u.name) AS admin_name FROM plans p JOIN users u ON p.admin_id=u.id WHERE p.archived=FALSE ORDER BY p.id DESC`);
   if(u.role==='manager'&&['POST','PATCH'].includes(req.method))return fail('Only organization admins can create or edit plans',403);
   if(!['admin','manager'].includes(u.role)&&!(u.role==='superadmin'&&req.method==='PATCH'))return fail('Admin access required',403);
-  if(req.method==='GET')return response(await sql`SELECT id,name,duration_days,amount,description FROM plans WHERE admin_id=${gymId} AND archived=FALSE ORDER BY id DESC`);
+  if(req.method==='GET')return response(await sql`SELECT id,name,duration_days,amount,description,category FROM plans WHERE admin_id=${gymId} AND archived=FALSE ORDER BY id DESC`);
   if(['POST','PATCH'].includes(req.method)){
    const b=await req.json(),plan=validatePlan(b);if(plan.error)return fail(plan.error,400);
    if(req.method==='PATCH'){
     if(!Number.isInteger(b.id)||b.id<=0)return fail('Invalid plan',400);
-    const [updated]=await sql`UPDATE plans SET name=${plan.name},duration_days=${plan.durationDays},amount=${plan.amount},description=${plan.description} WHERE id=${b.id} AND (${u.role}='superadmin' OR admin_id=${gymId}) AND archived=FALSE RETURNING id,name,duration_days,amount,description`;
+    const [updated]=await sql`UPDATE plans SET name=${plan.name},duration_days=${plan.durationDays},amount=${plan.amount},description=${plan.description},category=${plan.category} WHERE id=${b.id} AND (${u.role}='superadmin' OR admin_id=${gymId}) AND archived=FALSE RETURNING id,name,duration_days,amount,description,category`;
     return updated?response(updated):fail('Plan not found',404);
    }
    const adminId=u.role==='admin'?u.id:Number(b.adminId);
    if(!Number.isInteger(adminId)||adminId<1)return fail('Select a organization',400);
    const [gym]=await sql`SELECT id FROM users WHERE id=${adminId} AND role='admin'`;if(!gym)return fail('Select a valid organization',400);
-   const [created]=await sql`INSERT INTO plans(admin_id,name,duration_days,amount,description) VALUES(${adminId},${plan.name},${plan.durationDays},${plan.amount},${plan.description}) ON CONFLICT DO NOTHING RETURNING id,name,duration_days,amount,description`;
+   const [created]=await sql`INSERT INTO plans(admin_id,name,duration_days,amount,description,category) VALUES(${adminId},${plan.name},${plan.durationDays},${plan.amount},${plan.description},${plan.category}) ON CONFLICT DO NOTHING RETURNING id,name,duration_days,amount,description,category`;
    return created?response(created,201):fail('Plan already exists',409);
   }
  }

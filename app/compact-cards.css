@@ -1140,3 +1140,38 @@ body .staff-qr-dialog>.dashboard-back-button,body .trainer-pass-dialog>.dashboar
 .member-plan-duration span{font-size:13px}.member-plan-duration strong{font-size:16px}
 .member-inline-load-error{font-size:12px;color:#526783;line-height:1.4}.member-inline-load-error button{margin-left:4px}
 body .member-info-tabs{display:flex;flex-wrap:wrap;gap:6px}
+
+/* Plan fields share a single label/value alignment on every screen. */
+body .member-form-overlay .member-plan-grid:not([hidden]){display:block!important}
+body .member-registration .member-plan-info-table{display:table!important;width:100%!important;min-width:0!important;table-layout:fixed;border-collapse:collapse;border:1px solid #cfdef1;background:#fff}
+body .member-registration .member-plan-info-table .plan-info-label-column{width:27%}
+body .member-registration .member-plan-info-table :is(th,td){padding:10px 12px!important;text-align:left!important;vertical-align:middle;border:1px solid #dbe6f4;font-size:14px}
+body .member-registration .member-plan-info-table thead th{background:#edf4ff!important;color:#155cc2;font-weight:700}
+body .member-registration .member-plan-info-table tbody th{background:#f5f8fe;color:#405975;font-weight:600}
+body .member-registration .member-plan-info-table label{margin:0!important;font:inherit;color:inherit}
+body .member-registration .member-plan-info-table :is(input,select){box-sizing:border-box;width:100%!important;min-width:0!important;min-height:40px;margin:0!important}
+body .member-registration .member-plan-info-table .member-plan-duration{display:inline;padding:0;border:0;background:transparent;color:#173e70}
+body .member-registration .member-plan-info-table .member-plan-duration strong{font-size:14px}
+@media(max-width:850px){
+ body .member-registration .member-plan-info-table .plan-info-label-column{width:29%}
+ body .member-registration .member-plan-info-table :is(th,td){padding:8px 7px!important;font-size:12px}
+ body .member-registration .member-plan-info-table :is(input,select){min-height:44px;font-size:13px}
+}
+
+body .member-registration .member-plan-info-table .plan-info-name-column{width:40%}
+body .member-registration .member-plan-info-table tbody td{vertical-align:middle!important}
+@media(max-width:850px){
+ body .member-registration .member-plan-grid:not([hidden]){overflow-x:visible}
+ body .member-registration .member-plan-info-table{min-width:0!important}
+ body .member-registration .member-plan-info-table .plan-info-name-column{width:34%}
+}
+
+@media(max-width:850px){body .member-registration .member-plan-info-table :is(th,td){padding:7px 3px!important;font-size:10px}body .member-registration .member-plan-info-table :is(input,select){font-size:11px!important;padding-inline:2px!important}body .member-registration .member-plan-info-table .member-plan-duration strong{font-size:11px}}
+
+body .member-registration .member-plan-info-table .plan-info-name-column{width:30%}
+body .member-registration .member-plan-info-table #membership{max-width:275px!important}
+.plan-packages{display:grid;gap:24px}.plan-package-group{min-width:0}.plan-package-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.plan-package-heading h2{margin:0;color:#155cc2;font-size:22px}.plan-package-heading p{margin:4px 0 0;color:#405975;font-size:13px}.plan-package-empty{margin:0;padding:22px;border:1px dashed #a8c2e5;border-radius:14px;background:rgba(237,244,255,.8);color:#405975}
+@media(max-width:850px){.plan-package-heading{align-items:flex-start;flex-wrap:wrap}.plan-package-heading h2{font-size:19px}body .member-registration .member-plan-info-table #membership{max-width:100%!important}}
+
+.plan-package-select-row{display:flex;align-items:center;gap:8px}.plan-package-select-row select{flex:1;min-width:0;margin:0!important}.plan-package-select-row .plan-package-add{flex:0 0 44px;width:44px;height:44px;min-height:44px;padding:0;font-size:24px;line-height:1}
+.plan-package-create{display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin:9px 0}.plan-package-create input{flex:1 1 180px;min-width:0;margin:0!important}.plan-package-create button{flex:0 0 auto}.plan-package-error{font-size:13px;color:#b91c1c}
