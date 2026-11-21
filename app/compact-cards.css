@@ -1175,3 +1175,19 @@ body .member-registration .member-plan-info-table #membership{max-width:275px!im
 
 .plan-package-select-row{display:flex;align-items:center;gap:8px}.plan-package-select-row select{flex:1;min-width:0;margin:0!important}.plan-package-select-row .plan-package-add{flex:0 0 44px;width:44px;height:44px;min-height:44px;padding:0;font-size:24px;line-height:1}
 .plan-package-create{display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin:9px 0}.plan-package-create input{flex:1 1 180px;min-width:0;margin:0!important}.plan-package-create button{flex:0 0 auto}.plan-package-error{font-size:13px;color:#b91c1c}
+
+/* Use the available desktop navbar height for evenly spaced top-level menus.
+   Expanded submenus grow the scrollable area, never the fixed sidebar. */
+@media screen and (min-width:851px){
+ :root[data-gym-theme] body .app.management-app>.sidebar>.management-nav-wrap{display:flex!important;flex-direction:column!important;flex:1 1 0!important;min-height:0!important;max-height:none!important;padding:8px!important;overflow-y:auto!important;overflow-x:hidden!important}
+ :root[data-gym-theme] body .app.management-app>.sidebar .sidebar-actions{display:flex!important;flex-direction:column!important;flex-wrap:nowrap!important;align-items:stretch!important;justify-content:space-between!important;min-height:100%!important;height:auto!important;width:100%!important;gap:10px!important;flex:1 0 auto!important;box-sizing:border-box!important}
+ :root[data-gym-theme] body .app.management-app>.sidebar .sidebar-actions>:is(button,.plan-menu){flex:0 0 auto!important;min-width:0!important;width:100%!important}
+ :root[data-gym-theme] body .app.management-app>.sidebar .sidebar-actions>:is(button,.plan-menu)>.plan-menu-toggle,
+ :root[data-gym-theme] body .app.management-app>.sidebar .sidebar-actions>button{min-height:40px!important;padding-block:9px!important}
+ :root[data-gym-theme] body .app.management-app>.sidebar .sidebar-inline-submenu{position:static!important;display:flex!important;flex-direction:column!important;flex-wrap:nowrap!important;gap:5px!important;margin:5px 0 2px 12px!important;width:calc(100% - 12px)!important;box-sizing:border-box!important}
+ :root[data-gym-theme] body .app.management-app>.sidebar .sidebar-inline-submenu[hidden]{display:none!important}
+ :root[data-gym-theme] body .app.management-app>.sidebar .sidebar-inline-submenu button{flex:0 0 auto!important;min-width:0!important;width:100%!important}
+}
+@media screen and (max-width:850px){
+ :root[data-gym-theme] body dialog.mobile-drawer[open] .mobile-drawer-navigation :is(.sidebar-actions,.supervisor-task-nav){gap:9px!important;justify-content:flex-start!important}
+}
