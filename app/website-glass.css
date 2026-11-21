@@ -219,3 +219,22 @@
   background-size:640px 640px,840px 840px,1300px 1000px,1100px 900px!important;
  }
 }
+
+/* Desktop: richer backdrop with brighter glass and readable secondary text. */
+@media screen and (min-width:851px){
+ :root[data-gym-theme] body:not(:has(.native-app-navigation)){
+  --glass-surface:rgba(255,255,255,.84);
+  --glass-soft:rgba(237,246,255,.86);
+  --glass-edge:rgba(81,126,188,.46);
+ }
+ :root[data-gym-theme] body:not(:has(.native-app-navigation)) .app[data-workspace-role]{background-color:var(--desktop-glass-base,#a8c3e6)!important}
+ :root[data-gym-theme] body:not(:has(.native-app-navigation)) .app[data-workspace-role="superadmin"]{--desktop-glass-base:#b3bce1}
+ :root[data-gym-theme] body:not(:has(.native-app-navigation)) .app[data-workspace-role="manager"]{--desktop-glass-base:#a6c4df}
+ :root[data-gym-theme] body:not(:has(.native-app-navigation)) .app[data-workspace-role="member"]{--desktop-glass-base:#abc9e7}
+ :root[data-gym-theme] body:not(:has(.native-app-navigation)) .app[data-workspace-role="employee"]{--desktop-glass-base:#a8cbd6}
+ :root[data-gym-theme] body:not(:has(.native-app-navigation)) .app[data-workspace-role="trainer"]{--desktop-glass-base:#b4c0e3}
+ :root[data-gym-theme] body:not(:has(.native-app-navigation)) .app main [data-card-surface]{border-color:rgba(255,255,255,.96)!important;box-shadow:0 10px 28px rgba(21,57,107,.16),inset 0 1px 0 #fff!important}
+ :root[data-gym-theme] body:not(:has(.native-app-navigation)) .app .workspace-topbar{background:rgba(255,255,255,.82);box-shadow:0 6px 20px rgba(21,57,107,.10)}
+ :root[data-gym-theme] body:not(:has(.native-app-navigation)) .app main :is(.muted,[class*="statLabel"],[class*="eyebrow"],.overview-title){color:#405975!important}
+ :root[data-gym-theme] body:not(:has(.native-app-navigation)) .app main [class*="AdminHome_stats"] article>small{color:#4a6079!important}
+}
